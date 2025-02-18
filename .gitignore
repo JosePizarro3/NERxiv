@@ -169,3 +169,21 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# version
+_version.py
+
+# VSCode settings
+.vscode/launch.json
+
+# Ruff
+.ruff_cache
+
+# pytest coverage
+pytest.xml
+pytest-coverage.txt
+
+# artifacts
+artifacts
+# and tmp files
+tmp/
