@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 class Author(BaseModel):
     name: str = Field(..., description="The name of the author.")
     affiliation: Optional[str] = Field("", description="The affiliation of the author.")
+    email: Optional[str] = Field("", description="The email of the author.")
 
 
 class ArxivPaper(BaseModel):
@@ -22,10 +23,10 @@ class ArxivPaper(BaseModel):
         ...,
         description="The URL of the PDF of the arXiv paper. Example: http://arxiv.org/pdf/2502.10245v1",
     )
-    updated: datetime.datetime = Field(
+    updated: Optional[datetime.datetime] = Field(
         ..., description="The date when the paper was updated."
     )
-    published: datetime.datetime = Field(
+    published: Optional[datetime.datetime] = Field(
         ..., description="The date when the paper was published."
     )
 

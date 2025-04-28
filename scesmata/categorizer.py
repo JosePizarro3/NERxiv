@@ -1,5 +1,6 @@
 import json
 import re
+from typing import Optional
 
 from sentence_transformers import SentenceTransformer, util
 
@@ -30,17 +31,6 @@ class Chunking:
         self.model = SentenceTransformer(model_name)
         self.logger.info(f"Loaded SentenceTransformer model: {model_name}")
 
-    @property
-    def query(self):
-        """
-        Defines the query using the `sces_methods.json` information.
-        """
-        return f"""What experimental or computational methods were used in this text? The field is Condensed Matter Physics applied to strongly correlated electrons systems
-
-        Typical examples are defined in this list: {sces_methods_list()}
-
-        Do not constraint yourself to the values in the list, but based your answer mostly on the list."""
-
     def chunk_text(self, max_length: int = 500):
         """Split text into chunks while keeping sentences whole."""
         sentences = re.split(r"(?<=[.!?]) +", self.text)  # Split at sentence boundaries
@@ -63,10 +53,11 @@ class Chunking:
         self,
         max_length: int = 500,
         n_top_chunks: int = 10,
+        query: Optional[str] = None,
     ):
         """Find the most relevant chunks describing methods."""
         chunks = self.chunk_text(max_length=max_length)
-        query_embedding = self.model.encode(self.query, convert_to_tensor=True)
+        query_embedding = self.model.encode(query, convert_to_tensor=True)
         chunk_embeddings = self.model.encode(chunks, convert_to_tensor=True)
 
         # TODO check other similarities
@@ -82,6 +73,50 @@ class Chunking:
         return top_chunks
 
 
+class LLMQuery:
+    @property
+    def field(self) -> str:
+        return """
+        The following text contains a research article in the field of Strongly Correlated Electrons System in Condensed Matter Physics.
+        """
+
+    @property
+    def query(self):
+        """
+        Defines the query using the `sces_methods.json` information.
+        """
+        return f"""What experimental or computational methods were used in this text? The field is Condensed Matter Physics applied to strongly correlated electrons systems
+
+        Typical examples are defined in this list: {sces_methods_list()}
+
+        Do not constraint yourself to the values in the list, but based your answer mostly on the list."""
+
+    @property
+    def query_exp_comp(self) -> str:
+        """
+        Defines the query using the `sces_methods.json` information.
+        """
+        return f"""{self.field}
+
+        Is the article describing an experimental or a computational activity, or a combination of both?
+
+        Return your answer as a list with the format ["experimental", "computational", "both"].
+        """
+
+    @property
+    def query_method(self):
+        """
+        Defines the query using the `sces_methods.json` information.
+        """
+        return f"""{self.field}
+
+        What experimental or computational methods were used in this text?
+
+        Typical examples are defined in this list: {sces_methods_list()}
+
+        Do not constraint yourself to the values in the list, but based your answer mostly on the list."""
+
+
 class Categorizer:
     def __init__(self, **kwargs):
         self.logger = kwargs.get("logger", logger)
@@ -95,7 +130,9 @@ class Categorizer:
 
         Map each method to its canonical form based on the following list: {sces_methods_list()}
 
-        Return the methods as a JSON list of canonical forms. If a method is not in the list but is relevant, include it as-is.
+        Return the methods in a list format, using the same strings as in the list mentioned above.
+        If a method is not in the list but is relevant, include it as-is.
+        No extract text, only the list of methods used in the text.
 
         Text: "{chunk}"
         """
@@ -107,3 +144,29 @@ papers = ArxivFetcher().fetch_and_extract(max_results=1)
 paper = papers[0]
 text = paper.text
 top_chunks = Chunking(text=text).relevant_chunks(n_top_chunks=10)
+
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
+
+def count_tokens(text: str) -> int:
+    return len(tokenizer.encode(text, add_special_tokens=False))
+
+
+for chunk in top_chunks:
+    print(f"Chunk length: {count_tokens(chunk)}")
+
+
+from langchain_community.llms.llamacpp import LlamaCpp
+from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
+from langchain_core.prompts import PromptTemplate
+
+# Callbacks support token-wise streaming
+callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+llm = LlamaCpp(
+    model_path="/home/jpizarro/work/llmodels/llama-2-7b.Q4_K_M.gguf",
+    callback_manager=callback_manager,
+    max_tokens=500,
+    verbose=True,
+)

@@ -2,6 +2,7 @@ import io
 import re
 import urllib.request
 from pathlib import Path
+from typing import Optional
 
 import requests
 import xmltodict
@@ -23,23 +24,6 @@ class ArxivFetcher:
         # ! an initial short paper is used to warm up the `requests` session connection
         # ! otherwise, long papers get stuck on `requests.get()` due to connection timeouts
         self.session.head("http://arxiv.org/pdf/2502.10309v1", timeout=30)
-
-    def get_pages_and_figures(self, comment: str) -> tuple:
-        """
-        Extract the number of pages and figures from the comment of the arXiv paper.
-
-        Args:
-            comment (str): A string containing the comment of the arXiv paper.
-
-        Returns:
-            tuple: A tuple containing the number of pages and figures.
-        """
-        pattern = r"(\d+) *pages, *(\d+) *figures"
-        match = re.search(pattern, comment)
-        if match:
-            n_pages, n_figures = match.groups()
-            return int(n_pages), int(n_figures)
-        return None, None
 
     def fetch(
         self,
@@ -65,7 +49,7 @@ class ArxivFetcher:
         # Extracting papers from the XML response
         papers = data_dict.get("feed", {}).get("entry", [])
         if not papers:
-            self.logger.info("No papers found.")
+            self.logger.info("No papers found in the response")
             return []
         # In case `max_results` is 1, the response is not a list
         if not isinstance(papers, list):
@@ -76,25 +60,32 @@ class ArxivFetcher:
         for paper in papers:
             # If there is an error in the fetching, skip the paper
             if "Error" in paper.get("title", ""):
-                self.logger.error(f"Error fetching paper: {paper}.")
+                self.logger.error("Error fetching the paper")
                 continue
 
             # If there is no `id`, skip the paper
             url_id = paper.get("id")
-            if not url_id:
-                self.logger.error(f"Paper without valid URL id: {paper}.")
+            if not url_id or "arxiv.org" not in url_id:
+                self.logger.error(f"Paper without a valid URL id: {url_id}")
                 continue
 
             # If there is no `summary`, skip the paper
             if not paper.get("summary"):
-                self.logger.error(f"Paper without summary/abstract: {paper}.")
+                self.logger.error("Paper without summary/abstract")
                 continue
 
-            # Extracting `authors` and `categories` from the XML response
+            # Extracting `authors` from the XML response
+            paper_authors = paper.get("author", [])
+            if not isinstance(paper_authors, list):
+                paper_authors = [paper_authors]
             authors = [
                 Author(name=author.get("name"), affiliation=author.get("affiliation"))
-                for author in paper.get("author", [])
+                for author in paper_authors
             ]
+            if not authors:
+                self.logger.info("\tPaper without authors.")
+
+            # Extracting `categories` from the XML response
             arxiv_categories = paper.get("category", [])
             if not isinstance(arxiv_categories, list):
                 categories = [arxiv_categories.get("@term")]
@@ -130,43 +121,78 @@ class ArxivFetcher:
 
         return arxiv_papers
 
-    def download_pdf(self, arxiv_paper: ArxivPaper) -> None:
+    def get_pages_and_figures(
+        self, comment: str
+    ) -> tuple[Optional[int], Optional[int]]:
+        """
+        Extract the number of pages and figures from the comment of the arXiv paper.
+
+        Args:
+            comment (str): A string containing the comment of the arXiv paper.
+
+        Returns:
+            tuple: A tuple containing the number of pages and figures.
+        """
+        pattern = r"(\d+) *pages*, *(\d+) *figures*"
+        match = re.search(pattern, comment)
+        if match:
+            n_pages, n_figures = match.groups()
+            return int(n_pages), int(n_figures)
+        return None, None
+
+    def download_pdf(self, arxiv_paper: ArxivPaper, write: bool = True) -> str:
         """
         Download the PDF of the arXiv paper and stores it in the `data` folder using the `arxiv_paper.id` to name the PDF file.
 
         Args:
             arxiv_paper (ArxivPaper): The arXiv paper object to be queried and stored.
+            write (bool): If True, the PDF will be written to the `data/` folder.
+
+        Returns:
+            str: The path to the downloaded PDF file.
         """
+        pdf_path = Path("")
         try:
             response = self.session.get(arxiv_paper.pdf_url, stream=True, timeout=60)
             response.raise_for_status()
 
-            pdf_path = f"data/{arxiv_paper.id}.pdf"
+            pdf_path = Path(f"data/{arxiv_paper.id}.pdf")
 
-            with open(pdf_path, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
+            if write:
+                with open(pdf_path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
 
             self.logger.info(f"PDF downloaded: {pdf_path}")
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Failed to download PDF: {e}")
+            pdf_path = None
+        return pdf_path
 
-    def extract_text_from_pdf(self, arxiv_paper: ArxivPaper) -> str:
+    def extract_text_from_pdf(
+        self, arxiv_paper: ArxivPaper, data_folder: str = "data"
+    ) -> str:
         """
         Extract text from the PDF of the arXiv paper.
 
         Args:
             arxiv_paper (ArxivPaper): The arXiv paper object to extract the text from.
+            data_folder (str): The folder where the PDF is stored. Defaults to "data/" in the project root folder.
 
         Returns:
             str: The text extracted from the PDF.
         """
-        pdf_path = Path(f"data/{arxiv_paper.id}.pdf")
+        pdf_path = Path(f"{data_folder}/{arxiv_paper.id}.pdf")
         if not pdf_path.exists():
-            self.download_pdf(arxiv_paper=arxiv_paper)
+            pdf_path = self.download_pdf(arxiv_paper=arxiv_paper)
+            if not pdf_path:
+                self.logger.error(
+                    "Could not find the PDF file, not even in ArXiv. Returning an empty string for the text."
+                )
+                return ""
         text = ""
-        with open(f"data/{arxiv_paper.id}.pdf", "rb") as f:
+        with open(pdf_path, "rb") as f:
             reader = PdfReader(f)
             text = "\n".join(
                 [page.extract_text() for page in reader.pages if page.extract_text()]
@@ -178,9 +204,9 @@ class ArxivFetcher:
         Extract text from the arXiv paper and reads the information from the PDF.
 
         Note:
-            # ! This method does not work if the `arxiv_paper` is large. In that case, downloading
-            # ! the PDF and extracting the text from the PDF is faster and can handle larger pdf files.
-            # ! In `fetch_and_extract`, we use the `extract_text_from_pdf` method.
+            This method does not work if the `arxiv_paper` is large. In that case, downloading
+            the PDF and extracting the text from the PDF is faster and can handle larger pdf files.
+            In `fetch_and_extract`, we use the `extract_text_from_pdf` method.
 
         Args:
             arxiv_paper (ArxivPaper): The arXiv paper object to extract the text from.
