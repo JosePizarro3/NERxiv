@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 import requests
 import xmltodict
+from pdfminer.high_level import extract_text
 from pypdf import PdfReader
 
 from scesmata.datamodel import ArxivPaper, Author
@@ -184,9 +185,9 @@ class TextExtractor:
     def __init__(self, **kwargs):
         self.logger = kwargs.get("logger", logger)
 
-    def from_pdf(self, pdf_path: Optional[str] = ".") -> str:
+    def with_pypdf(self, pdf_path: Optional[str] = ".") -> str:
         """
-        Extract text from a PDF locally stored in `pdf_path`.
+        Extract text from a PDF locally stored in `pdf_path` using the `pypdf` package.
 
         Args:
             pdf_path (Optional[str]): The path to the PDF file.
@@ -213,6 +214,36 @@ class TextExtractor:
             )
         return text
 
+    def with_pdfminer(self, pdf_path: Optional[str] = ".") -> str:
+        """
+        Extract text from a PDF locally stored in `pdf_path` using the `pdfminer.six` package.
+
+        ! Note: this is the prefered option to extract the text from the PDF.
+
+        Args:
+            pdf_path (Optional[str]): The path to the PDF file.
+
+        Returns:
+            str: The text extracted from the PDF.
+        """
+        if not pdf_path:
+            self.logger.error(
+                "No PDF path provided. Returning an empty string for the text."
+            )
+            return ""
+        filepath = Path(pdf_path)
+        if not filepath.exists() or not pdf_path.endswith(".pdf"):
+            self.logger.error(
+                "Could not find the PDF file. Returning an empty string for the text."
+            )
+            return ""
+        try:
+            text = extract_text(filepath)
+        except Exception as e:
+            self.logger.error(f"Error extracting text from PDF: {e}")
+            text = ""
+        return text
+
     def delete_references(self, text: str) -> str:
         """
         Delete the references section from the text by detecting where its section might be.
@@ -235,6 +266,43 @@ class TextExtractor:
                 return text[:start] + text[end:]
             return text[:start]
         return text
+
+    def clean_text(self, text: str = "") -> str:
+        """
+        Clean and normalize extracted PDF text.
+
+        - Remove hyphenation across line breaks.
+        - Normalize excessive line breaks and spacing.
+        - Remove arXiv identifiers and footnotes.
+        - Strip surrounding whitespace.
+
+        Args:
+            text (str): Raw text extracted from a PDF.
+
+        Returns:
+            str: Cleaned text.
+        """
+        if not text:
+            self.logger.warning("No text provided for cleaning.")
+            return ""
+
+        # Replace newline characters with spaces
+        text = re.sub(r"\n+", " ", text)
+
+        # Fix hyphenated line breaks: e.g., "super-\nconductivity" → "superconductivity"
+        text = re.sub(r"-\s*\n\s*", "", text)
+
+        # Replace multiple newlines with a single newline
+        text = re.sub(r"\n{2,}", "\n\n", text)
+
+        # Remove arXiv identifiers like 'arXiv:2301.12345'
+        text = re.sub(r"arXiv:\d{4}\.\d{4,5}(v\d+)?", "", text)
+
+        # Normalize spacing
+        text = re.sub(r"[ \t]+", " ", text)  # collapse multiple spaces/tabs
+        text = re.sub(r"\n[ \t]+", "\n", text)  # remove indentations
+
+        return text.strip()
 
     def chunk_text(self, text: str = "", max_length: int = 500) -> list[str]:
         """
@@ -314,7 +382,9 @@ def fetch_and_extract(
         # Download the PDF to `data_folder`
         pdf_path = fetcher.download_pdf(data_folder=data_folder, arxiv_paper=paper)
         # Extracts text from the PDF
-        text = text_extractor.from_pdf(pdf_path=pdf_path)
+        # text = text_extractor.with_pypdf(pdf_path=pdf_path)
+        text = text_extractor.with_pdfminer(pdf_path=pdf_path)
+        text = text_extractor.clean_text(text=text)
         if not text:
             logger.info("No text extracted from the PDF.")
             continue

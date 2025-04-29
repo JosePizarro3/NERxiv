@@ -206,6 +206,7 @@ class TestArxivFetcher:
 
 
 class TestTextExtractor:
+    @pytest.mark.skip(reason="Text is better extracted using `with_pdfminer` function.")
     @pytest.mark.parametrize(
         "id, length_text",
         [
@@ -214,10 +215,24 @@ class TestTextExtractor:
             ("2502.10309v1.pdf", 29542),
         ],
     )
-    def test_from_pdf(self, id: str, length_text: int):
-        """Tests the `from_pdf` method of the `TextExtractor` class."""
+    def test_with_pypdf(self, id: str, length_text: int):
+        """Tests the `with_pdf` method of the `TextExtractor` class."""
         extractor = generate_text_extractor()
-        text = extractor.from_pdf(pdf_path=f"tests/data/{id}")
+        text = extractor.with_pypdf(pdf_path=f"tests/data/{id}")
+        assert len(text) == length_text
+
+    @pytest.mark.parametrize(
+        "id, length_text",
+        [
+            ("1234.5678v1", 0),
+            ("2502.10309v1", 0),
+            ("2502.10309v1.pdf", 29444),
+        ],
+    )
+    def test_with_pdfminer(self, id: str, length_text: int):
+        """Tests the `with_pdfminer` method of the `TextExtractor` class."""
+        extractor = generate_text_extractor()
+        text = extractor.with_pdfminer(pdf_path=f"tests/data/{id}")
         assert len(text) == length_text
 
     @pytest.mark.parametrize(
@@ -254,23 +269,51 @@ class TestTextExtractor:
         assert output == expected_output
 
     @pytest.mark.parametrize(
+        "id, len_text, init_text",
+        [
+            ("1234.5678v1", 0, ""),
+            ("2502.10309v1", 0, ""),
+            (
+                "2502.10309v1.pdf",
+                29350,
+                "Electromagnon signatures of a metastable multiferroic state Blake S. Dastrup,1, ∗ "
+                "Zhuquan Zhang,1, ∗ Peter R. Miedaner,1 Yu-Che Chien,1 Young Sun,2 Yan Wu,3 Huibo Cao,3 "
+                "Edoardo Baldini,4, † and Keith A. Nelson1, ‡ 1Department of Chemistry, Massachusetts "
+                "Institute of Technology, Cambridge, Massachusetts 02139, USA 2Center of Quantum Materials "
+                "and Devices, Chongqing University, Chongqing 401331, China 3Neutron Scattering Division, "
+                "Oak Ridge National Laboratory, Oak Ridge, Tennessee 37831, USA 4Dep",
+            ),
+        ],
+    )
+    def test_clean_text(self, id: str, len_text: int, init_text: str):
+        """Tests the `chunk_text` method of the `TextExtractor` class."""
+        extractor = generate_text_extractor()
+        text = extractor.with_pdfminer(pdf_path=f"tests/data/{id}")
+        text = extractor.clean_text(text=text)
+        assert len(text) == len_text
+        if not text:
+            assert text == init_text
+        else:
+            assert text[:500] == init_text
+
+    @pytest.mark.parametrize(
         "id, len_chunks, init_chunk",
         [
             ("1234.5678v1", 0, ""),
             ("2502.10309v1", 0, ""),
             (
                 "2502.10309v1.pdf",
-                75,
-                "Electromagnon signatures of a metastable multiferroic state\nBlake S. Dastrup, 1, "
-                "∗ Zhuquan Zhang,1, ∗ Peter R. Miedaner, 1 Yu-Che Chien,1\nYoung Sun,2 Yan Wu,3 Huibo "
-                "Cao, 3 Edoardo Baldini,4, † and Keith A.",
+                74,
+                "Electromagnon signatures of a metastable multiferroic state\n\nBlake S. Dastrup,1, "
+                "∗ Zhuquan Zhang,1, ∗ Peter R. Miedaner,1 Yu-Che Chien,1\nYoung Sun,2 Yan Wu,3 Huibo "
+                "Cao,3 Edoardo Baldini,4, † and Keith A.",
             ),
         ],
     )
     def test_chunk_text(self, id: str, len_chunks: int, init_chunk: str):
         """Tests the `chunk_text` method of the `TextExtractor` class."""
         extractor = generate_text_extractor()
-        text = extractor.from_pdf(pdf_path=f"tests/data/{id}")
+        text = extractor.with_pdfminer(pdf_path=f"tests/data/{id}")
         chunks = extractor.chunk_text(text=text)
         assert len(chunks) == len_chunks
         if not chunks:

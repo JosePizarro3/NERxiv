@@ -28,6 +28,7 @@ license = { file = "LICENSE" }
 dependencies = [
   "pydantic",
   "pypdf",
+  "pdfminer.six",
   "xmltodict",
   "sentence-transformers",
   "langchain",
