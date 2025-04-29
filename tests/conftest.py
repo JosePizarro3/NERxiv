@@ -4,7 +4,7 @@ import os
 import pytest
 
 from scesmata.datamodel import ArxivPaper
-from scesmata.fetch import ArxivFetcher
+from scesmata.fetch import ArxivFetcher, TextExtractor
 from scesmata.logger import log_storage
 
 if os.getenv("_PYTEST_RAISE", "0") != "0":
@@ -25,8 +25,12 @@ def cleared_log_storage():
     yield log_storage
 
 
-def generate_arxiv_fetcher():
-    return ArxivFetcher()
+def generate_arxiv_fetcher(category: str = "cond-mat.str-el", max_results: int = 1):
+    return ArxivFetcher(category=category, max_results=max_results)
+
+
+def generate_text_extractor():
+    return TextExtractor()
 
 
 def generate_arxiv_paper(id: str = "1234.5678v1"):

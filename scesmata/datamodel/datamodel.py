@@ -56,3 +56,26 @@ class ArxivPaper(BaseModel):
     methods: Optional[list[str]] = Field(
         [], description="The methods used in the arXiv paper."
     )
+
+
+class Method(BaseModel):
+    """The model for the mathematical method being used."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="The name of the method. It is a verbose name, e.g., 'Density Functional "
+        "Theory' or 'Quantum Monte Carlo'. The acronym of the method is not included in the name and "
+        "is stored in another field called `acronym`.",
+    )
+
+    acronym: Optional[str] = Field(
+        default=None,
+        description="The acronym of the method. It is a short name, e.g., 'DFT' or 'QMC'. The verbose "
+        "name of the method is not included in the acronym and is stored in another field called `name`.",
+    )
+
+
+class Simulation(BaseModel):
+    """The extracted metainformation about a simulation."""
+
+    methods: list[Method]

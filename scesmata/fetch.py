@@ -2,7 +2,10 @@ import io
 import re
 import urllib.request
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from structlog._config import BoundLoggerLazyProxy
 
 import requests
 import xmltodict
@@ -18,33 +21,50 @@ class ArxivFetcher:
     the method `fetch_and_extract`.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        category: str = "cond-mat.str-el",
+        max_results: int = 5,
+        **kwargs,
+    ):
+        self.category = category
+        self.max_results = max_results
+
         self.logger = kwargs.get("logger", logger)
         self.session = requests.Session()  # Reuse TCP connection
         # ! an initial short paper is used to warm up the `requests` session connection
         # ! otherwise, long papers get stuck on `requests.get()` due to connection timeouts
         self.session.head("http://arxiv.org/pdf/2502.10309v1", timeout=30)
 
-    def fetch(
-        self,
-        category: str = "cond-mat.str-el",
-        max_results: int = 5,
-    ) -> list:
+    def fetch(self) -> list:
         """
         Fetch papers from arXiv and stores them in a list of ArxivPaper pydantic models.
-
-        Args:
-            category (str, optional): The category in arXiv to fetch the papers from. Defaults to "cond-mat.str-el".
-            max_results (int, optional): Pagination for maximum number of papers fetched. Defaults to 5.
 
         Returns:
             list: A list of ArxivPaper objects.
         """
         # Fetch request from arXiv API and parsing the XML response
-        url = f"http://export.arxiv.org/api/query?search_query=cat:{category}&start=0&max_results={max_results}&sortBy=submittedDate&sortOrder=descending"
+        url = f"http://export.arxiv.org/api/query?search_query=cat:{self.category}&start=0&max_results={self.max_results}&sortBy=submittedDate&sortOrder=descending"
         request = urllib.request.urlopen(url)
         data = request.read().decode("utf-8")
         data_dict = xmltodict.parse(data)
+
+        def _get_pages_and_figures(comment: str) -> tuple[Optional[int], Optional[int]]:
+            """
+            Gets the number of pages and figures from the comment of the arXiv paper.
+
+            Args:
+                comment (str): A string containing the comment of the arXiv paper.
+
+            Returns:
+                tuple: A tuple containing the number of pages and figures.
+            """
+            pattern = r"(\d+) *pages*, *(\d+) *figures*"
+            match = re.search(pattern, comment)
+            if match:
+                n_pages, n_figures = match.groups()
+                return int(n_pages), int(n_figures)
+            return None, None
 
         # Extracting papers from the XML response
         papers = data_dict.get("feed", {}).get("entry", [])
@@ -94,7 +114,7 @@ class ArxivFetcher:
 
             # Extracting pages and figures from the comment
             comment = paper.get("arxiv:comment", {}).get("#text", "")
-            n_pages, n_figures = self.get_pages_and_figures(comment)
+            n_pages, n_figures = _get_pages_and_figures(comment)
 
             # Getting arXiv `id`
             id = url_id.split("/")[-1]
@@ -121,31 +141,15 @@ class ArxivFetcher:
 
         return arxiv_papers
 
-    def get_pages_and_figures(
-        self, comment: str
-    ) -> tuple[Optional[int], Optional[int]]:
-        """
-        Extract the number of pages and figures from the comment of the arXiv paper.
-
-        Args:
-            comment (str): A string containing the comment of the arXiv paper.
-
-        Returns:
-            tuple: A tuple containing the number of pages and figures.
-        """
-        pattern = r"(\d+) *pages*, *(\d+) *figures*"
-        match = re.search(pattern, comment)
-        if match:
-            n_pages, n_figures = match.groups()
-            return int(n_pages), int(n_figures)
-        return None, None
-
-    def download_pdf(self, arxiv_paper: ArxivPaper, write: bool = True) -> str:
+    def download_pdf(
+        self, arxiv_paper: ArxivPaper, data_folder: str = "data", write: bool = True
+    ) -> str:
         """
         Download the PDF of the arXiv paper and stores it in the `data` folder using the `arxiv_paper.id` to name the PDF file.
 
         Args:
             arxiv_paper (ArxivPaper): The arXiv paper object to be queried and stored.
+            data_folder (str): The folder where to store the PDFs.
             write (bool): If True, the PDF will be written to the `data/` folder.
 
         Returns:
@@ -156,7 +160,7 @@ class ArxivFetcher:
             response = self.session.get(arxiv_paper.pdf_url, stream=True, timeout=60)
             response.raise_for_status()
 
-            pdf_path = Path(f"data/{arxiv_paper.id}.pdf")
+            pdf_path = Path(f"{data_folder}/{arxiv_paper.id}.pdf")
 
             if write:
                 with open(pdf_path, "wb") as f:
@@ -170,68 +174,43 @@ class ArxivFetcher:
             pdf_path = None
         return pdf_path
 
-    def extract_text_from_pdf(
-        self, arxiv_paper: ArxivPaper, data_folder: str = "data"
-    ) -> str:
+
+class TextExtractor:
+    """
+    Extract text from the PDF file using `pypdf` library in the `from_pdf` method. The `delete_references`
+    method deletes the references section from the text by detecting where its section might be.
+    """
+
+    def __init__(self, **kwargs):
+        self.logger = kwargs.get("logger", logger)
+
+    def from_pdf(self, pdf_path: Optional[str] = ".") -> str:
         """
-        Extract text from the PDF of the arXiv paper.
+        Extract text from a PDF locally stored in `pdf_path`.
 
         Args:
-            arxiv_paper (ArxivPaper): The arXiv paper object to extract the text from.
-            data_folder (str): The folder where the PDF is stored. Defaults to "data/" in the project root folder.
+            pdf_path (Optional[str]): The path to the PDF file.
 
         Returns:
             str: The text extracted from the PDF.
         """
-        pdf_path = Path(f"{data_folder}/{arxiv_paper.id}.pdf")
-        if not pdf_path.exists():
-            pdf_path = self.download_pdf(arxiv_paper=arxiv_paper)
-            if not pdf_path:
-                self.logger.error(
-                    "Could not find the PDF file, not even in ArXiv. Returning an empty string for the text."
-                )
-                return ""
+        if not pdf_path:
+            self.logger.error(
+                "No PDF path provided. Returning an empty string for the text."
+            )
+            return ""
+        filepath = Path(pdf_path)
+        if not filepath.exists() or not pdf_path.endswith(".pdf"):
+            self.logger.error(
+                "Could not find the PDF file. Returning an empty string for the text."
+            )
+            return ""
         text = ""
-        with open(pdf_path, "rb") as f:
+        with open(filepath, "rb") as f:
             reader = PdfReader(f)
             text = "\n".join(
                 [page.extract_text() for page in reader.pages if page.extract_text()]
             )
-        return text
-
-    def extract_text(self, arxiv_paper: ArxivPaper) -> str:
-        """
-        Extract text from the arXiv paper and reads the information from the PDF.
-
-        Note:
-            This method does not work if the `arxiv_paper` is large. In that case, downloading
-            the PDF and extracting the text from the PDF is faster and can handle larger pdf files.
-            In `fetch_and_extract`, we use the `extract_text_from_pdf` method.
-
-        Args:
-            arxiv_paper (ArxivPaper): The arXiv paper object to extract the text from.
-
-        Returns:
-            str: The text extracted from the arXiv paper.
-        """
-        text = ""
-        try:
-            response = self.session.get(arxiv_paper.pdf_url, stream=True, timeout=60)
-            response.raise_for_status()
-
-            # Use a temporary in-memory file
-            pdf_bytes = io.BytesIO()
-            for chunk in response.iter_content(chunk_size=4096):  # Download in chunks
-                pdf_bytes.write(chunk)
-
-            pdf_bytes.seek(0)  # Reset file pointer to beginning
-            reader = PdfReader(pdf_bytes)
-
-            text = "\n".join(
-                [page.extract_text() for page in reader.pages if page.extract_text()]
-            )
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"Failed to download PDF: {e}")
         return text
 
     def delete_references(self, text: str) -> str:
@@ -257,29 +236,60 @@ class ArxivFetcher:
             return text[:start]
         return text
 
-    def fetch_and_extract(
-        self,
-        category: str = "cond-mat.str-el",
-        max_results: int = 5,
-        delete_references: bool = True,
-    ) -> list:
-        """
-        Fetch papers from arXiv, extract text from the PDF and store the text in the ArxivPaper object.
 
-        Args:
-            category (str, optional): The category in arXiv to fetch the papers from. Defaults to "cond-mat.str-el".
-            max_results (int, optional): Pagination for maximum number of papers fetched. Defaults to 5.
+def fetch_and_extract(
+    data_folder: str = "data",
+    delete_references: bool = True,
+    logger: "BoundLoggerLazyProxy" = logger,
+    category: str = "cond-mat.str-el",
+    max_results: int = 5,
+) -> list[ArxivPaper]:
+    """
+    Fetch papers from arXiv and extract text from the queried PDFs. In order to do one-shots, use
+    the method `fetch_and_extract`.
+    This function initializes the `fetcher` (in this case from arXiv) and the `text_extractor` classes.
+    It fetches the papers from arXiv and stores them in a list of `ArxivPaper` pydantic models.
+    For each paper, it downloads the PDF storing it in `data_folder` and extracts the text from it.
+    The text is stored in the `text` attribute of each `ArxivPaper` object.
+    For each paper, it deletes the references section if `delete_references` is set to True.
 
-        Returns:
-            list: A list of ArxivPaper objects with the extracted text from their PDFs.
-        """
-        papers = self.fetch(category=category, max_results=max_results)
-        self.logger.info(f"{max_results} papers fetched from arXiv, {category}.")
-        for paper in papers:
-            text = self.extract_text_from_pdf(arxiv_paper=paper)
-            self.logger.info(f"Text extracted from {paper.id} and stored in model.")
-            if delete_references:
-                text = self.delete_references(text)
-            paper.text = text
-            paper.length_text = len(text)
-        return papers
+    Args:
+        data_folder (str, optional): The folder where to store the PDFs. Defaults to "data".
+        delete_references (bool, optional): If set to true, it deletes the References section. Defaults to True.
+        logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
+        category (str, optional): The arXiv category. Defaults to "cond-mat.str-el".
+        max_results (int, optional): The maximum results for pagination for the arXiv API call. Defaults to 5.
+
+    Returns:
+        list[ArxivPaper]: A list of ArxivPaper objects with the text extracted from the PDFs.
+    """
+    # Initializes the `fetcher` (in this case from arXiv) and the `text_extractor` classes
+    fetcher = ArxivFetcher(logger=logger, category=category, max_results=max_results)
+    text_extractor = TextExtractor(logger=logger)
+
+    # Fetch the papers from arXiv and stores them in a list of `ArxivPaper` pydantic models
+    papers = fetcher.fetch()
+    logger.info(f"{max_results} papers fetched from arXiv, {category}.")
+
+    # For each paper, it downloads the PDF storing it in `data_folder` and extracts the text from it
+    # The text is stored in the `text` attribute of each `ArxivPaper` object
+    for paper in papers:
+        # ! note it is more efficient to download the PDF and extract the text because long papers cannot extract
+        # ! the text on the fly and the connection times out
+        # Download the PDF to `data_folder`
+        pdf_path = fetcher.download_pdf(data_folder=data_folder, arxiv_paper=paper)
+        # Extracts text from the PDF
+        text = text_extractor.from_pdf(pdf_path=pdf_path)
+        if not text:
+            logger.info("No text extracted from the PDF.")
+            continue
+        logger.info(f"Text extracted from {paper.id} and stored in model.")
+
+        # Deleting references section
+        if delete_references:
+            text = text_extractor.delete_references(text=text)
+
+        # Stores the text in the `text` attribute of the `ArxivPaper` object
+        paper.text = text
+        paper.length_text = len(text)
+    return papers

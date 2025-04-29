@@ -31,7 +31,7 @@ dependencies = [
   "xmltodict",
   "sentence-transformers",
   "langchain",
-  "langchain-core",
+  "langchain-core>=0.3.20",
   "langchain-ollama",
   "langchain-community",
   "llama-cpp-python>=0.3.7"
