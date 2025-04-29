@@ -214,7 +214,7 @@ class TestTextExtractor:
             ("2502.10309v1.pdf", 29542),
         ],
     )
-    def test_from_pdf(self, id: str, length_text: str):
+    def test_from_pdf(self, id: str, length_text: int):
         """Tests the `from_pdf` method of the `TextExtractor` class."""
         extractor = generate_text_extractor()
         text = extractor.from_pdf(pdf_path=f"tests/data/{id}")
@@ -252,6 +252,31 @@ class TestTextExtractor:
         extractor = generate_text_extractor()
         output = extractor.delete_references(text=input_text)
         assert output == expected_output
+
+    @pytest.mark.parametrize(
+        "id, len_chunks, init_chunk",
+        [
+            ("1234.5678v1", 0, ""),
+            ("2502.10309v1", 0, ""),
+            (
+                "2502.10309v1.pdf",
+                75,
+                "Electromagnon signatures of a metastable multiferroic state\nBlake S. Dastrup, 1, "
+                "∗ Zhuquan Zhang,1, ∗ Peter R. Miedaner, 1 Yu-Che Chien,1\nYoung Sun,2 Yan Wu,3 Huibo "
+                "Cao, 3 Edoardo Baldini,4, † and Keith A.",
+            ),
+        ],
+    )
+    def test_chunk_text(self, id: str, len_chunks: int, init_chunk: str):
+        """Tests the `chunk_text` method of the `TextExtractor` class."""
+        extractor = generate_text_extractor()
+        text = extractor.from_pdf(pdf_path=f"tests/data/{id}")
+        chunks = extractor.chunk_text(text=text)
+        assert len(chunks) == len_chunks
+        if not chunks:
+            assert chunks == []
+        else:
+            assert chunks[0] == init_chunk
 
 
 @pytest.mark.parametrize(

@@ -236,6 +236,41 @@ class TextExtractor:
             return text[:start]
         return text
 
+    def chunk_text(self, text: str = "", max_length: int = 500) -> list[str]:
+        """
+        Chunk the text into smaller parts at sentence boundaries to avoid long texts in the prompt.
+
+        Args:
+            text (str, optional): The text to be chunked. Defaults to "".
+            max_length (int, optional): The maximum length of characters of each chunk. Defaults to 500.
+
+        Returns:
+            list[str]: A list of strings containing the text chunked into smaller parts.
+        """
+        if not text:
+            self.logger.warning("No text provided for chunking.")
+            return []
+        if max_length <= 0:
+            self.logger.warning("Max length must be greater than 0.")
+            return []
+
+        # split at sentence boundaries
+        sentences = re.split(r"(?<=[.!?]) +", text)
+        chunks, current_chunk = [], []
+
+        for sentence in sentences:
+            if sum(len(s) for s in current_chunk) + len(sentence) < max_length:
+                current_chunk.append(sentence)
+            else:
+                chunks.append(" ".join(current_chunk))
+                current_chunk = [sentence]
+
+        if current_chunk:
+            chunks.append(" ".join(current_chunk))
+
+        self.logger.info(f"Text chunked into {len(chunks)} parts")
+        return chunks
+
 
 def fetch_and_extract(
     data_folder: str = "data",
