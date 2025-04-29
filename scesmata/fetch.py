@@ -1,4 +1,3 @@
-import io
 import re
 import urllib.request
 from pathlib import Path
@@ -9,8 +8,9 @@ if TYPE_CHECKING:
 
 import requests
 import xmltodict
-from pdfminer.high_level import extract_text
-from pypdf import PdfReader
+from langchain_community.document_loaders import PDFMinerLoader, PyPDFLoader
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from scesmata.datamodel import ArxivPaper, Author
 from scesmata.logger import logger
@@ -185,64 +185,64 @@ class TextExtractor:
     def __init__(self, **kwargs):
         self.logger = kwargs.get("logger", logger)
 
-    def with_pypdf(self, pdf_path: Optional[str] = ".") -> str:
+        # Implementing loaders from LangChain
+        self.available_loaders = {
+            "pypdf": PyPDFLoader,
+            "pdfminer": PDFMinerLoader,
+        }
+
+    def _check_pdf_path(self, pdf_path: Optional[str] = ".") -> bool:
         """
-        Extract text from a PDF locally stored in `pdf_path` using the `pypdf` package.
+        Check if the PDF path is valid.
 
         Args:
             pdf_path (Optional[str]): The path to the PDF file.
 
         Returns:
-            str: The text extracted from the PDF.
+            bool: True if the PDF path is valid, False otherwise.
         """
         if not pdf_path:
             self.logger.error(
                 "No PDF path provided. Returning an empty string for the text."
             )
-            return ""
+            return False
+        return Path(pdf_path).exists() and pdf_path.endswith(".pdf")
+
+    def get_pages(
+        self, pdf_path: Optional[str] = ".", loader: str = "pypdf"
+    ) -> list[Document]:
+        """https://python.langchain.com/docs/how_to/document_loader_pdf/"""
+        if not self._check_pdf_path(pdf_path=pdf_path):
+            return []
         filepath = Path(pdf_path)
-        if not filepath.exists() or not pdf_path.endswith(".pdf"):
+
+        # Check if the loader is available
+        if loader not in self.available_loaders.keys():
             self.logger.error(
-                "Could not find the PDF file. Returning an empty string for the text."
+                f"Loader {loader} not available. Available loaders: {self.available_loaders.keys()}"
             )
-            return ""
-        text = ""
-        with open(filepath, "rb") as f:
-            reader = PdfReader(f)
-            text = "\n".join(
-                [page.extract_text() for page in reader.pages if page.extract_text()]
-            )
-        return text
+            return []
+        loader_cls = self.available_loaders[loader]
+        loader = loader_cls(filepath)
+        pages = []
+        for page in loader.lazy_load():
+            pages.append(page)
+        return pages
 
-    def with_pdfminer(self, pdf_path: Optional[str] = ".") -> str:
-        """
-        Extract text from a PDF locally stored in `pdf_path` using the `pdfminer.six` package.
+    def chunk_text(
+        self, pages: list[Document] = [], chunk_size: int = 1000
+    ) -> list[Document]:
+        """https://python.langchain.com/docs/how_to/document_loader_pdf/"""
+        if not pages:
+            self.logger.warning("No pages to chunk.")
+            return []
 
-        ! Note: this is the prefered option to extract the text from the PDF.
-
-        Args:
-            pdf_path (Optional[str]): The path to the PDF file.
-
-        Returns:
-            str: The text extracted from the PDF.
-        """
-        if not pdf_path:
-            self.logger.error(
-                "No PDF path provided. Returning an empty string for the text."
-            )
-            return ""
-        filepath = Path(pdf_path)
-        if not filepath.exists() or not pdf_path.endswith(".pdf"):
-            self.logger.error(
-                "Could not find the PDF file. Returning an empty string for the text."
-            )
-            return ""
-        try:
-            text = extract_text(filepath)
-        except Exception as e:
-            self.logger.error(f"Error extracting text from PDF: {e}")
-            text = ""
-        return text
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size, chunk_overlap=200, add_start_index=True
+        )
+        chunks = text_splitter.split_documents(pages)
+        self.logger.info(f"Text chunked into {len(chunks)} parts")
+        return chunks
 
     def delete_references(self, text: str) -> str:
         """
@@ -286,9 +286,6 @@ class TextExtractor:
             self.logger.warning("No text provided for cleaning.")
             return ""
 
-        # Replace newline characters with spaces
-        text = re.sub(r"\n+", " ", text)
-
         # Fix hyphenated line breaks: e.g., "super-\nconductivity" → "superconductivity"
         text = re.sub(r"-\s*\n\s*", "", text)
 
@@ -302,42 +299,10 @@ class TextExtractor:
         text = re.sub(r"[ \t]+", " ", text)  # collapse multiple spaces/tabs
         text = re.sub(r"\n[ \t]+", "\n", text)  # remove indentations
 
+        # Replace newline characters with spaces
+        text = re.sub(r"\n+", " ", text)
+
         return text.strip()
-
-    def chunk_text(self, text: str = "", max_length: int = 500) -> list[str]:
-        """
-        Chunk the text into smaller parts at sentence boundaries to avoid long texts in the prompt.
-
-        Args:
-            text (str, optional): The text to be chunked. Defaults to "".
-            max_length (int, optional): The maximum length of characters of each chunk. Defaults to 500.
-
-        Returns:
-            list[str]: A list of strings containing the text chunked into smaller parts.
-        """
-        if not text:
-            self.logger.warning("No text provided for chunking.")
-            return []
-        if max_length <= 0:
-            self.logger.warning("Max length must be greater than 0.")
-            return []
-
-        # split at sentence boundaries
-        sentences = re.split(r"(?<=[.!?]) +", text)
-        chunks, current_chunk = [], []
-
-        for sentence in sentences:
-            if sum(len(s) for s in current_chunk) + len(sentence) < max_length:
-                current_chunk.append(sentence)
-            else:
-                chunks.append(" ".join(current_chunk))
-                current_chunk = [sentence]
-
-        if current_chunk:
-            chunks.append(" ".join(current_chunk))
-
-        self.logger.info(f"Text chunked into {len(chunks)} parts")
-        return chunks
 
 
 def fetch_and_extract(

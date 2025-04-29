@@ -35,6 +35,7 @@ dependencies = [
   "langchain-core>=0.3.20",
   "langchain-ollama",
   "langchain-community",
+  "langchain-huggingface",
   "llama-cpp-python>=0.3.7"
 ]
 
