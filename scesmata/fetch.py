@@ -212,6 +212,7 @@ class TextExtractor:
         self, pdf_path: Optional[str] = ".", loader: str = "pypdf"
     ) -> list[Document]:
         """https://python.langchain.com/docs/how_to/document_loader_pdf/"""
+        # Check if the PDF path is valid
         if not self._check_pdf_path(pdf_path=pdf_path):
             return []
         filepath = Path(pdf_path)
@@ -222,10 +223,11 @@ class TextExtractor:
                 f"Loader {loader} not available. Available loaders: {self.available_loaders.keys()}"
             )
             return []
-        loader_cls = self.available_loaders[loader]
-        loader = loader_cls(filepath)
+        loader_cls = self.available_loaders[loader](filepath)
+
+        # Extract pages
         pages = []
-        for page in loader.lazy_load():
+        for page in loader_cls.lazy_load():
             pages.append(page)
         return pages
 
