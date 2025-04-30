@@ -27,11 +27,7 @@ maintainers = [
 license = { file = "LICENSE" }
 dependencies = [
   "pydantic",
-  "pypdf",
-  "pdfminer.six",
-  "xmltodict",
   "sentence-transformers",
-  "langchain",
   "langchain-core>=0.3.20",
   "langchain-ollama",
   "langchain-community",

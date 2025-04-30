@@ -39,3 +39,19 @@ structlog.configure(
 
 # Create a logger instance
 logger = structlog.get_logger()
+
+
+import functools
+import warnings
+
+
+def deprecated(message="This function is deprecated."):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            warnings.warn(message, DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
+
+        return wrapped
+
+    return decorator

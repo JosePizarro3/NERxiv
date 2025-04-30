@@ -13,7 +13,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from scesmata.datamodel import ArxivPaper, Author
-from scesmata.logger import logger
+from scesmata.logger import deprecated, logger
 
 
 class ArxivFetcher:
@@ -178,8 +178,8 @@ class ArxivFetcher:
 
 class TextExtractor:
     """
-    Extract text from the PDF file using `pypdf` library in the `from_pdf` method. The `delete_references`
-    method deletes the references section from the text by detecting where its section might be.
+    Extract text from the PDF file using LangChain implementation of PDF loaders. This class also
+    implements the text cleaning and chunking methods.
     """
 
     def __init__(self, **kwargs):
@@ -208,9 +208,7 @@ class TextExtractor:
             return False
         return Path(pdf_path).exists() and pdf_path.endswith(".pdf")
 
-    def get_pages(
-        self, pdf_path: Optional[str] = ".", loader: str = "pypdf"
-    ) -> list[Document]:
+    def get_text(self, pdf_path: Optional[str] = ".", loader: str = "pypdf") -> str:
         """https://python.langchain.com/docs/how_to/document_loader_pdf/"""
         # Check if the PDF path is valid
         if not self._check_pdf_path(pdf_path=pdf_path):
@@ -225,26 +223,11 @@ class TextExtractor:
             return []
         loader_cls = self.available_loaders[loader](filepath)
 
-        # Extract pages
-        pages = []
+        # Extract text
+        text = ""
         for page in loader_cls.lazy_load():
-            pages.append(page)
-        return pages
-
-    def chunk_text(
-        self, pages: list[Document] = [], chunk_size: int = 1000
-    ) -> list[Document]:
-        """https://python.langchain.com/docs/how_to/document_loader_pdf/"""
-        if not pages:
-            self.logger.warning("No pages to chunk.")
-            return []
-
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size, chunk_overlap=200, add_start_index=True
-        )
-        chunks = text_splitter.split_documents(pages)
-        self.logger.info(f"Text chunked into {len(chunks)} parts")
-        return chunks
+            text += page.page_content
+        return text
 
     def delete_references(self, text: str) -> str:
         """
@@ -268,6 +251,22 @@ class TextExtractor:
                 return text[:start] + text[end:]
             return text[:start]
         return text
+
+    def chunk_text(self, text: str = "", chunk_size: int = 1000) -> list[Document]:
+        """https://python.langchain.com/docs/how_to/document_loader_pdf/"""
+        if not text:
+            self.logger.warning("No text to chunk.")
+            return []
+
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size, chunk_overlap=200, add_start_index=True
+        )
+
+        # ! we define a list of `Document` objects in LangChain to use the `text_splitter` method
+        pages = [Document(page_content=text, metadata={"source": "get_text"})]
+        chunks = text_splitter.split_documents(pages)
+        self.logger.info(f"Text chunked into {len(chunks)} parts")
+        return chunks
 
     def clean_text(self, text: str = "") -> str:
         """
@@ -308,11 +307,11 @@ class TextExtractor:
 
 
 def fetch_and_extract(
-    data_folder: str = "data",
-    delete_references: bool = True,
-    logger: "BoundLoggerLazyProxy" = logger,
     category: str = "cond-mat.str-el",
     max_results: int = 5,
+    logger: "BoundLoggerLazyProxy" = logger,
+    data_folder: str = "data",
+    loader: str = "pypdf",
 ) -> list[ArxivPaper]:
     """
     Fetch papers from arXiv and extract text from the queried PDFs. In order to do one-shots, use
@@ -325,7 +324,6 @@ def fetch_and_extract(
 
     Args:
         data_folder (str, optional): The folder where to store the PDFs. Defaults to "data".
-        delete_references (bool, optional): If set to true, it deletes the References section. Defaults to True.
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
         category (str, optional): The arXiv category. Defaults to "cond-mat.str-el".
         max_results (int, optional): The maximum results for pagination for the arXiv API call. Defaults to 5.
@@ -348,20 +346,24 @@ def fetch_and_extract(
         # ! the text on the fly and the connection times out
         # Download the PDF to `data_folder`
         pdf_path = fetcher.download_pdf(data_folder=data_folder, arxiv_paper=paper)
-        # Extracts text from the PDF
-        # text = text_extractor.with_pypdf(pdf_path=pdf_path)
-        text = text_extractor.with_pdfminer(pdf_path=pdf_path)
-        text = text_extractor.clean_text(text=text)
-        if not text:
+
+        # Extracts pages content from the PDF using the `loader` specified
+        pages = text_extractor.get_pages(pdf_path=pdf_path, loader=loader)
+        if not pages:
             logger.info("No text extracted from the PDF.")
             continue
         logger.info(f"Text extracted from {paper.id} and stored in model.")
 
-        # Deleting references section
-        if delete_references:
-            text = text_extractor.delete_references(text=text)
+        # Cleaning text and deleting references section if `delete_references` is set to True
+        new_pages = []
+        text = ""
+        for page in pages:
+            page_content = text_extractor.clean_text(page.page_content)
+            text += page_content
+            new_pages.append(
+                Document(page_content=page_content, metadata=page.metadata)
+            )
 
-        # Stores the text in the `text` attribute of the `ArxivPaper` object
-        paper.text = text
-        paper.length_text = len(text)
+        # Stores the pages content and metadata as a field of the `ArxivPaper` object
+        paper.pages = new_pages
     return papers

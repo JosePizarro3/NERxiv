@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from scesmata.fetch import fetch_and_extract
+from scesmata.fetch_and_extract import fetch_and_extract
 from tests.conftest import (
     generate_arxiv_fetcher,
     generate_arxiv_paper,
