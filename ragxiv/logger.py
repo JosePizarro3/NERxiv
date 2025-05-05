@@ -1,4 +1,6 @@
 import copy
+import logging
+import sys
 
 import structlog
 
@@ -20,6 +22,14 @@ def store_log_message(_, __, event_dict):
     return event_dict
 
 
+# Add this basic config to ensure logs go to stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    stream=sys.stdout,
+)
+
+
 # Configure structlog with the custom processor
 structlog.configure(
     processors=[
@@ -35,6 +45,8 @@ structlog.configure(
         store_log_message,
         structlog.dev.ConsoleRenderer(),
     ],
+    logger_factory=structlog.stdlib.LoggerFactory(),  # Use stdlib logger backend
+    wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
 )
 
 # Create a logger instance

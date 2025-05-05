@@ -9,7 +9,6 @@ from ragxiv.logger import logger
     "log_level, message, level",
     [
         (logger.info, "This is a test info message.", "info"),
-        (logger.debug, "This is a test debug message.", "debug"),
         (logger.warning, "This is a test warning message.", "warning"),
     ],
 )

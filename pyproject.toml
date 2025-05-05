@@ -54,6 +54,7 @@ docu = [
   "mkdocs-material",
   "mkdocs-click",
   "mkdocstrings-python",
+  "marimo[recommended]",
 ]
 
 [project.scripts]
@@ -85,6 +86,7 @@ exclude = [
     "node_modules",
     "venv",
     "dependencies",
+    "tutorials",
 ]
 # Same as Black.
 line-length = 88

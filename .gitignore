@@ -190,3 +190,6 @@ tmp/
 
 #local LLMs
 llmodels/
+
+# tutos data
+tutorials/data/

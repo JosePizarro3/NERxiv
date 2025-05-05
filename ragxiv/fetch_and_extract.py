@@ -148,6 +148,7 @@ class ArxivFetcher:
                     categories=categories,
                 )
             )
+            self.logger.info(f"Paper {id} fetched from arXiv.")
 
         return arxiv_papers
 
@@ -165,6 +166,9 @@ class ArxivFetcher:
         Returns:
             str: The path to the downloaded PDF file.
         """
+        # check if `data_folder` exists, and if not, create it
+        Path(data_folder).mkdir(parents=True, exist_ok=True)
+
         pdf_path = Path("")
         try:
             response = self.session.get(arxiv_paper.pdf_url, stream=True, timeout=60)
@@ -210,6 +214,7 @@ class TextExtractor:
         Returns:
             bool: True if the PDF path is valid, False otherwise.
         """
+        pdf_path = str(pdf_path)  # to avoid potential problems when being a Path object
         if not pdf_path:
             self.logger.error(
                 "No PDF path provided. Returning an empty string for the text."
@@ -233,7 +238,9 @@ class TextExtractor:
         # Check if the PDF path is valid
         if not self._check_pdf_path(pdf_path=pdf_path):
             return []
-        filepath = Path(pdf_path)
+        if isinstance(pdf_path, str):
+            pdf_path = Path(pdf_path)
+        filepath = pdf_path
 
         # Check if the loader is available
         if loader not in self.available_loaders.keys():
