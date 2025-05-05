@@ -7,6 +7,7 @@ from ragxiv.retriever import CustomRetriever, LangChainRetriever
 
 
 def test_custom_retriever_mocked():
+    """Tests the `get_relevant_chunks` method of the `CustomRetriever` class."""
     with patch("ragxiv.retriever.SentenceTransformer") as mock_model:
         mock_instance = mock_model.return_value
 
@@ -34,6 +35,7 @@ def test_custom_retriever_mocked():
 
 
 def test_langchain_retriever_mocked():
+    """Tests the `get_relevant_chunks` method of the `LangChainRetriever` class."""
     with (
         patch("ragxiv.retriever.HuggingFaceEmbeddings") as mock_embed_cls,
         patch("ragxiv.retriever.InMemoryVectorStore") as mock_store_cls,
