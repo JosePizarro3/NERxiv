@@ -29,14 +29,14 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "scesmata Python",
+        "name": "ragxiv Python",
         "type": "debugpy",
         "request": "launch",
         "console": "integratedTerminal",
         "program": "${workspaceFolder}/scesmata/test.py",  // path to your entry point Python module
       },
       {
-        "name": "scesmata tests",
+        "name": "ragxiv tests",
         "type": "debugpy",
         "request": "launch",
         "console": "integratedTerminal",

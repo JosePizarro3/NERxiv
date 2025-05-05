@@ -34,7 +34,7 @@ jobs:
         uv pip install -e '.[dev]'
     - name: mypy
       run: |
-        python -m mypy --ignore-missing-imports --follow-imports=silent --no-strict-optional scesmata tests
+        python -m mypy --ignore-missing-imports --follow-imports=silent --no-strict-optional ragxiv tests
     - name: Test with pytest
       run: |
         python -m pytest -sv tests

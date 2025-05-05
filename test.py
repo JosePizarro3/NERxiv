@@ -1,10 +1,10 @@
 pdf_1 = "./tests/data/2502.10309v1.pdf"
 pdf_2 = "./tests/data/2502.12144v1.pdf"
 
-from scesmata.fetch_and_extract import TextExtractor
-from scesmata.generator import LLMGenerator
-from scesmata.prompts import EXTRACT_METHODS_TEMPLATE, FILTER_METHODS_TEMPLATE, prompt
-from scesmata.retriever import CustomRetriever, LangChainRetriever
+from ragxiv.fetch_and_extract import TextExtractor
+from ragxiv.generator import LLMGenerator
+from ragxiv.prompts import EXTRACT_METHODS_TEMPLATE, FILTER_METHODS_TEMPLATE, prompt
+from ragxiv.retriever import CustomRetriever, LangChainRetriever
 
 extractor = TextExtractor()
 text = extractor.get_text(pdf_path=pdf_2, loader="pdfminer")

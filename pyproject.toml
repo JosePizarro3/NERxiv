@@ -8,16 +8,15 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
 ]
-name = "scesmata"
-description = "A Python package for extracting structured metadata information from arXiv papers in Strongly Correlated Electron Systems in Condensed Matter Physics."
+name = "ragxiv"
+description = "A Python package for extracting structured metadata information from arXiv papers."
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
   { name = "Jose M. Pizarro", email = "jose.pizarro-blanco@bam.de" },
 ]
@@ -26,18 +25,20 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
+  "xmltodict",
   "pydantic",
+  "pypdf",
+  "pdfminer.six",
   "sentence-transformers",
   "langchain-core>=0.3.20",
-  "langchain-ollama",
   "langchain-community",
+  "langchain-ollama",
   "langchain-huggingface",
-  "llama-cpp-python>=0.3.7"
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/JosePizarro3/SCESmata"
-"Bug Tracker" = "https://github.com/JosePizarro3/SCESmata/issues"
+"Homepage" = "https://github.com/JosePizarro3/RAGxiv"
+"Bug Tracker" = "https://github.com/JosePizarro3/RAGxiv/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -47,8 +48,7 @@ dev = [
   "pytest-timeout",
   "pytest-cov",
   "python-decouple",
-  "structlog==24.4.0",
-  "huggingface-hub>=0.17.1"
+  "structlog==24.4.0"
 ]
 docu = [
   "mkdocs-material",
@@ -57,11 +57,11 @@ docu = [
 ]
 
 [project.scripts]
-scesmata = "scesmata.cli:cli"
+ragxiv = "ragxiv.cli:cli"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-include = ["scesmata/*.py", "tests/*.py"]
+include = ["ragxiv/*.py", "tests/*.py"]
 exclude = [
     ".bzr",
     ".direnv",
@@ -140,4 +140,4 @@ where = ["."]
 namespaces = false
 
 [tool.setuptools_scm]
-write_to = "scesmata/_version.py"
+write_to = "ragxiv/_version.py"

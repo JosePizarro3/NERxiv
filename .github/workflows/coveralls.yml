@@ -30,7 +30,7 @@ jobs:
         uv pip install coveralls
     - name: Build coverage file
       run: |
-        pytest --cov-config=.coveragerc --junitxml=pytest.xml --cov=scesmata tests | tee pytest-coverage.txt
+        pytest --cov-config=.coveragerc --junitxml=pytest.xml --cov=ragxiv tests | tee pytest-coverage.txt
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
       with:

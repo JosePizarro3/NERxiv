@@ -1,8 +1,8 @@
-from typing import Callable
+from collections.abc import Callable
 
 import pytest
 
-from scesmata.logger import logger
+from ragxiv.logger import logger
 
 
 @pytest.mark.parametrize(
