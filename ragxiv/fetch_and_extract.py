@@ -154,7 +154,7 @@ class ArxivFetcher:
 
     def download_pdf(
         self, arxiv_paper: ArxivPaper, data_folder: str = "data", write: bool = True
-    ) -> str:
+    ) -> Path:
         """
         Download the PDF of the arXiv paper and stores it in the `data` folder using the `arxiv_paper.id` to name the PDF file.
 
@@ -164,7 +164,7 @@ class ArxivFetcher:
             write (bool): If True, the PDF will be written to the `data/` folder. Defaults to True.
 
         Returns:
-            str: The path to the downloaded PDF file.
+            Path: The path to the downloaded PDF file.
         """
         # check if `data_folder` exists, and if not, create it
         Path(data_folder).mkdir(parents=True, exist_ok=True)

@@ -191,5 +191,8 @@ tmp/
 #local LLMs
 llmodels/
 
+# data folder
+data/*.pdf
+
 # tutos data
 tutorials/data/
