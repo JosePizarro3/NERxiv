@@ -1,103 +1,127 @@
 <h4 align="center">
 
-[![CI Status](https://github.com/JosePizarro3/RAGxiv/actions/workflows/actions.yml/badge.svg)](https://github.com/JosePizarro3/RAGxiv/actions/workflows/actions.yml/badge.svg)
-[![Coverage](https://coveralls.io/repos/github/JosePizarro3/RAGxiv/badge.svg?branch=main)](https://coveralls.io/repos/github/JosePizarro3/RAGxiv/badge.svg?branch=main)
-<!-- [![PyPI versions](https://img.shields.io/pypi/v/ragxiv)](https://img.shields.io/pypi/v/ragxiv) -->
-<!-- [![Python supported versions](https://img.shields.io/pypi/pyversions/ragxiv)](https://img.shields.io/pypi/pyversions/ragxiv) -->
+![CI](https://github.com/JosePizarro3/RAGxiv/actions/workflows/actions.yml/badge.svg)
+![Coverage](https://coveralls.io/repos/github/JosePizarro3/RAGxiv/badge.svg?branch=main)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+<!-- [![PyPI version](https://img.shields.io/pypi/v/ragxiv.svg)]
+[![Python versions](https://img.shields.io/pypi/pyversions/ragxiv.svg)] -->
 
 </h4>
 
 # RAGxiv
 
-`RAGxiv` is a Python package used for extracting structured metadata information from arXiv papers. Its original application is for Strongly Correlated Electron Systems in Condensed Matter Physics, whose category is [`"cond-mat.str-el"`](https://arxiv.org/list/cond-mat.str-el/recent), but it can be used for any other category.
 
-If you want to install it, do:
-```sh
+**RAGxiv** is a Python package for extracting **structured metadata** from scientific papers on [arXiv](https://arxiv.org) using **LLMs** and modern **retrieval-augmented generation (RAG)** techniques.
+
+While originally developed for the **Strongly Correlated Electron Systems** community in Condensed Matter Physics ([`cond-mat.str-el`](https://arxiv.org/list/cond-mat.str-el/recent)), it's designed to be flexible and applicable to **any arXiv category**.
+
+## What It Does
+
+* Fetches and parses papers from the arXiv API, extracting and cleaning their text
+* Chunks and embeds text with SentenceTransformers or LangChain to categorize papers content using local LLMs (via Ollama)
+* Includes CLI tools and notebook tutorials for reproducible workflows
+
+---
+
+## Installation
+
+Install the core package:
+```bash
 pip install ragxiv
 ```
 
-In order to include the CLI functionalities and tutorials, you have to add the optional `[dev]` and `[docu]` dependencies when pip installing the package:
-```sh
+To include CLI tools and tutorials:
+```bash
 pip install ragxiv[dev,docu]
 ```
 
-## Development
+## Running LLMs Locally
 
-If you want to develop locally this package, clone the project and enter in the workspace folder:
+We recommend running your own models locally using [Ollama](https://ollama.com/download):
+```bash
+# Install Ollama (follow instructions on their website)
+ollama pull <model-name>   # e.g., llama3, deepseek-coder
 
-```sh
+# Start the local server
+ollama serve
+```
+
+
+
+# Development
+
+To contribute to `RAGxiv` or run it locally, follow these steps:
+
+---
+
+## Clone the Repository
+
+```bash
 git clone https://github.com/JosePizarro3/RAGxiv.git
 cd RAGxiv
 ```
 
-Create a virtual environment (you can use Python>3.10) in your workspace:
+## Set Up a Virtual Environment
 
-```sh
+We recommend Python ≥ 3.10:
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-And pip install the package in editable mode. We recommend using `uv` for fast pip installation:
-```sh
+## Install Dependencies
+
+Use [`uv`](https://docs.astral.sh/uv/) (faster than pip) to install the package in editable mode with dev and doc extras:
+```bash
 pip install --upgrade pip
 pip install uv
 uv pip install -e .[dev,docu]
 ```
 
-### Run the tests
+## Run tests
 
-You can locally run the tests by doing:
-
-```sh
+Use `pytest` with verbosity to run all tests:
+```bash
 python -m pytest -sv tests
 ```
 
-where the `-s` and `-v` options toggle the output verbosity.
 
-You can also generate a local coverage report:
-
-```sh
+To check code coverage:
+```bash
 python -m pytest --cov=ragxiv tests
 ```
 
-### Run auto-formatting and linting
+### Code formatting and linting
 
-We use [Ruff](https://docs.astral.sh/ruff/) for formatting and linting the code following the rules specified in the `pyproject.toml`. You can run locally:
 
-```sh
+We use [`Ruff`]((https://docs.astral.sh/ruff/)) for formatting and linting (configured via `pyproject.toml`).
+
+Check linting issues:
+```bash
 ruff check .
 ```
 
-This will produce an output with the specific issues found. In order to auto-fix them, run:
-
-```sh
+Auto-format code:
+```bash
 ruff format . --check
 ```
 
-If some issues are not possible to fix automatically, you will need to visit the file and fix them by hand.
+Manually fix anything Ruff cannot handle automatically.
 
-### Documentation on Github pages
+## Local Documentation (MkDocs)
 
-To view the documentation locally, make sure to have installed the extra packages (note that you can skip this step if you already installed the `[docu]` dependencies for the package in the step before):
-
-```sh
+If not already done, install the documentation dependencies:
+```bash
 uv pip install -e '[docu]'
 ```
 
-The first time, build the server:
-
-```sh
+Then build and serve the docs locally:
+```bash
 mkdocs build
-```
-
-Run the documentation server:
-
-```sh
 mkdocs serve
 ```
 
-The output looks like:
-
+This will start a local server:
 ```sh
 INFO    -  Building documentation...
 INFO    -  Cleaning site directory
@@ -105,7 +129,7 @@ INFO    -  [14:07:47] Watching paths for changes: 'docs', 'mkdocs.yml'
 INFO    -  [14:07:47] Serving on http://127.0.0.1:8000/
 ```
 
-Simply click on `http://127.0.0.1:8000/`. The changes in the `md` files of the documentation are immediately reflected when the files are saved (the local web will automatically refresh).
+Click or navigate to http://127.0.0.1:8000/. The changes to Markdown docs will automatically reload the local web.
 
 ## Main contributors
 
