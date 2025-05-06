@@ -8,7 +8,33 @@ if TYPE_CHECKING:
 from langchain_ollama.llms import OllamaLLM
 from transformers import AutoTokenizer
 
+from ragxiv.datamodel import Method, Simulation
 from ragxiv.logger import logger
+
+
+def answer_to_dict(
+    answer: str = "", logger: "BoundLoggerLazyProxy" = logger
+) -> list[dict]:
+    """
+    Converts the answer string to a list of dictionaries by removing unwanted characters. This is useful when
+    prompting the LLM to return a list of objects containing metainformation in a structured way.
+
+    Args:
+        answer (str, optional): The answer string to be converted to a list of dictionaries. Defaults to "".
+        logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
+
+    Returns:
+        list[dict]: The list of dictionaries extracted from the answer string.
+    """
+    # Return empty list if answer is empty or the loaded list of dictionaries
+    dict_answer = []
+    try:
+        dict_answer = json.loads(answer)
+    except json.JSONDecodeError:
+        logger.critical(
+            f"Answer is not a valid JSON: {answer}. Please check the answer format."
+        )
+    return dict_answer
 
 
 class LLMGenerator:
@@ -43,10 +69,16 @@ class LLMGenerator:
         Returns:
             bool: True if the prompt length is within the token limit, False otherwise.
         """
-        huggingface_model, tokens_limit = self._huggingface_model_map.get(
-            self.llm.model
-        )
-        tokenizer = AutoTokenizer.from_pretrained(huggingface_model)
+        try:
+            huggingface_model, tokens_limit = self._huggingface_model_map.get(
+                self.llm.model
+            )
+            tokenizer = AutoTokenizer.from_pretrained(huggingface_model)
+        except Exception:
+            self.logger.critical(
+                f"Failed to load the tokenizer for model {self.llm.model}. We will continue with prompting anyways"
+            )
+            return True
         num_tokens = len(tokenizer(prompt)["input_ids"])
         if num_tokens > tokens_limit:
             self.logger.critical(
@@ -55,7 +87,12 @@ class LLMGenerator:
             return False
         return True
 
-    def generate(self, prompt: str = "") -> str:
+    def generate(
+        self,
+        prompt: str = "",
+        regex: str = r"\n\nAnswer\: *",
+        del_regex: str = r"\n\nAnswer\: *",
+    ) -> str:
         """
         Generates an answer using the specified LLM model and the provided prompt provided that
         the token limit is not exceeded.
@@ -69,35 +106,24 @@ class LLMGenerator:
         if not self._check_tokens_limit(prompt=prompt) or not prompt:
             return ""
 
-        return self.llm.invoke(prompt)
+        def _clean_answer(regex: str, del_regex: str, answer: str = "") -> str:
+            match = re.search(regex, answer, flags=re.IGNORECASE)
+            if match:
+                start = match.start()
+                answer = answer[start:]
+                answer = re.sub(del_regex, "", answer)
+            return answer
 
-
-def answer_to_dict(
-    answer: str = "", logger: "BoundLoggerLazyProxy" = logger
-) -> list[dict]:
-    """
-    Converts the answer string to a list of dictionaries by removing unwanted characters. This is useful when
-    prompting the LLM to return a list of objects containing metainformation in a structured way.
-
-    Args:
-        answer (str, optional): The answer string to be converted to a list of dictionaries. Defaults to "".
-        logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
-
-    Returns:
-        list[dict]: The list of dictionaries extracted from the answer string.
-    """
-    match = re.search(r"\n\n\[\n *\{", answer, flags=re.IGNORECASE)
-    if match:
-        start = match.start()
-        answer = answer[start:]
-        answer = re.sub(r"\n\n", "", answer)
-
-    # Return empty list if answer is empty or the loaded list of dictionaries
-    dict_answer = []
-    try:
-        dict_answer = json.loads(answer)
-    except json.JSONDecodeError:
-        logger.critical(
-            f"Answer is not a valid JSON: {answer}. Please check the answer format."
+        return _clean_answer(
+            answer=self.llm.invoke(prompt), regex=regex, del_regex=del_regex
         )
-    return dict_answer
+
+    def generate_simulation_methods(self, prompt: str = "") -> Simulation | None:
+        answer = self.generate(prompt=prompt)
+        if not answer:
+            return None
+
+        data = answer_to_dict(answer=answer, logger=self.logger)
+        if not data:
+            return None
+        return Simulation.model_validate({"methods": data})
