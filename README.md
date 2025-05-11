@@ -40,19 +40,19 @@ pip install ragxiv[dev,docu]
 We recommend running your own models locally using [Ollama](https://ollama.com/download):
 ```bash
 # Install Ollama (follow instructions on their website)
-ollama pull <model-name>   # e.g., llama3, deepseek-coder
+ollama pull <model-name>   # e.g., llama3, deepseek-r1, qwen3:30b
 
 # Start the local server
 ollama serve
 ```
 
 
+---
 
 # Development
 
 To contribute to `RAGxiv` or run it locally, follow these steps:
 
----
 
 ## Clone the Repository
 
