@@ -25,24 +25,19 @@ text = categorizer.get_relevant_chunks(chunks=chunks, n_top_chunks=5)
 # text_2 = categorizer_2.get_relevant_chunks(chunks=chunks, n_top_chunks=5)
 
 # generator = LLMGenerator(model="deepseek-r1", text=text)
-generator = LLMGenerator(model="llama3", text=text)
+generator = LLMGenerator(model="llama3.1:70b", text=text)
 
 # ! define experiment or computation
 answer_exp_or_comp = generator.generate(prompt=prompt(EXP_OR_COMP_TEMPLATE, text=text))
-
+if answer_exp_or_comp not in ["computational", "experimental", "both", "none"]:
+    raise ValueError(
+        f"Answer is not valid. Expected one of ['computational', 'experimental', 'both', 'none'], but got\n\n{answer_exp_or_comp}"
+    )
+# ! extract methods
 answer_methods = generator.generate(
     prompt=prompt(EXTRACT_METHODS_TEMPLATE, text=text, exp_or_comp=answer_exp_or_comp)
 )
-# answer = generator.generate(prompt=prompt(FILTER_METHODS_TEMPLATE, candidates=answer))
-
-
-# from langchain_community.retrievers import ArxivRetriever
-
-# retriever = ArxivRetriever(
-#     load_max_docs=2,
-#     get_ful_documents=True,
-# )
-
-# docs = retriever.invoke(
-#     "Is this an experimental or computational paper? Or a combination of both?"
-# )
+# ! filter in case there are some wrongly identified softwares or instruments
+answer_filtered_methods = generator.generate(
+    prompt=prompt(FILTER_METHODS_TEMPLATE, candidates=answer_methods)
+)
