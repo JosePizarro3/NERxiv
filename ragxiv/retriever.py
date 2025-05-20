@@ -11,6 +11,11 @@ from ragxiv.logger import logger
 # TODO add measure of performance
 # TODO check other model_name
 class Retriever(ABC):
+    """
+    Abstract base class for retrieving relevant chunks of text from a list of documents. This class
+    is designed to be inherited from and implemented by specific retriever classes.
+    """
+
     def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
         self.logger = kwargs.get("logger", logger)
         self.model_name = model
@@ -29,6 +34,11 @@ class Retriever(ABC):
 
 
 class CustomRetriever(Retriever):
+    """
+    A custom retriever class that uses the `SentenceTransformer` model to retrieve relevant chunks of text
+    from a list of documents.
+    """
+
     def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
         super().__init__(model, **kwargs)
         self.model = SentenceTransformer(self.model_name)
@@ -37,6 +47,16 @@ class CustomRetriever(Retriever):
     def get_relevant_chunks(
         self, chunks: list[Document] = [], n_top_chunks: int = 5
     ) -> str:
+        """
+        Retrieves the most relevant chunks of text from a list of documents using the `SentenceTransformer` model.
+
+        Args:
+            chunks (list[Document], optional): The chunks to be ranked. Defaults to [].
+            n_top_chunks (int, optional): The number of top chunks to be returned. Defaults to 5.
+
+        Returns:
+            str: The top `n_top_chunks` chunks joined in a single string with the highest similarity score with respect to the query.
+        """
         if not chunks:
             self.logger.warning("No chunks provided.")
             return []
@@ -68,6 +88,16 @@ class LangChainRetriever(Retriever):
         self.logger.info(f"Loaded `HuggingFaceEmbeddings` model: {self.model_name}")
 
     def get_relevant_chunks(self, chunks: list[Document] = [], n_top_chunks=5) -> str:
+        """
+        Retrieves the most relevant chunks of text from a list of documents using the `HuggingFaceEmbeddings` model.
+
+        Args:
+            chunks (list[Document], optional): The chunks to be ranked. Defaults to [].
+            n_top_chunks (int, optional): The number of top chunks to be returned. Defaults to 5.
+
+        Returns:
+            str: The top `n_top_chunks` chunks joined in a single string with the highest similarity score with respect to the query.
+        """
         vector_store = InMemoryVectorStore(self.embeddings)
         _ = vector_store.add_documents(documents=chunks)
         results = vector_store.similarity_search_with_score(self.query, k=n_top_chunks)
