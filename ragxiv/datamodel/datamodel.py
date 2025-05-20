@@ -1,6 +1,5 @@
 import datetime
 
-from langchain_core.documents import Document
 from pydantic import BaseModel, Field
 
 
@@ -73,6 +72,7 @@ class Method(BaseModel):
     )
 
     acronym: str | None = Field(
+        None,
         description="The acronym of the method. It is a short name, e.g., 'DFT' or 'QMC'. The verbose "
         "name of the method is not included in the acronym and is stored in another field called `name`.",
     )

@@ -4,6 +4,8 @@ Given the following scientific text, determine if it describes an **experimental
 If it describes an experimental method, return "experimental". If it describes a computational method, return "computational".
 If it describes both, return "both". If it describes neither, return "none".
 
+Important instruction: only return the strings computational, experimental, both, or none, depending on the result.
+
 Example 1:
     - Input text: We use Density Functional Theory (DFT) to calculate the electronic structure of the material.
     - Answer: computational
@@ -19,9 +21,8 @@ Text:
 EXTRACT_METHODS_TEMPLATE = """You are a structured data extractor.
 
 Extract a list of {exp_or_comp} methods (note that "both" means both experimental and computational) mentioned in the following scientific text.
-Each method should include:
-- A full name (e.g., "Density Functional Theory")
-- An acronym if available (e.g., "DFT")
+
+Important instruction: each method should include a full name (e.g., "Density Functional Theory"). Additionally, it can also contain an acronym if available (e.g., "DFT")
 
 Example 1:
     - Input text: We use Density Functional Theory (DFT) to calculate the electronic structure of the material. We
@@ -46,10 +47,9 @@ Text:
 
 FILTER_METHODS_TEMPLATE = """You are a Condensed Matter Physics assistant.
 
-Given the following list of extracted candidates, filter out any that are **not actual methods**
-but instead are **software packages, code implementations, or libraries**.
+Given the following list of extracted candidates, filter out any that are not actual methods but instead are software packages, code implementations, libraries, or instrument names.
 
-Return only the list of method dictionaries. Do not include any explanation or extra text.
+Important instruction: return only the list of method dictionaries. Do not include any explanation or extra text.
 
 Input:
 {candidates}

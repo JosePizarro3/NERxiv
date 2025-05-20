@@ -51,9 +51,12 @@ class LLMGenerator:
 
         self.logger = kwargs.get("logger", logger)
 
+        # ! note this is a list to keep track of the models tested, rather than a complete list of all the LLM models available
         self._huggingface_model_map = {
             "deepseek-r1": ("deepseek-ai/DeepSeek-R1", 131072),
-            "llama3": ("meta-llama/Llama-3.1-8B-Instruct", 8192),
+            "llama3.1": ("meta-llama/Llama-3.1-8B-Instruct", 131072),
+            "llama3.1:70b": ("meta-llama/Llama-3.1-70B", 131072),
+            "qwen3:32b": ("Qwen/Qwen3-32B", 40960),
         }
 
         self.llm = OllamaLLM(model=model)
@@ -99,14 +102,40 @@ class LLMGenerator:
 
         Args:
             prompt (str, optional): The prompt to be used for generating the answer. Defaults to "".
+            regex (str, optional): The regex pattern to search for in the answer. Defaults to r"\n\nAnswer\: *".
+            del_regex (str, optional): The regex pattern to delete from the answer. Defaults to r"\n\nAnswer\: *".
 
         Returns:
-            str: The generated answer from the LLM model.
+            str: The generated and cleaned answer from the LLM model.
         """
+        # Check if the prompt is empty or exceeds the token limit
         if not self._check_tokens_limit(prompt=prompt) or not prompt:
             return ""
 
+        def _delete_thinking(answer: str = "") -> str:
+            """
+            Deletes the thinking process from the answer string by removing the <think> block.
+
+            Args:
+                answer (str, optional): The input text to delete the thinking block. Defaults to "".
+
+            Returns:
+                str: The answer string with the <think> block removed.
+            """
+            return re.sub(r"<think>.*?</think>\n*", "", answer, flags=re.DOTALL)
+
         def _clean_answer(regex: str, del_regex: str, answer: str = "") -> str:
+            """
+            Cleans the answer by removing unwanted characters and extracting the relevant part of the answer.
+
+            Args:
+                regex (str): The regex pattern to search for in the answer.
+                del_regex (str): The regex pattern to delete from the answer.
+                answer (str, optional): The answer input. Defaults to "".
+
+            Returns:
+                str: The cleaned answer.
+            """
             match = re.search(regex, answer, flags=re.IGNORECASE)
             if match:
                 start = match.start()
@@ -114,16 +143,15 @@ class LLMGenerator:
                 answer = re.sub(del_regex, "", answer)
             return answer
 
-        return _clean_answer(
-            answer=self.llm.invoke(prompt), regex=regex, del_regex=del_regex
-        )
+        deleted_thinking = _delete_thinking(answer=self.llm.invoke(prompt))
+        return _clean_answer(answer=deleted_thinking, regex=regex, del_regex=del_regex)
 
-    def generate_simulation_methods(self, prompt: str = "") -> Simulation | None:
-        answer = self.generate(prompt=prompt)
-        if not answer:
-            return None
+    # def generate_simulation_methods(self, prompt: str = "") -> Simulation | None:
+    #     answer = self.generate(prompt=prompt)
+    #     if not answer:
+    #         return None
 
-        data = answer_to_dict(answer=answer, logger=self.logger)
-        if not data:
-            return None
-        return Simulation.model_validate({"methods": data})
+    #     data = answer_to_dict(answer=answer, logger=self.logger)
+    #     if not data:
+    #         return None
+    #     return Simulation.model_validate({"methods": data})
