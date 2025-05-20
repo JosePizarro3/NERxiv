@@ -8,7 +8,6 @@ if TYPE_CHECKING:
 from langchain_ollama.llms import OllamaLLM
 from transformers import AutoTokenizer
 
-from ragxiv.datamodel import Method, Simulation
 from ragxiv.logger import logger
 
 
@@ -145,13 +144,3 @@ class LLMGenerator:
 
         deleted_thinking = _delete_thinking(answer=self.llm.invoke(prompt))
         return _clean_answer(answer=deleted_thinking, regex=regex, del_regex=del_regex)
-
-    # def generate_simulation_methods(self, prompt: str = "") -> Simulation | None:
-    #     answer = self.generate(prompt=prompt)
-    #     if not answer:
-    #         return None
-
-    #     data = answer_to_dict(answer=answer, logger=self.logger)
-    #     if not data:
-    #         return None
-    #     return Simulation.model_validate({"methods": data})
