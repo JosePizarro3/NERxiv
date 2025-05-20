@@ -48,7 +48,7 @@ def test_llm_generator_generate_mocked(
         ("no list of dictionaries found", []),
         # successful
         (
-            'The answer is:\n\n[\n    {"answer": "This is the answer."}\n]',
+            '[\n    {"answer": "This is the answer."}\n]',
             [{"answer": "This is the answer."}],
         ),
     ],
