@@ -20,12 +20,16 @@ class Retriever(ABC):
         self.logger = kwargs.get("logger", logger)
         self.model_name = model
 
-        self.query = (
-            "Identify all mentions of scientific methods used in this text, "
-            "especially those relevant to Condensed Matter Physics. Look for full names "
-            "(e.g., Density Functional Theory, Quantum Monte Carlo, Wannierization) and abbreviations "
-            "(e.g., DFT, QMC, DMFT, ARPES). Include any experimental, computational, or numerical techniques."
-        )
+        self.query = ""
+        if not kwargs.get("query"):
+            self.query = (
+                "Identify all mentions of scientific methods (experimental, computational, numerical) used "
+                "in this text relevant to Condensed Matter Physics, as for example Density Functional Theory, "
+                "Quantum Monte Carlo, Wannierization, Photoemission spectroscopy, etc., and also abbreviations "
+                "(DFT, QMC, DMFT, PES, XRD, ladder DΓA, etc.)."
+            )
+        else:
+            self.query = kwargs.get("query")
 
     @abstractmethod
     def get_relevant_chunks(self, chunks: list[Document] = [], n_top_chunks: int = 5):

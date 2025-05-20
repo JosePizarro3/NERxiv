@@ -24,20 +24,15 @@ Extract a list of {exp_or_comp} methods (note that "both" means both experimenta
 
 Important instruction: each method should include a full name (e.g., "Density Functional Theory"). Additionally, it can also contain an acronym if available (e.g., "DFT")
 
+Important instruction 2: only return the list of dictionaries, do not include any other explanation or extra text.
+
 Example 1:
-    - Input text: We use Density Functional Theory (DFT) to calculate the electronic structure of the material. We
-    also performed Angle Resolved Photoemission Spectroscopy (ARPES) to study the surface states.
+    - Input text: We use Density Functional Theory (DFT) to calculate the electronic structure of the material, and performed
+    a Wannier projection onto the dxy bands. We also performed Angle Resolved Photoemission Spectroscopy (ARPES) to study the surface states.
     - Answer: [
         {{ "name": "Density Functional Theory", "acronym": "DFT" }},
+        {{ "name": "Density Functional Theory", "acronym": "DFT" }},
         {{ "name": "Angle Resolved Photoemission Spectroscopy", "acronym": "ARPES" }}
-    ]
-
-Example 2:
-    - Input text: We performed ladder DΓA calculations on top of the DMFT solution. The DMFT self-energy was calculated using the CTQMC method.
-    - Answer: [
-        {{ "name": "Ladder DΓA", "acronym": "Ladder DΓA" }},
-        {{ "name": "Dynamical Mean Field Theory", "acronym": "DMFT" }},
-        {{ "name": "Continuous-Time Quantum Monte Carlo", "acronym": "CTQMC" }}
     ]
 
 Text:
@@ -48,8 +43,14 @@ Text:
 FILTER_METHODS_TEMPLATE = """You are a Condensed Matter Physics assistant.
 
 Given the following list of extracted candidates, filter out any that are not actual methods but instead are software packages, code implementations, libraries, or instrument names.
+Reject also repetitions, unclear situations, or any other irrelevant information.
 
 Important instruction: return only the list of method dictionaries. Do not include any explanation or extra text.
+
+Example 1:
+    - Input: [\n    {{ "name": "Density Functional Theory", "acronym": "DFT" }},\n    {{ "name": "Wannier Hamiltonian" }},\n    {{ "name": "Vienna ab-initio simulation package" }},\n    {{ "name": "Perdew-Burke-Ernzerhof exchange correlation functional adapted for solids", "acronym": "PBESol" }},\n    {{ "name": "Wannierization" }}\n]
+    - Answer: [\n    {{ "name": "Density Functional Theory", "acronym": "DFT" }},\n    {{ "name": "Wannierization" }}\n]
+    - Reasoning: The "Vienna ab-initio simulation package" is a software package, and the "Perdew-Burke-Ernzerhof exchange correlation functional adapted for solids" is a specific functional, not a method. "Wannier Hamiltonian" and "Wannierization" are the same method.
 
 Input:
 {candidates}
