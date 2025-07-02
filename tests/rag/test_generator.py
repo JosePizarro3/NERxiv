@@ -20,8 +20,8 @@ def test_llm_generator_generate_mocked(
     """Tests the `_check_tokens_limit` and `generate` methods of the `LLMGenerator` class."""
     # Mock OllamaLLM + AutoTokenizer
     with (
-        patch("ragxiv.generator.OllamaLLM") as mock_llm_cls,
-        patch("ragxiv.generator.AutoTokenizer") as mock_tokenizer_cls,
+        patch("ragxiv.rag.generator.OllamaLLM") as mock_llm_cls,
+        patch("ragxiv.rag.generator.AutoTokenizer") as mock_tokenizer_cls,
     ):
         # --- Mock the tokenizer ---
         mock_tokenizer = MagicMock()
