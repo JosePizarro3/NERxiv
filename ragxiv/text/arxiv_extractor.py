@@ -317,7 +317,7 @@ class TextExtractor:
         return text.strip()
 
 
-def fetch_and_extract(
+def arxiv_fetch_and_extract(
     category: str = "cond-mat.str-el",
     max_results: int = 5,
     data_folder: str = "data",

@@ -3,12 +3,12 @@ from unittest.mock import MagicMock, patch
 import torch
 from langchain_core.documents import Document
 
-from ragxiv.retriever import CustomRetriever, LangChainRetriever
+from ragxiv.rag import CustomRetriever, LangChainRetriever
 
 
 def test_custom_retriever_mocked():
     """Tests the `get_relevant_chunks` method of the `CustomRetriever` class."""
-    with patch("ragxiv.retriever.SentenceTransformer") as mock_model:
+    with patch("ragxiv.rag.retriever.SentenceTransformer") as mock_model:
         mock_instance = mock_model.return_value
 
         # Fake embeddings: query (1 x dim) and chunks (N x dim)
@@ -37,8 +37,8 @@ def test_custom_retriever_mocked():
 def test_langchain_retriever_mocked():
     """Tests the `get_relevant_chunks` method of the `LangChainRetriever` class."""
     with (
-        patch("ragxiv.retriever.HuggingFaceEmbeddings") as mock_embed_cls,
-        patch("ragxiv.retriever.InMemoryVectorStore") as mock_store_cls,
+        patch("ragxiv.rag.retriever.HuggingFaceEmbeddings") as mock_embed_cls,
+        patch("ragxiv.rag.retriever.InMemoryVectorStore") as mock_store_cls,
     ):
         # Mock embeddings
         mock_embed = MagicMock()
