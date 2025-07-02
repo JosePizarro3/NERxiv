@@ -50,7 +50,7 @@ def _():
 
 @app.cell
 def _():
-    from ragxiv.fetch_and_extract import ArxivFetcher
+    from ragxiv.text import ArxivFetcher
 
 
     # We can specify the `category` (by default this is `"cond-mat.str-el"`) and the `max_results` we want to query from arXiv
@@ -98,7 +98,7 @@ def _():
 def _():
     mo.md(
         r"""
-    For each of the fetched papers, we downloaded them locally under `tutorials/data/`. We do this in order to extract the text later on. 
+    For each of the fetched papers, we downloaded them locally under `tutorials/data/`. We do this in order to extract the text later on.
 
     We will use the function `ArxivFetcher.download_pdf()`.
     """
@@ -140,7 +140,7 @@ def _():
 
 @app.cell
 def _(pdf_paths):
-    from ragxiv.fetch_and_extract import TextExtractor
+    from ragxiv.text import TextExtractor
 
     extractor = TextExtractor()
     all_texts = []
@@ -234,17 +234,17 @@ def _():
 
 @app.cell
 def _():
-    from ragxiv.fetch_and_extract import fetch_and_extract
+    from ragxiv.text import arxiv_fetch_and_extract
 
 
-    arxiv_papers_one_shot = fetch_and_extract(max_results=3, data_folder="tutorials/data/", loader="pypdf")
+    arxiv_papers_one_shot = arxiv_fetch_and_extract(max_results=3, data_folder="tutorials/data/", loader="pypdf")
     return (arxiv_papers_one_shot,)
 
 
 @app.cell
 def _(arxiv_papers):
     print(
-        f"{arxiv_papers[0]}\n", 
+        f"{arxiv_papers[0]}\n",
         f"{arxiv_papers[0].text}",
     )
     return
@@ -253,7 +253,7 @@ def _(arxiv_papers):
 @app.cell
 def _(arxiv_papers_one_shot):
     print(
-        f"{arxiv_papers_one_shot[0]}\n", 
+        f"{arxiv_papers_one_shot[0]}\n",
         f"{arxiv_papers_one_shot[0].text}",
     )
     return

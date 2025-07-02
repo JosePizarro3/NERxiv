@@ -1,6 +1,6 @@
 import pytest
 
-from ragxiv.chunker import Chunker
+from ragxiv.text import Chunker
 
 
 class TestChunker:

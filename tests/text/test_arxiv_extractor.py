@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ragxiv.fetch_and_extract import TextExtractor, fetch_and_extract
+from ragxiv.text import TextExtractor, arxiv_fetch_and_extract
 from tests.conftest import generate_arxiv_fetcher, generate_arxiv_paper
 
 
@@ -415,19 +415,19 @@ class TestTextExtractor:
     ],
 )
 @patch("urllib.request.urlopen")
-def test_fetch_and_extract(
+def test_arxiv_fetch_and_extract(
     mock_urlopen: MagicMock,
     cleared_log_storage: list,
     arxiv_response: str,
     log_msg: dict,
     result: dict,
 ):
-    """Tests the `fetch_and_extract` method of the `ArxivFetcher` class."""
+    """Tests the `arxiv_fetch_and_extract` method of the `ArxivFetcher` class."""
     mock_response = MagicMock()
     mock_response.read.return_value = arxiv_response.encode("utf-8")
     mock_urlopen.return_value = mock_response
 
-    papers = fetch_and_extract(data_folder="tests/data", max_results=1)
+    papers = arxiv_fetch_and_extract(data_folder="tests/data", max_results=1)
     if log_msg:
         assert len(cleared_log_storage) == 2
         assert cleared_log_storage[0]["level"] == log_msg["level"]

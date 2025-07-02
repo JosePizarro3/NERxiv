@@ -36,7 +36,8 @@ class Chunker:
         # ! we define a list of `Document` objects in LangChain to use the `split_documents(pages)` method
         pages = [
             Document(
-                page_content=self.text, metadata={"source": "TextExtractor.get_text()"}
+                page_content=self.text,
+                metadata={"source": "ragxiv.text.TextExtractor.get_text()"},
             )
         ]
         chunks = text_splitter.split_documents(pages)

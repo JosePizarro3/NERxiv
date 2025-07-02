@@ -4,8 +4,8 @@ import os
 import pytest
 
 from ragxiv.datamodel import ArxivPaper
-from ragxiv.fetch_and_extract import ArxivFetcher
 from ragxiv.logger import log_storage
+from ragxiv.text import ArxivFetcher
 
 if os.getenv("_PYTEST_RAISE", "0") != "0":
 

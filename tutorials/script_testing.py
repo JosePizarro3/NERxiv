@@ -1,15 +1,14 @@
 pdf = "./tests/data/2502.12144v1.pdf"
 
-from ragxiv.chunker import Chunker
-from ragxiv.fetch_and_extract import TextExtractor
-from ragxiv.generator import LLMGenerator, answer_to_dict
+from ragxiv.text.chunker import Chunker
+from ragxiv.text.arxiv_extractor import TextExtractor
 from ragxiv.prompts import (
     EXP_OR_COMP_TEMPLATE,
     EXTRACT_METHODS_TEMPLATE,
     FILTER_METHODS_TEMPLATE,
     prompt,
 )
-from ragxiv.retriever import CustomRetriever, LangChainRetriever
+from ragxiv.rag import CustomRetriever, LangChainRetriever, LLMGenerator, answer_to_dict
 
 extractor = TextExtractor()
 text = extractor.get_text(pdf_path=pdf, loader="pdfminer")

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ragxiv.generator import LLMGenerator, answer_to_dict
+from ragxiv.rag import LLMGenerator, answer_to_dict
 
 
 @pytest.mark.parametrize(
