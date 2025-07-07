@@ -4,11 +4,52 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from ragxiv.datamodel import ArxivPaper
 from ragxiv.text import TextExtractor, arxiv_fetch_and_extract
 from tests.conftest import generate_arxiv_fetcher, generate_arxiv_paper
 
 
+def clean_fetched_ids_file():
+    """Deletes the `fetched_arxiv_ids.txt` file if it exists. This is applied multiple times in test functions to ensure a clean state."""
+    path = Path("tests/data/fetched_arxiv_ids.txt")
+    if path.exists():
+        path.unlink(missing_ok=True)
+
+
 class TestArxivFetcher:
+    @pytest.mark.parametrize(
+        "fetched_ids, result",
+        [
+            # No file content
+            (
+                [],
+                set(),
+            ),
+            # One fetched ID present
+            (
+                ["1234.5678v1"],
+                set(["1234.5678v1"]),
+            ),
+            # Multiple fetched IDs present
+            (
+                ["1234.5678v1", "2345.6789v1"],
+                set(["1234.5678v1", "2345.6789v1"]),
+            ),
+        ],
+    )
+    def test_fetched_ids(self, fetched_ids: list, result: set):
+        """Tests the `fetched_ids` property of the `ArxivFetcher` class."""
+        clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists
+
+        with open("tests/data/fetched_arxiv_ids.txt", "a") as f:
+            for id in fetched_ids:
+                f.write(f"{id}\n")
+
+        arxiv_fetcher = generate_arxiv_fetcher()
+        assert arxiv_fetcher.fetched_ids == result
+
+        clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists
+
     @pytest.mark.parametrize(
         "arxiv_response, log_msg, result",
         [
@@ -58,7 +99,10 @@ class TestArxivFetcher:
                     </entry>
                 </feed>
                 """,
-                {"level": "error", "event": "Paper without summary/abstract"},
+                {
+                    "level": "error",
+                    "event": "Paper http://arxiv.org/abs/1234.5678v1 without summary/abstract",
+                },
                 {},
             ),
             # Missing authors
@@ -147,6 +191,8 @@ class TestArxivFetcher:
         result: dict,
     ):
         """Tests the `fetch` method of the `ArxivFetcher` class."""
+        clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists
+
         mock_response = MagicMock()
         mock_response.read.return_value = arxiv_response.encode("utf-8")
         mock_urlopen.return_value = mock_response
@@ -157,8 +203,10 @@ class TestArxivFetcher:
             assert len(cleared_log_storage) == 1
             assert cleared_log_storage[0]["level"] == log_msg["level"]
             assert cleared_log_storage[0]["event"] == log_msg["event"]
-        if papers:
+        if papers and all(isinstance(p, ArxivPaper) for p in papers):
             assert papers[0].model_dump() == result
+
+        clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists
 
     @pytest.mark.parametrize(
         "id, pdf_path_result, log_msg",
@@ -185,17 +233,20 @@ class TestArxivFetcher:
         self, cleared_log_storage: list, id: str, pdf_path_result: str, log_msg: str
     ):
         """Tests the `download_pdf` method of the `ArxivFetcher` class."""
+        clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists
+
         arxiv_paper = generate_arxiv_paper(id=id)
         arxiv_fetcher = generate_arxiv_fetcher()
         pdf_path = arxiv_fetcher.download_pdf(
             arxiv_paper,
-            data_folder="tests/data",
             write=False,  # no writing to file
         )
         assert pdf_path == pdf_path_result
         assert len(cleared_log_storage) == 1
         assert cleared_log_storage[0]["level"] == log_msg["level"]
         assert cleared_log_storage[0]["event"] == log_msg["event"]
+
+        clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists
 
 
 class TestTextExtractor:
@@ -335,7 +386,10 @@ class TestTextExtractor:
                 </entry>
             </feed>
             """,
-            {"level": "error", "event": "Paper without summary/abstract"},
+            {
+                "level": "error",
+                "event": "Paper http://arxiv.org/abs/1234.5678v1 without summary/abstract",
+            },
             {},
         ),
         # Missing authors
@@ -423,6 +477,8 @@ def test_arxiv_fetch_and_extract(
     result: dict,
 ):
     """Tests the `arxiv_fetch_and_extract` method of the `ArxivFetcher` class."""
+    clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists
+
     mock_response = MagicMock()
     mock_response.read.return_value = arxiv_response.encode("utf-8")
     mock_urlopen.return_value = mock_response
@@ -439,3 +495,5 @@ def test_arxiv_fetch_and_extract(
         )
     if papers:
         assert papers[0].model_dump() == result
+
+    clean_fetched_ids_file()  # deletes `fetched_arxiv_ids.txt` file if it exists

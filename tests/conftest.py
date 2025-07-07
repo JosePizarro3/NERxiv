@@ -25,8 +25,18 @@ def cleared_log_storage():
     yield log_storage
 
 
-def generate_arxiv_fetcher(category: str = "cond-mat.str-el", max_results: int = 1):
-    return ArxivFetcher(category=category, max_results=max_results)
+def generate_arxiv_fetcher(
+    category: str = "cond-mat.str-el",
+    max_results: int = 1,
+    data_folder: str = "tests/data",
+    fetched_arxiv_ids_file: str = "fetched_arxiv_ids.txt",
+):
+    return ArxivFetcher(
+        category=category,
+        max_results=max_results,
+        data_folder=data_folder,
+        fetched_arxiv_ids_file=fetched_arxiv_ids_file,
+    )
 
 
 def generate_arxiv_paper(id: str = "1234.5678v1"):

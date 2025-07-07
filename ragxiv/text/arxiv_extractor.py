@@ -24,6 +24,7 @@ class ArxivFetcher:
         category: str = "cond-mat.str-el",
         max_results: int = 100,
         data_folder: str = "data",
+        fetched_arxiv_ids_file: str = "fetched_arxiv_ids.txt",
         **kwargs,
     ):
         """
@@ -37,6 +38,7 @@ class ArxivFetcher:
             max_results (int, optional): The maximum number of results to fetch from arXiv. A typical value when
                 running the code would be 1000 (see https://info.arxiv.org/help/api/user-manual.html#3112-start-and-max_results-paging). Default is 5.
             data_folder (str, optional): The folder where to store the PDFs and other data. Default is "data".
+            fetched_arxiv_ids_file (str, optional): The file where to store the fetched arXiv IDs. Default is "fetched_arxiv_ids.txt".
         """
         self.category = category
         self.max_results = max_results
@@ -44,6 +46,8 @@ class ArxivFetcher:
         # check if `data_folder` exists, and if not, create it
         Path(data_folder).mkdir(parents=True, exist_ok=True)
         self.data_folder = Path(data_folder)
+        # file to store fetched arXiv IDs
+        self.fetched_ids_file = self.data_folder / fetched_arxiv_ids_file
 
         self.logger = kwargs.get("logger", logger)
         self.session = requests.Session()  # Reuse TCP connection
@@ -51,26 +55,30 @@ class ArxivFetcher:
         # ! otherwise, long papers get stuck on `requests.get()` due to connection timeouts
         self.session.head("http://arxiv.org/pdf/2502.10309v1", timeout=30)
 
-    def fetch(
-        self, fetched_ids_path: str = "fetched_arxiv_ids.txt", batch_size: int = 100
-    ) -> list:
+    @property
+    def fetched_ids(self) -> set[str]:
+        """
+        Get the set of fetched arXiv IDs from the `fetched_arxiv_ids.txt` file.
+
+        Returns:
+            set[str]: A set of fetched arXiv IDs.
+        """
+        if not self.fetched_ids_file.exists():
+            return set()
+        with open(self.fetched_ids_file) as f:
+            return set(line.strip() for line in f if line.strip())
+
+    def fetch(self, batch_size: int = 100) -> list:
         """
         Fetch new papers from arXiv, skipping already fetched ones, and stores their metadata in an `ArxivPaper`
         pydantic models. New fetched arXiv IDs will be appended to `data/fetched_arxiv_ids.txt`.
 
         Args:
-            fetched_ids_path (str, optional): Path to the file storing fetched arXiv IDs. Default is "fetched_arxiv_ids.txt".
             batch_size (int, optional): The number of papers to fetch in each request. Default is 100.
 
         Returns:
             list: A list of `ArxivPaper` objects with the metadata of the papers fetched from arXiv.
         """
-        # Load already fetched IDs into a set
-        fetched_ids_file = self.data_folder / fetched_ids_path
-        fetched_ids = set()
-        if fetched_ids_file.exists():
-            with open(fetched_ids_file) as f:
-                fetched_ids = set(line.strip() for line in f if line.strip())
 
         def _get_pages_and_figures(comment: str) -> tuple[int | None, int | None]:
             """
@@ -89,6 +97,9 @@ class ArxivFetcher:
                 n_pages, n_figures = match.groups()
                 return int(n_pages), int(n_figures)
             return None, None
+
+        # Load already fetched IDs into a set
+        fetched_ids = self.fetched_ids
 
         new_papers = []
         start_index = 0
@@ -122,12 +133,21 @@ class ArxivFetcher:
                 # If there is an error in the fetching, skip the paper
                 if "Error" in paper.get("title", ""):
                     self.logger.error("Error fetching the paper")
+                    new_papers = papers
                     continue
 
                 # If there is no `id`, skip the paper
                 url_id = paper.get("id")
                 if not url_id or "arxiv.org" not in url_id:
                     self.logger.error(f"Paper without a valid URL id: {url_id}")
+                    new_papers = papers
+                    continue
+
+                # If there is no `summary`, skip the paper
+                summary = paper.get("summary")
+                if not summary:
+                    self.logger.error(f"Paper {url_id} without summary/abstract")
+                    new_papers = papers
                     continue
 
                 # Getting arXiv `id`, and skipping if already fetched
@@ -170,7 +190,7 @@ class ArxivFetcher:
                         updated=paper.get("updated"),
                         published=paper.get("published"),
                         title=paper.get("title"),
-                        summary=paper.get("summary"),
+                        summary=summary,
                         authors=authors,
                         comment=comment,
                         n_pages=n_pages,
@@ -187,11 +207,16 @@ class ArxivFetcher:
 
             start_index += batch_size
 
-        # Save newly fetched IDs
-        if new_papers:
-            with open(fetched_ids_file, "a") as f:
+        # Save newly fetched IDs if these are all `ArxivPaper` objects and contain the `id` attribute
+        if all(isinstance(p, ArxivPaper) and p.id is not None for p in new_papers):
+            with open(self.fetched_ids_file, "a") as f:
                 for paper in new_papers:
                     f.write(f"{paper.id}\n")
+
+        # If not all papers are `ArxivPaper` objects, return an empty list
+        if not all(isinstance(p, ArxivPaper) for p in new_papers):
+            return []
+
         return new_papers
 
     def download_pdf(self, arxiv_paper: ArxivPaper, write: bool = True) -> Path:
@@ -358,6 +383,7 @@ def arxiv_fetch_and_extract(
     category: str = "cond-mat.str-el",
     max_results: int = 100,
     data_folder: str = "data",
+    fetched_arxiv_ids_file: str = "fetched_arxiv_ids.txt",
     loader: str = "pdfminer",
     logger: "BoundLoggerLazyProxy" = logger,
 ) -> list[ArxivPaper]:
@@ -377,6 +403,7 @@ def arxiv_fetch_and_extract(
         max_results (int, optional): The maximum number of results to fetch from arXiv. A typical value when
             running the code would be 1000 (see https://info.arxiv.org/help/api/user-manual.html#3112-start-and-max_results-paging). Default is 5.
         data_folder (str, optional): The folder where to store the PDFs. Defaults to "data".
+        fetched_arxiv_ids_file (str, optional): The file where to store the fetched arXiv IDs. Defaults to "fetched_arxiv_ids.txt".
         loader (str, optional): The loader to use for extracting text from the PDF file. Defaults to "pdfminer".
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
 
@@ -389,6 +416,7 @@ def arxiv_fetch_and_extract(
         category=category,
         max_results=max_results,
         data_folder=data_folder,
+        fetched_arxiv_ids_file=fetched_arxiv_ids_file,
     )
     text_extractor = TextExtractor(logger=logger)
 
