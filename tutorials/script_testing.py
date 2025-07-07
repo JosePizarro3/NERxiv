@@ -1,7 +1,7 @@
 pdf = "./tests/data/2502.12144v1.pdf"
 
-from ragxiv.text.chunker import Chunker
-from ragxiv.text.arxiv_extractor import TextExtractor
+from ragxiv.logger import logger
+from ragxiv.text import ArxivFetcher, Chunker, TextExtractor
 from ragxiv.prompts import (
     EXP_OR_COMP_TEMPLATE,
     EXTRACT_METHODS_TEMPLATE,
@@ -9,6 +9,11 @@ from ragxiv.prompts import (
     prompt,
 )
 from ragxiv.rag import CustomRetriever, LangChainRetriever, LLMGenerator, answer_to_dict
+
+papers = fetcher = ArxivFetcher(
+    logger=logger,
+    max_results=5,
+).fetch(batch_size=2)
 
 extractor = TextExtractor()
 text = extractor.get_text(pdf_path=pdf, loader="pdfminer")

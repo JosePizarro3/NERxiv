@@ -22,7 +22,8 @@ class ArxivFetcher:
     def __init__(
         self,
         category: str = "cond-mat.str-el",
-        max_results: int = 5,
+        max_results: int = 100,
+        data_folder: str = "data",
         **kwargs,
     ):
         """
@@ -33,10 +34,16 @@ class ArxivFetcher:
 
         Args:
             category (str, optional): The arXiv category to fetch papers from. Default is "cond-mat.str-el".
-            max_results (int, optional): The maximum number of results to fetch from arXiv. Default is 5.
+            max_results (int, optional): The maximum number of results to fetch from arXiv. A typical value when
+                running the code would be 1000 (see https://info.arxiv.org/help/api/user-manual.html#3112-start-and-max_results-paging). Default is 5.
+            data_folder (str, optional): The folder where to store the PDFs and other data. Default is "data".
         """
         self.category = category
         self.max_results = max_results
+
+        # check if `data_folder` exists, and if not, create it
+        Path(data_folder).mkdir(parents=True, exist_ok=True)
+        self.data_folder = Path(data_folder)
 
         self.logger = kwargs.get("logger", logger)
         self.session = requests.Session()  # Reuse TCP connection
@@ -44,19 +51,26 @@ class ArxivFetcher:
         # ! otherwise, long papers get stuck on `requests.get()` due to connection timeouts
         self.session.head("http://arxiv.org/pdf/2502.10309v1", timeout=30)
 
-    def fetch(self) -> list:
+    def fetch(
+        self, fetched_ids_path: str = "fetched_arxiv_ids.txt", batch_size: int = 100
+    ) -> list:
         """
-        Fetch papers from arXiv and extract text from the queried PDFs.
-        The `fetch` method is called to fetch the papers from arXiv and stores them in a list of `ArxivPaper` pydantic models.
+        Fetch new papers from arXiv, skipping already fetched ones, and stores their metadata in an `ArxivPaper`
+        pydantic models. New fetched arXiv IDs will be appended to `data/fetched_arxiv_ids.txt`.
+
+        Args:
+            fetched_ids_path (str, optional): Path to the file storing fetched arXiv IDs. Default is "fetched_arxiv_ids.txt".
+            batch_size (int, optional): The number of papers to fetch in each request. Default is 100.
 
         Returns:
             list: A list of `ArxivPaper` objects with the metadata of the papers fetched from arXiv.
         """
-        # Fetch request from arXiv API and parsing the XML response
-        url = f"http://export.arxiv.org/api/query?search_query=cat:{self.category}&start=0&max_results={self.max_results}&sortBy=submittedDate&sortOrder=descending"
-        request = urllib.request.urlopen(url)
-        data = request.read().decode("utf-8")
-        data_dict = xmltodict.parse(data)
+        # Load already fetched IDs into a set
+        fetched_ids_file = self.data_folder / fetched_ids_path
+        fetched_ids = set()
+        if fetched_ids_file.exists():
+            with open(fetched_ids_file) as f:
+                fetched_ids = set(line.strip() for line in f if line.strip())
 
         def _get_pages_and_figures(comment: str) -> tuple[int | None, int | None]:
             """
@@ -76,105 +90,128 @@ class ArxivFetcher:
                 return int(n_pages), int(n_figures)
             return None, None
 
-        # Extracting papers from the XML response
-        papers = data_dict.get("feed", {}).get("entry", [])
-        if not papers:
-            self.logger.info("No papers found in the response")
-            return []
-        # In case `max_results` is 1, the response is not a list
-        if not isinstance(papers, list):
-            papers = [papers]
+        new_papers = []
+        start_index = 0
+        while len(new_papers) < self.max_results:
+            remaining = self.max_results - len(new_papers)  # remaining papers to fetch
+            current_batch_size = min(batch_size, remaining)  # current batch to fetch
 
-        # Store papers object ArxivPaper in a list
-        arxiv_papers = []
-        for paper in papers:
-            # If there is an error in the fetching, skip the paper
-            if "Error" in paper.get("title", ""):
-                self.logger.error("Error fetching the paper")
-                continue
-
-            # If there is no `id`, skip the paper
-            url_id = paper.get("id")
-            if not url_id or "arxiv.org" not in url_id:
-                self.logger.error(f"Paper without a valid URL id: {url_id}")
-                continue
-
-            # If there is no `summary`, skip the paper
-            if not paper.get("summary"):
-                self.logger.error("Paper without summary/abstract")
-                continue
-
-            # Extracting `authors` from the XML response
-            paper_authors = paper.get("author", [])
-            if not isinstance(paper_authors, list):
-                paper_authors = [paper_authors]
-            authors = [
-                Author(name=author.get("name"), affiliation=author.get("affiliation"))
-                for author in paper_authors
-            ]
-            if not authors:
-                self.logger.info("\tPaper without authors.")
-
-            # Extracting `categories` from the XML response
-            arxiv_categories = paper.get("category", [])
-            if not isinstance(arxiv_categories, list):
-                categories = [arxiv_categories.get("@term")]
-            else:
-                categories = [category.get("@term") for category in arxiv_categories]
-
-            # Extracting pages and figures from the comment
-            comment = paper.get("arxiv:comment", {}).get("#text", "")
-            n_pages, n_figures = _get_pages_and_figures(comment)
-
-            # Getting arXiv `id`
-            id = url_id.split("/")[-1]
-            if ".pdf" in id:
-                id = id.replace(".pdf", "")
-
-            # Storing the ArxivPaper object in the list
-            arxiv_papers.append(
-                ArxivPaper(
-                    id=id,
-                    url=url_id,
-                    pdf_url=url_id.replace("abs", "pdf"),
-                    updated=paper.get("updated"),
-                    published=paper.get("published"),
-                    title=paper.get("title"),
-                    summary=paper.get("summary"),
-                    authors=authors,
-                    comment=comment,
-                    n_pages=n_pages,
-                    n_figures=n_figures,
-                    categories=categories,
-                )
+            # Fetch request from arXiv API and parsing the XML response
+            # url = f"http://export.arxiv.org/api/query?search_query=cat:{self.category}&start=0&max_results={self.max_results}&sortBy=submittedDate&sortOrder=descending"
+            url = (
+                f"http://export.arxiv.org/api/query?"
+                f"search_query=cat:{self.category}&start={start_index}&max_results={current_batch_size}&"
+                f"sortBy=submittedDate&sortOrder=descending"
             )
-            self.logger.info(f"Paper {id} fetched from arXiv.")
 
-        return arxiv_papers
+            request = urllib.request.urlopen(url)
+            data = request.read().decode("utf-8")
+            data_dict = xmltodict.parse(data)
 
-    def download_pdf(
-        self, arxiv_paper: ArxivPaper, data_folder: str = "data", write: bool = True
-    ) -> Path:
+            # Extracting papers from the XML response
+            papers = data_dict.get("feed", {}).get("entry", [])
+            if not papers:
+                self.logger.info("No papers found in the response")
+                return []
+            # In case `max_results` is 1, the response is not a list
+            if not isinstance(papers, list):
+                papers = [papers]
+
+            # Store papers object ArxivPaper in a list
+            for paper in papers:
+                # If there is an error in the fetching, skip the paper
+                if "Error" in paper.get("title", ""):
+                    self.logger.error("Error fetching the paper")
+                    continue
+
+                # If there is no `id`, skip the paper
+                url_id = paper.get("id")
+                if not url_id or "arxiv.org" not in url_id:
+                    self.logger.error(f"Paper without a valid URL id: {url_id}")
+                    continue
+
+                # Getting arXiv `id`, and skipping if already fetched
+                arxiv_id = url_id.split("/")[-1].replace(".pdf", "")
+                if arxiv_id in fetched_ids:
+                    continue
+
+                # Extracting `authors` from the XML response
+                paper_authors = paper.get("author", [])
+                if not isinstance(paper_authors, list):
+                    paper_authors = [paper_authors]
+                authors = [
+                    Author(
+                        name=author.get("name"), affiliation=author.get("affiliation")
+                    )
+                    for author in paper_authors
+                ]
+                if not authors:
+                    self.logger.info("\tPaper without authors.")
+
+                # Extracting `categories` from the XML response
+                arxiv_categories = paper.get("category", [])
+                if not isinstance(arxiv_categories, list):
+                    categories = [arxiv_categories.get("@term")]
+                else:
+                    categories = [
+                        category.get("@term") for category in arxiv_categories
+                    ]
+
+                # Extracting pages and figures from the comment
+                comment = paper.get("arxiv:comment", {}).get("#text", "")
+                n_pages, n_figures = _get_pages_and_figures(comment)
+
+                # Storing the ArxivPaper object in the list
+                new_papers.append(
+                    ArxivPaper(
+                        id=arxiv_id,
+                        url=url_id,
+                        pdf_url=url_id.replace("abs", "pdf"),
+                        updated=paper.get("updated"),
+                        published=paper.get("published"),
+                        title=paper.get("title"),
+                        summary=paper.get("summary"),
+                        authors=authors,
+                        comment=comment,
+                        n_pages=n_pages,
+                        n_figures=n_figures,
+                        categories=categories,
+                    )
+                )
+
+                fetched_ids.add(arxiv_id)
+                self.logger.info(f"Paper {arxiv_id} fetched from arXiv.")
+
+                if len(new_papers) >= self.max_results:
+                    break
+
+            start_index += batch_size
+
+        # Save newly fetched IDs
+        if new_papers:
+            with open(fetched_ids_file, "a") as f:
+                for paper in new_papers:
+                    f.write(f"{paper.id}\n")
+        return new_papers
+
+    def download_pdf(self, arxiv_paper: ArxivPaper, write: bool = True) -> Path:
         """
         Download the PDF of the arXiv paper and stores it in the `data` folder using the `arxiv_paper.id` to name the PDF file.
 
         Args:
             arxiv_paper (ArxivPaper): The arXiv paper object to be queried and stored.
-            data_folder (str): The folder where to store the PDFs. Defaults to "data" in the root project directory.
             write (bool): If True, the PDF will be written to the `data/` folder. Defaults to True.
 
         Returns:
             Path: The path to the downloaded PDF file.
         """
-        # check if `data_folder` exists, and if not, create it
-        Path(data_folder).mkdir(parents=True, exist_ok=True)
 
         pdf_path = Path("")
         try:
             response = self.session.get(arxiv_paper.pdf_url, stream=True, timeout=60)
             response.raise_for_status()
 
-            pdf_path = Path(f"{data_folder}/{arxiv_paper.id}.pdf")
+            pdf_path = self.data_folder / f"{arxiv_paper.id}.pdf"
 
             if write:
                 with open(pdf_path, "wb") as f:
@@ -319,7 +356,7 @@ class TextExtractor:
 
 def arxiv_fetch_and_extract(
     category: str = "cond-mat.str-el",
-    max_results: int = 5,
+    max_results: int = 100,
     data_folder: str = "data",
     loader: str = "pdfminer",
     logger: "BoundLoggerLazyProxy" = logger,
@@ -337,7 +374,8 @@ def arxiv_fetch_and_extract(
 
     Args:
         category (str, optional): The arXiv category. Defaults to "cond-mat.str-el".
-        max_results (int, optional): The maximum results for pagination for the arXiv API call. Defaults to 5.
+        max_results (int, optional): The maximum number of results to fetch from arXiv. A typical value when
+            running the code would be 1000 (see https://info.arxiv.org/help/api/user-manual.html#3112-start-and-max_results-paging). Default is 5.
         data_folder (str, optional): The folder where to store the PDFs. Defaults to "data".
         loader (str, optional): The loader to use for extracting text from the PDF file. Defaults to "pdfminer".
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
@@ -346,7 +384,12 @@ def arxiv_fetch_and_extract(
         list[ArxivPaper]: A list of ArxivPaper objects with the text extracted from the PDFs.
     """
     # Initializes the `fetcher` (in this case from arXiv) and the `text_extractor` classes
-    fetcher = ArxivFetcher(logger=logger, category=category, max_results=max_results)
+    fetcher = ArxivFetcher(
+        logger=logger,
+        category=category,
+        max_results=max_results,
+        data_folder=data_folder,
+    )
     text_extractor = TextExtractor(logger=logger)
 
     # Fetch the papers from arXiv and stores them in a list of `ArxivPaper` pydantic models
@@ -359,7 +402,7 @@ def arxiv_fetch_and_extract(
         # ! note it is more efficient to download the PDF and extract the text because long papers cannot extract
         # ! the text on the fly and the connection times out
         # Download the PDF to `data_folder`
-        pdf_path = fetcher.download_pdf(data_folder=data_folder, arxiv_paper=paper)
+        pdf_path = fetcher.download_pdf(arxiv_paper=paper)
 
         # Extract text from the PDF
         text = text_extractor.get_text(pdf_path=pdf_path, loader=loader)
