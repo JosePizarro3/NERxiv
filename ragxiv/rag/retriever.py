@@ -16,20 +16,10 @@ class Retriever(ABC):
     is designed to be inherited from and implemented by specific retriever classes.
     """
 
-    def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
+    def __init__(self, model: str = "all-MiniLM-L6-v2", query: str = "", **kwargs):
         self.logger = kwargs.get("logger", logger)
         self.model_name = model
-
-        self.query = ""
-        if not kwargs.get("query"):
-            self.query = (
-                "Identify all mentions of scientific methods (experimental, computational, numerical) used "
-                "in this text relevant to Condensed Matter Physics, as for example Density Functional Theory, "
-                "Quantum Monte Carlo, Wannierization, Photoemission spectroscopy, etc., and also abbreviations "
-                "(DFT, QMC, DMFT, PES, XRD, ladder DΓA, etc.)."
-            )
-        else:
-            self.query = kwargs.get("query")
+        self.query = query
 
     @abstractmethod
     def get_relevant_chunks(self, chunks: list[Document] = [], n_top_chunks: int = 5):
@@ -43,8 +33,8 @@ class CustomRetriever(Retriever):
     from a list of documents.
     """
 
-    def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
-        super().__init__(model, **kwargs)
+    def __init__(self, model: str = "all-MiniLM-L6-v2", query: str = "", **kwargs):
+        super().__init__(model, query, **kwargs)
         self.model = SentenceTransformer(self.model_name)
         self.logger.info(f"Loaded SentenceTransformer model: {self.model_name}")
 
@@ -85,8 +75,8 @@ class CustomRetriever(Retriever):
 
 
 class LangChainRetriever(Retriever):
-    def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
-        super().__init__(model, **kwargs)
+    def __init__(self, model: str = "all-MiniLM-L6-v2", query: str = "", **kwargs):
+        super().__init__(model, query, **kwargs)
 
         self.embeddings = HuggingFaceEmbeddings(model_name=self.model_name)
         self.logger.info(f"Loaded `HuggingFaceEmbeddings` model: {self.model_name}")

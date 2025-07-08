@@ -57,6 +57,26 @@ Input:
 """
 
 
+REAL_MATERIAL_TEMPLATE = """You are a Condensed Matter Physics assistant.
+
+Given the following scientific text, identify the system simulated in the text. This can be
+a toy model, for example, square lattice, honeycomb lattice, etc., or a real material with a chemical formula.
+
+Important instruction: return only "True" if the system is a real material, and "False" otherwise.
+
+Example 1:
+    - Input text: We study the square lattice Hubbard model at half-filling.
+    - Answer: "False"
+
+Example 2:
+    - Input text: We study the electronic structure of the material Sr2RuO4.
+    - Answer: "True"
+
+Input:
+{text}
+"""
+
+
 def prompt(template: str, **kwargs) -> str:
     """
     Builds a prompt using the provided template (see above for example templates) and the text

@@ -3,3 +3,5 @@
 # for the extracted text and structured data model into a
 # database.
 # ############################################################################
+
+from .parser import DMFTArxivParser

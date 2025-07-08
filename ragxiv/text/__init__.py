@@ -4,5 +4,10 @@
 # and chunk it into smaller parts for processing in the LLM.
 # ############################################################################
 
-from .arxiv_extractor import ArxivFetcher, TextExtractor, arxiv_fetch_and_extract
+from .arxiv_extractor import (
+    ArxivFetcher,
+    TextExtractor,
+    arxiv_fetch_and_extract,
+    download_pattern_papers,
+)
 from .chunker import Chunker

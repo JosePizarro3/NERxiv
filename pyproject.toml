@@ -33,7 +33,8 @@ dependencies = [
   "langchain-core>=0.3.20",
   "langchain-community",
   "langchain-ollama",
-  "langchain-huggingface"
+  "langchain-huggingface",
+  "bam-masterdata>=0.4.2",
 ]
 
 [project.urls]

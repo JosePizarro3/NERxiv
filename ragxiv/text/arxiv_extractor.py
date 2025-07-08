@@ -13,6 +13,8 @@ from langchain_community.document_loaders import PDFMinerLoader, PyPDFLoader
 from ragxiv.datamodel import ArxivPaper, Author
 from ragxiv.logger import logger
 
+DMFT_PATTERN = re.compile(r"\bDMFT\b|\bDynamical Mean[- ]Field Theory\b", re.IGNORECASE)
+
 
 class ArxivFetcher:
     """
@@ -384,12 +386,12 @@ def arxiv_fetch_and_extract(
     max_results: int = 100,
     data_folder: str = "data",
     fetched_arxiv_ids_file: str = "fetched_arxiv_ids.txt",
+    batch_size: int = 10,
     loader: str = "pdfminer",
     logger: "BoundLoggerLazyProxy" = logger,
 ) -> list[ArxivPaper]:
     """
-    Fetch papers from arXiv and extract text from the queried PDFs. In order to do one-shots, use
-    the method `fetch_and_extract`.
+    Fetch papers from arXiv and extract text from the queried PDFs.
 
     This function initializes the `ArxivFetecher` and `TextExtractor` classes, following the workflow:
 
@@ -404,6 +406,7 @@ def arxiv_fetch_and_extract(
             running the code would be 1000 (see https://info.arxiv.org/help/api/user-manual.html#3112-start-and-max_results-paging). Default is 5.
         data_folder (str, optional): The folder where to store the PDFs. Defaults to "data".
         fetched_arxiv_ids_file (str, optional): The file where to store the fetched arXiv IDs. Defaults to "fetched_arxiv_ids.txt".
+        batch_size (int, optional): The number of papers to fetch in each request. Default is 10.
         loader (str, optional): The loader to use for extracting text from the PDF file. Defaults to "pdfminer".
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
 
@@ -421,7 +424,7 @@ def arxiv_fetch_and_extract(
     text_extractor = TextExtractor(logger=logger)
 
     # Fetch the papers from arXiv and stores them in a list of `ArxivPaper` pydantic models
-    papers = fetcher.fetch()
+    papers = fetcher.fetch(batch_size=batch_size)
     logger.info(f"{max_results} papers fetched from arXiv, {category}.")
 
     # For each paper, it downloads the PDF storing it in `data_folder` and extracts the text from it
@@ -447,3 +450,79 @@ def arxiv_fetch_and_extract(
         paper.text = text
         logger.info(f"Text extracted from {paper.id} and stored in model.")
     return papers
+
+
+def download_pattern_papers(
+    category: str = "cond-mat.str-el",
+    max_results: int = 100,
+    data_folder: str = "data",
+    fetched_arxiv_ids_file: str = "fetched_arxiv_ids.txt",
+    batch_size: int = 10,
+    n_fetch_batches: int = 1,
+    loader: str = "pdfminer",
+    pattern: str = DMFT_PATTERN,
+    logger: "BoundLoggerLazyProxy" = logger,
+) -> tuple[list[Path], list[ArxivPaper]]:
+    """
+    Downloads locally all papers from arXiv that match a given pattern in their text.
+
+    This function initializes the `ArxivFetecher` and `TextExtractor` classes, following the workflow:
+
+        -> Fetches the papers from arXiv and stores them in a list of `ArxivPaper` pydantic models.
+        -> For each paper, it downloads the PDF storing it in `data_folder` and extracts the text from it.
+        -> For each paper, it deletes the references section and cleans the extracted text.
+        -> The text is stored in the `text` attribute of each `ArxivPaper` object.
+
+    Args:
+        category (str, optional): The arXiv category. Defaults to "cond-mat.str-el".
+        max_results (int, optional): The maximum number of results to fetch from arXiv. A typical value when
+            running the code would be 1000 (see https://info.arxiv.org/help/api/user-manual.html#3112-start-and-max_results-paging). Default is 5.
+        data_folder (str, optional): The folder where to store the PDFs. Defaults to "data".
+        fetched_arxiv_ids_file (str, optional): The file where to store the fetched arXiv IDs. Defaults to "fetched_arxiv_ids.txt".
+        batch_size (int, optional): The number of papers to fetch in each request. Default is 10.
+        loader (str, optional): The loader to use for extracting text from the PDF file. Defaults to "pdfminer"
+        n_fetch_batches (int, optional): The number of batches to fetch from arXiv. Defaults to 1.
+        pattern (str, optional): The pattern to search for in the text. Defaults to DMFT_PATTERN.
+        logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
+
+    Returns:
+        list[Path]: A list of paths to the downloaded PDFs that contain the pattern in their text.
+    """
+    # Initializes the `fetcher` (in this case from arXiv) and the `text_extractor` classes
+    fetcher = ArxivFetcher(
+        logger=logger,
+        category=category,
+        max_results=max_results,
+        data_folder=data_folder,
+        fetched_arxiv_ids_file=fetched_arxiv_ids_file,
+    )
+    text_extractor = TextExtractor(logger=logger)
+
+    # Fetch the papers in a for loop, to avoid fetching too many papers at once
+    files = []
+    all_papers = []
+    for _ in range(n_fetch_batches):
+        papers = fetcher.fetch(batch_size=batch_size)
+        for paper in papers:
+            pdf_path = fetcher.download_pdf(arxiv_paper=paper)
+
+            # Extract text from the PDF
+            text = text_extractor.get_text(pdf_path=pdf_path, loader=loader)
+            if not text:
+                logger.info("No text extracted from the PDF.")
+                continue
+
+            # Deleting downloaded PDFs that do not match the pattern
+            if not pattern.search(text):
+                pdf_path.unlink()
+                continue
+
+            # Proceed with text cleaning and assigning to the `ArxivPaper` object
+            text = text_extractor.delete_references(text=text)
+            text = text_extractor.clean_text(text=text)
+            paper.text = text
+
+            # Store the local file paths and `ArxivPaper` objects in lists
+            files.append(pdf_path)
+            all_papers.append(paper)
+    return files, all_papers
