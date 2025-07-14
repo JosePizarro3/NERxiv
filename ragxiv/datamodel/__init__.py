@@ -4,5 +4,4 @@
 # be modified to fit the needs of the application.
 # ############################################################################
 
-from .arxiv import ArxivPaper, Author
 from .dmft import Method, Simulation

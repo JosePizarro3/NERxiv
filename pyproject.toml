@@ -25,15 +25,11 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
-  "xmltodict",
-  "pydantic",
-  "pypdf",
-  "pdfminer.six",
   "sentence-transformers",
   "langchain-core>=0.3.20",
-  "langchain-community",
   "langchain-ollama",
-  "langchain-huggingface"
+  "langchain-huggingface",
+  "pyrxiv>=0.0.1"
 ]
 
 [project.urls]
@@ -48,12 +44,8 @@ dev = [
   "pytest-timeout",
   "pytest-cov",
   "python-decouple",
-  "structlog==24.4.0"
 ]
 docu = [
-  "mkdocs-material",
-  "mkdocs-click",
-  "mkdocstrings-python",
   "marimo[recommended]",
 ]
 

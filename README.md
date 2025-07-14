@@ -12,12 +12,11 @@
 
 
 **RAGxiv** is a Python package for extracting **structured metadata** from scientific papers on [arXiv](https://arxiv.org) using **LLMs** and modern **retrieval-augmented generation (RAG)** techniques.
-
 While originally developed for the **Strongly Correlated Electron Systems** community in Condensed Matter Physics ([`cond-mat.str-el`](https://arxiv.org/list/cond-mat.str-el/recent)), it's designed to be flexible and applicable to **any arXiv category**.
 
 ## What It Does
 
-* Fetches and parses papers from the arXiv API, extracting and cleaning their text
+* Uses [`pyrxiv`](https://pypi.org/project/pyrxiv/) to fetch, download, and extract text from arXiv papers
 * Chunks and embeds text with SentenceTransformers or LangChain to categorize papers content using local LLMs (via Ollama)
 * Includes CLI tools and notebook tutorials for reproducible workflows
 
@@ -28,11 +27,6 @@ While originally developed for the **Strongly Correlated Electron Systems** comm
 Install the core package:
 ```bash
 pip install ragxiv
-```
-
-To include CLI tools and tutorials:
-```bash
-pip install ragxiv[dev,docu]
 ```
 
 ## Running LLMs Locally
@@ -71,7 +65,7 @@ source .venv/bin/activate
 
 ## Install Dependencies
 
-Use [`uv`](https://docs.astral.sh/uv/) (faster than pip) to install the package in editable mode with dev and doc extras:
+Use [`uv`](https://docs.astral.sh/uv/) (faster than pip) to install the package in editable mode with `dev` and `docu` extras:
 ```bash
 pip install --upgrade pip
 pip install uv
@@ -94,7 +88,7 @@ python -m pytest --cov=ragxiv tests
 ### Code formatting and linting
 
 
-We use [`Ruff`]((https://docs.astral.sh/ruff/)) for formatting and linting (configured via `pyproject.toml`).
+We use [`Ruff`](https://docs.astral.sh/ruff/) for formatting and linting (configured via `pyproject.toml`).
 
 Check linting issues:
 ```bash
@@ -107,34 +101,3 @@ ruff format . --check
 ```
 
 Manually fix anything Ruff cannot handle automatically.
-
-## Local Documentation (MkDocs)
-
-If not already done, install the documentation dependencies:
-```bash
-uv pip install -e '[docu]'
-```
-
-Then build and serve the docs locally:
-```bash
-mkdocs build
-mkdocs serve
-```
-
-This will start a local server:
-```sh
-INFO    -  Building documentation...
-INFO    -  Cleaning site directory
-INFO    -  [14:07:47] Watching paths for changes: 'docs', 'mkdocs.yml'
-INFO    -  [14:07:47] Serving on http://127.0.0.1:8000/
-```
-
-Click or navigate to http://127.0.0.1:8000/. The changes to Markdown docs will automatically reload the local web.
-
-## Main contributors
-
-The main code developers are:
-
-| Name                | E-mail                                                       |
-| ------------------- | ------------------------------------------------------------ |
-| Dr. Jose M. Pizarro | [jose.pizarro-blanco@bam.de](mailto:jose.pizarro-blanco@bam.de) |

@@ -1,3 +1,17 @@
+def prompt(template: str, **kwargs) -> str:
+    """
+    Builds a prompt using the provided template (see above for example templates) and the text
+    passed to the template.
+
+    Args:
+        template (str): The template to use for the prompt.
+
+    Returns:
+        str: The formatted prompt.
+    """
+    return template.format(**kwargs)
+
+
 EXP_OR_COMP_TEMPLATE = """You are a Condensed Matter Physics assistant.
 
 Given the following scientific text, determine if it describes an **experimental** or **computational** method.
@@ -55,17 +69,3 @@ Example 1:
 Input:
 {candidates}
 """
-
-
-def prompt(template: str, **kwargs) -> str:
-    """
-    Builds a prompt using the provided template (see above for example templates) and the text
-    passed to the template.
-
-    Args:
-        template (str): The template to use for the prompt.
-
-    Returns:
-        str: The formatted prompt.
-    """
-    return template.format(**kwargs)
