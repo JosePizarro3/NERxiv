@@ -142,5 +142,8 @@ class LLMGenerator:
                 answer = re.sub(del_regex, "", answer)
             return answer
 
-        deleted_thinking = _delete_thinking(answer=self.llm.invoke(prompt))
-        return _clean_answer(answer=deleted_thinking, regex=regex, del_regex=del_regex)
+        llm_answer = self.llm.invoke(prompt)
+        answer_withouth_think_block = _delete_thinking(answer=llm_answer)
+        return _clean_answer(
+            answer=answer_withouth_think_block, regex=regex, del_regex=del_regex
+        )

@@ -1,12 +1,12 @@
 import pytest
 
-from ragxiv.text import Chunker
+from ragxiv.chunker import Chunker
 
 
 class TestChunker:
     def test_chunker_raises_without_text(self):
         """Tests that the `Chunker` raises a ValueError when initialized without text."""
-        with pytest.raises(ValueError, match="Text is required for chunking."):
+        with pytest.raises(ValueError, match="`text` is required for chunking."):
             Chunker()
 
     @pytest.mark.parametrize(

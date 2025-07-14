@@ -11,7 +11,7 @@ class Chunker:
 
     def __init__(self, text: str = "", **kwargs):
         if not text:
-            raise ValueError("Text is required for chunking.")
+            raise ValueError("`text` is required for chunking.")
         self.text = text
         self.logger = kwargs.get("logger", logger)
 
@@ -37,7 +37,7 @@ class Chunker:
         pages = [
             Document(
                 page_content=self.text,
-                metadata={"source": "ragxiv.text.TextExtractor.get_text()"},
+                metadata={"source": "pyrxiv.extract.TextExtractor.get_text()"},
             )
         ]
         chunks = text_splitter.split_documents(pages)
