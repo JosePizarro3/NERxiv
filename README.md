@@ -11,7 +11,7 @@
 # RAGxiv
 
 
-**RAGxiv** is a Python package for extracting **structured metadata** from scientific papers on [arXiv](https://arxiv.org) using **LLMs** and modern **retrieval-augmented generation (RAG)** techniques.
+**RAGxiv** is a Python wrapper for extracting **structured metadata** from scientific papers on [arXiv](https://arxiv.org) using **LLMs** and modern **retrieval-augmented generation (RAG)** techniques.
 While originally developed for the **Strongly Correlated Electron Systems** community in Condensed Matter Physics ([`cond-mat.str-el`](https://arxiv.org/list/cond-mat.str-el/recent)), it's designed to be flexible and applicable to **any arXiv category**.
 
 ## What It Does
