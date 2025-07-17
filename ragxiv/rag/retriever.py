@@ -20,16 +20,11 @@ class Retriever(ABC):
         self.logger = kwargs.get("logger", logger)
         self.model_name = model
 
-        self.query = ""
-        if not kwargs.get("query"):
-            self.query = (
-                "Identify all mentions of scientific methods (experimental, computational, numerical) used "
-                "in this text relevant to Condensed Matter Physics, as for example Density Functional Theory, "
-                "Quantum Monte Carlo, Wannierization, Photoemission spectroscopy, etc., and also abbreviations "
-                "(DFT, QMC, DMFT, PES, XRD, ladder DΓA, etc.)."
+        self.query = kwargs.get("query")
+        if not self.query:
+            raise ValueError(
+                "`query` is required for the retriever. Please provide a query string."
             )
-        else:
-            self.query = kwargs.get("query")
 
     @abstractmethod
     def get_relevant_chunks(self, chunks: list[Document] = [], n_top_chunks: int = 5):
