@@ -1,11 +1,12 @@
 from pathlib import Path
 
+from pymatgen.core import Composition
 from pyrxiv.extract import TextExtractor
 
 from ragxiv.chunker import Chunker
 from ragxiv.prompts import (
     MATERIAL_CATEGORIZATION_PROMPT,
-    MATERIAL_OR_MODEL_TEMPLATE,
+    MATERIAL_TEMPLATE,
     prompt,
 )
 from ragxiv.rag import CustomRetriever, LangChainRetriever, LLMGenerator, answer_to_dict
@@ -29,8 +30,14 @@ for pdf_path in paper_pdfs:
     categorizer = CustomRetriever(query=MATERIAL_CATEGORIZATION_PROMPT)
     text = categorizer.get_relevant_chunks(chunks=chunks, n_top_chunks=5)
 
-    generator = LLMGenerator(model="llama3.1:405b", text=text)
-    answer_material_or_model = generator.generate(
-        prompt=prompt(MATERIAL_OR_MODEL_TEMPLATE, text=text)
-    )
-    print(pdf_path, answer_material_or_model)
+    generator = LLMGenerator(model="llama3.1:70b", text=text)
+    answer_material = generator.generate(prompt=prompt(MATERIAL_TEMPLATE, text=text))
+    if answer_material != "model":
+        try:  # in case the answer contains non-chemical elements
+            formulas = answer_material.split(",")
+            for formula in formulas:
+                composition = Composition(formula)
+        except Exception:
+            continue
+
+    print(f"Paper: {pdf_path}, Materials: {answer_material}")

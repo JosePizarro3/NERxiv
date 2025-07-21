@@ -1,5 +1,5 @@
 from .ranking_prompts import MATERIAL_CATEGORIZATION_PROMPT
-from .templates import MATERIAL_OR_MODEL_TEMPLATE
+from .templates import MATERIAL_TEMPLATE
 
 
 def prompt(template: str, **kwargs) -> str:
