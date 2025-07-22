@@ -25,11 +25,12 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
+  "click>=8.2.1",
   "sentence-transformers",
   "langchain-core>=0.3.20",
   "langchain-ollama",
   "langchain-huggingface",
-  "pyrxiv>=0.1.3",
+  "pyrxiv>=0.3.0",
   "pymatgen",
 ]
 

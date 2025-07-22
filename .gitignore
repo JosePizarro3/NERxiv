@@ -192,8 +192,7 @@ tmp/
 llmodels/
 
 # data folder
-data/*.pdf
-data/*.txt
+data/*
 
 # tutos data
 tutorials/data/
