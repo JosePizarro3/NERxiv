@@ -1,39 +1,9 @@
-import json
 import re
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from structlog._config import BoundLoggerLazyProxy
 
 from langchain_ollama.llms import OllamaLLM
 from transformers import AutoTokenizer
 
 from ragxiv.logger import logger
-
-
-def answer_to_dict(
-    answer: str = "", logger: "BoundLoggerLazyProxy" = logger
-) -> list[dict]:
-    """
-    Converts the answer string to a list of dictionaries by removing unwanted characters. This is useful when
-    prompting the LLM to return a list of objects containing metainformation in a structured way.
-
-    Args:
-        answer (str, optional): The answer string to be converted to a list of dictionaries. Defaults to "".
-        logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
-
-    Returns:
-        list[dict]: The list of dictionaries extracted from the answer string.
-    """
-    # Return empty list if answer is empty or the loaded list of dictionaries
-    dict_answer = []
-    try:
-        dict_answer = json.loads(answer)
-    except json.JSONDecodeError:
-        logger.critical(
-            f"Answer is not a valid JSON: {answer}. Please check the answer format."
-        )
-    return dict_answer
 
 
 class LLMGenerator:
@@ -46,7 +16,8 @@ class LLMGenerator:
 
     def __init__(self, model: str = "deepseek-r1", text: str = "", **kwargs):
         if not text:
-            raise ValueError("Text is required for LLM generation.")
+            raise ValueError("`text` is required for LLM generation.")
+        self.text = text
 
         self.logger = kwargs.get("logger", logger)
 

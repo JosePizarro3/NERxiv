@@ -5,5 +5,5 @@
 # an LLM.
 # ############################################################################
 
-from .generator import LLMGenerator, answer_to_dict
+from .generator import LLMGenerator
 from .retriever import CustomRetriever, LangChainRetriever
