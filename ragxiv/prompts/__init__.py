@@ -1,5 +1,13 @@
-from .ranking_prompts import MATERIAL_CATEGORIZATION_PROMPT
 from .templates import MATERIAL_TEMPLATE
+from .top_chunks import CHUNKS_MATERIAL
+
+QUERY_REGISTRY = {
+    "material": (CHUNKS_MATERIAL, MATERIAL_TEMPLATE),
+}
+
+RETRIEVER_QUERY_REGISTRY = {
+    "material": CHUNKS_MATERIAL,
+}
 
 
 def prompt(template: str, **kwargs) -> str:

@@ -2,7 +2,8 @@ MATERIAL_TEMPLATE = """You are a Condensed Matter Physics assistant.
 
 Given the following scientific text, your task is to identify if the simulated system is a real material or a toy model.
 Look for mentions of chemical formulas, specific names of models (like "square lattice" or "honeycomb lattice"), or
-any other indication that the system is a material or a model.
+any other indication that the system is a real material or a model.
+Ignore mentions of similar materials that are not the main focus of the paper.
 
 If the text describes a real material, return the chemical name or formula of the material (or materials) as a string. If it describes a toy model, return "model".
 If the paper describes multiple materials, return them separated by a comma character ",".
@@ -24,6 +25,10 @@ Example 3:
 Example 4:
     - Input text: We study the material Fe2O3 and its doped variant Fe2O3.25.
     - Answer: Fe2O3, Fe2O3.25
+
+Example 5:
+    - Input text: We study SrVO3, a system who is similar to SrTiO3 but with a different electronic structure.
+    - Answer: SrVO3
 
 Text:
 {text}
