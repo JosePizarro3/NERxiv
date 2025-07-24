@@ -1,3 +1,4 @@
+import datetime
 import time
 from pathlib import Path
 
@@ -16,17 +17,16 @@ def cli():
 
 
 @cli.command(
-    name="process",
-    help="Searchs papers in arXiv for a specified category and downloads them in a specified path.",
+    name="prompt",
+    help="Prompts the LLM with the text from the HDF5 file and stores the raw answer.",
 )
 @click.option(
-    "--data-path",
-    "-path",
+    "--file-path",
+    "-file",
     type=str,
-    default="data",
-    required=False,
+    required=True,
     help="""
-    (Optional) The path containing the HDF5 files to be processed. Defaults to "data".
+    The path to the HDF5 file used to prompt the LLM.
     """,
 )
 @click.option(
@@ -70,7 +70,7 @@ def cli():
     Defaults to "material".
     """,
 )
-def process(data_path, retriever_model, n_top_chunks, model, query):
+def prompt_llm(file_path, retriever_model, n_top_chunks, model, query):
     start_time = time.time()
 
     if query not in QUERY_REGISTRY:
@@ -80,29 +80,53 @@ def process(data_path, retriever_model, n_top_chunks, model, query):
         return
     retriever_query, template = QUERY_REGISTRY.get(query)
 
-    # list all papers `data/*.hdf5`
-    papers = list(Path(data_path).rglob("*.hdf5"))
-    for paper in papers:
-        with h5py.File(paper, "a") as f:
-            arxiv_id = f.filename.split("/")[-1].replace(".hdf5", "")
-            text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
+    # Transform to Path and get the hdf5 data
+    paper = Path(file_path)
+    if not paper.exists():
+        click.echo(f"File {file_path} does not exist.")
+        return
+    if not file_path.endswith(".hdf5"):
+        click.echo(f"File {file_path} is not an HDF5 file.")
+        return
+    with h5py.File(paper, "a") as f:
+        arxiv_id = f.filename.split("/")[-1].replace(".hdf5", "")
+        text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
 
-            # Chunking text
-            chunker = Chunker(text=text)
-            chunks = chunker.chunk_text()
+        # Chunking text
+        chunker = Chunker(text=text)
+        chunks = chunker.chunk_text()
 
-            # Retrieval
-            retriever = CustomRetriever(
-                model=retriever_model, query=retriever_query, logger=logger
-            )
-            text = retriever.get_relevant_chunks(
-                chunks=chunks,
-                n_top_chunks=n_top_chunks,
-            )
+        # Retrieval
+        retriever = CustomRetriever(
+            model=retriever_model, query=retriever_query, logger=logger
+        )
+        text = retriever.get_relevant_chunks(
+            chunks=chunks,
+            n_top_chunks=n_top_chunks,
+        )
 
-            # Generation
-            generator = LLMGenerator(model=model, text=text, logger=logger)
-            answer = generator.generate(prompt=prompt(template, text=text))
+        # Generation
+        generator = LLMGenerator(model=model, text=text, logger=logger)
+        answer = generator.generate(prompt=prompt(template, text=text))
+
+        # Store raw answer in HDF5
+        raw_answer_group = f.require_group("raw_llm_answers")
+        # Auto-increment run ID
+        existing_runs = list(raw_answer_group.keys())
+        run_id = f"run_{len(existing_runs):04d}"
+        run_group = raw_answer_group.create_group(run_id)
+        # Store run metadata and answer
+        run_group.attrs["retriever_model"] = retriever_model
+        run_group.attrs["model"] = model
+        run_group.attrs["n_top_chunks"] = n_top_chunks
+        run_group.attrs["query"] = query
+        run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
+        query_group = run_group.require_group(query)
+        query_group.create_dataset(
+            "retriever_query", data=retriever_query.encode("utf-8")
+        )
+        query_group.create_dataset("template", data=template.encode("utf-8"))
+        query_group.create_dataset("answer", data=answer.encode("utf-8"))
 
     elapsed_time = time.time() - start_time
     click.echo(f"Processed arXiv papers in {elapsed_time:.2f} seconds\n\n")

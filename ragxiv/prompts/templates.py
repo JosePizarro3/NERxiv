@@ -1,9 +1,10 @@
-MATERIAL_TEMPLATE = """You are a Condensed Matter Physics assistant.
+MATERIAL_TEMPLATE = """You are a Condensed Matter Physics assistant with expertise in many-body physics simulations.
 
 Given the following scientific text, your task is to identify if the simulated system is a real material or a toy model.
 Look for mentions of chemical formulas, specific names of models (like "square lattice" or "honeycomb lattice"), or
 any other indication that the system is a real material or a model.
-Ignore mentions of similar materials that are not the main focus of the paper.
+Only consider if the mention of a real material corresponds to an actual simulation of that material. Ignore mentions
+of similar materials, or whether the material is used as a reference or comparison.
 
 If the text describes a real material, return the chemical name or formula of the material (or materials) as a string. If it describes a toy model, return "model".
 If the paper describes multiple materials, return them separated by a comma character ",".

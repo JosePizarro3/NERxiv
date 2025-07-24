@@ -30,7 +30,7 @@ dependencies = [
   "langchain-core>=0.3.20",
   "langchain-ollama",
   "langchain-huggingface",
-  "pyrxiv>=0.3.0",
+  "pyrxiv>=0.3.1",
   "pymatgen",
 ]
 
