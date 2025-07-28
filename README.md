@@ -1,17 +1,16 @@
 <h4 align="center">
 
-![CI](https://github.com/JosePizarro3/RAGxiv/actions/workflows/actions.yml/badge.svg)
-![Coverage](https://coveralls.io/repos/github/JosePizarro3/RAGxiv/badge.svg?branch=main)
+![CI](https://github.com/JosePizarro3/NERxiv/actions/workflows/actions.yml/badge.svg)
+![Coverage](https://coveralls.io/repos/github/JosePizarro3/NERxiv/badge.svg?branch=main)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-<!-- [![PyPI version](https://img.shields.io/pypi/v/ragxiv.svg)]
-[![Python versions](https://img.shields.io/pypi/pyversions/ragxiv.svg)] -->
+<!-- [![PyPI version](https://img.shields.io/pypi/v/nerxiv.svg)]
+[![Python versions](https://img.shields.io/pypi/pyversions/nerxiv.svg)] -->
 
 </h4>
 
-# RAGxiv
+# NERxiv
 
-
-**RAGxiv** is a Python wrapper for extracting **structured metadata** from scientific papers on [arXiv](https://arxiv.org) using **LLMs** and modern **retrieval-augmented generation (RAG)** techniques.
+**NERxiv** is a Python wrapper for extracting **structured metadata** from scientific papers on [arXiv](https://arxiv.org) using **LLMs** and modern **retrieval-augmented generation (RAG)** techniques.
 While originally developed for the **Strongly Correlated Electron Systems** community in Condensed Matter Physics ([`cond-mat.str-el`](https://arxiv.org/list/cond-mat.str-el/recent)), it's designed to be flexible and applicable to **any arXiv category**.
 
 ## What It Does
@@ -26,7 +25,7 @@ While originally developed for the **Strongly Correlated Electron Systems** comm
 
 Install the core package:
 ```bash
-pip install ragxiv
+pip install nerxiv
 ```
 
 ## Running LLMs Locally
@@ -45,14 +44,14 @@ ollama serve
 
 # Development
 
-To contribute to `RAGxiv` or run it locally, follow these steps:
+To contribute to `NERxiv` or run it locally, follow these steps:
 
 
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/JosePizarro3/RAGxiv.git
-cd RAGxiv
+git clone https://github.com/JosePizarro3/NERxiv.git
+cd NERxiv
 ```
 
 ## Set Up a Virtual Environment
@@ -82,7 +81,7 @@ python -m pytest -sv tests
 
 To check code coverage:
 ```bash
-python -m pytest --cov=ragxiv tests
+python -m pytest --cov=nerxiv tests
 ```
 
 ### Code formatting and linting

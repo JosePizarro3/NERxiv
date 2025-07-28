@@ -3,7 +3,7 @@ import re
 from langchain_ollama.llms import OllamaLLM
 from transformers import AutoTokenizer
 
-from ragxiv.logger import logger
+from nerxiv.logger import logger
 
 
 class LLMGenerator:

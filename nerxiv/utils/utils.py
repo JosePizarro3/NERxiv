@@ -6,9 +6,8 @@ from pymatgen.core import Composition
 if TYPE_CHECKING:
     from structlog._config import BoundLoggerLazyProxy
 
-
-from ragxiv.datamodel.model_system import ChemicalFormulation
-from ragxiv.logger import logger
+from nerxiv.datamodel.model_system import ChemicalFormulation
+from nerxiv.logger import logger
 
 
 def answer_to_dict(

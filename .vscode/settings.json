@@ -29,14 +29,14 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "ragxiv Python",
+        "name": "nerxiv Python",
         "type": "debugpy",
         "request": "launch",
         "console": "integratedTerminal",
-        "program": "${workspaceFolder}/scesmata/test.py",  // path to your entry point Python module
+        "program": "${workspaceFolder}/nerxiv/test.py",  // path to your entry point Python module
       },
       {
-        "name": "ragxiv tests",
+        "name": "nerxiv tests",
         "type": "debugpy",
         "request": "launch",
         "console": "integratedTerminal",

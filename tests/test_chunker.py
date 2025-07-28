@@ -1,6 +1,6 @@
 import pytest
 
-from ragxiv.chunker import Chunker
+from nerxiv.chunker import Chunker
 
 
 class TestChunker:

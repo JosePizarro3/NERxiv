@@ -5,11 +5,11 @@ from pathlib import Path
 import click
 import h5py
 
-from ragxiv.chunker import Chunker
-from ragxiv.logger import logger
-from ragxiv.prompts import QUERY_REGISTRY
-from ragxiv.prompts import prompt as prompt_template
-from ragxiv.rag import CustomRetriever, LLMGenerator
+from nerxiv.chunker import Chunker
+from nerxiv.logger import logger
+from nerxiv.prompts import QUERY_REGISTRY
+from nerxiv.prompts import prompt as prompt_template
+from nerxiv.rag import CustomRetriever, LLMGenerator
 
 
 @click.group(help="Entry point to run `pyrxiv` CLI commands.")

@@ -50,7 +50,7 @@ def _():
 
 @app.cell
 def _():
-    from ragxiv.text import ArxivFetcher
+    from nerxiv.text import ArxivFetcher
 
 
     # We can specify the `category` (by default this is `"cond-mat.str-el"`) and the `max_results` we want to query from arXiv
@@ -140,7 +140,7 @@ def _():
 
 @app.cell
 def _(pdf_paths):
-    from ragxiv.text import TextExtractor
+    from nerxiv.text import TextExtractor
 
     extractor = TextExtractor()
     all_texts = []
@@ -234,7 +234,7 @@ def _():
 
 @app.cell
 def _():
-    from ragxiv.text import arxiv_fetch_and_extract
+    from nerxiv.text import arxiv_fetch_and_extract
 
 
     arxiv_papers_one_shot = arxiv_fetch_and_extract(max_results=3, data_folder="tutorials/data/", loader="pypdf")

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import torch
 from langchain_core.documents import Document
 
-from ragxiv.rag import CustomRetriever, LangChainRetriever
+from nerxiv.rag import CustomRetriever, LangChainRetriever
 
 
 def test_custom_retriever_mocked():

@@ -1,7 +1,7 @@
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from ragxiv.logger import logger
+from nerxiv.logger import logger
 
 
 class Chunker:

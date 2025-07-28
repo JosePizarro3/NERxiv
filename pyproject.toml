@@ -12,7 +12,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
 ]
-name = "ragxiv"
+name = "nerxiv"
 description = "A Python package for extracting structured metadata information from arXiv papers."
 dynamic = ["version"]
 readme = "README.md"
@@ -35,8 +35,8 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/JosePizarro3/RAGxiv"
-"Bug Tracker" = "https://github.com/JosePizarro3/RAGxiv/issues"
+"Homepage" = "https://github.com/JosePizarro3/NERxiv"
+"Bug Tracker" = "https://github.com/JosePizarro3/NERxiv/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -52,11 +52,11 @@ docu = [
 ]
 
 [project.scripts]
-ragxiv = "ragxiv.cli:cli"
+nerxiv = "nerxiv.cli:cli"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-include = ["ragxiv/*.py", "tests/*.py"]
+include = ["nerxiv/*.py", "tests/*.py"]
 exclude = [
     ".bzr",
     ".direnv",
@@ -141,4 +141,4 @@ where = ["."]
 namespaces = false
 
 [tool.setuptools_scm]
-write_to = "ragxiv/_version.py"
+write_to = "nerxiv/_version.py"

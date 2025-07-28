@@ -36,7 +36,7 @@ def _():
 
 @app.cell
 def _():
-    from ragxiv.text.arxiv_extractor import TextExtractor
+    from nerxiv.text.arxiv_extractor import TextExtractor
 
 
     extractor = TextExtractor()
@@ -94,7 +94,7 @@ def _():
 
 @app.cell
 def _(text):
-    from ragxiv.text.chunker import Chunker
+    from nerxiv.text.chunker import Chunker
 
 
     chunks = Chunker(text=text).chunk_text(chunk_size=800)
@@ -109,7 +109,7 @@ def _():
 
 @app.cell
 def _():
-    from ragxiv.rag import CustomRetriever, LangChainRetriever
+    from nerxiv.rag import CustomRetriever, LangChainRetriever
 
 
     # We arbitrarily chose `CustomRetriever`. Its implementation in the next cells is the same as for `LangChainRetriever`
@@ -167,7 +167,7 @@ def _():
 
 @app.cell
 def _(top_text):
-    from ragxiv.rag import LLMGenerator
+    from nerxiv.rag import LLMGenerator
 
 
     generator_llama = LLMGenerator(model="llama3.1:70b", text=top_text)
@@ -203,7 +203,7 @@ def _():
 
 @app.cell
 def _():
-    from ragxiv.prompts import (
+    from nerxiv.prompts import (
         EXP_OR_COMP_TEMPLATE,
         EXTRACT_METHODS_TEMPLATE,
         FILTER_METHODS_TEMPLATE,
@@ -348,7 +348,7 @@ def _(answer_filtered_methods_llama, answer_filtered_methods_qwen):
 
 @app.cell
 def _(answer_filtered_methods_llama, answer_filtered_methods_qwen):
-    from ragxiv.rag import answer_to_dict
+    from nerxiv.rag import answer_to_dict
 
 
     answer_to_dict(answer_filtered_methods_llama)

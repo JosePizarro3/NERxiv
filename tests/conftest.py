@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from ragxiv.logger import log_storage
+from nerxiv.logger import log_storage
 
 if os.getenv("_PYTEST_RAISE", "0") != "0":
 

@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 import pytest
 
-from ragxiv.logger import logger
+from nerxiv.logger import logger
 
 
 @pytest.mark.parametrize(
