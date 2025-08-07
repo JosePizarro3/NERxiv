@@ -23,7 +23,7 @@ def cli():
 )
 @click.option(
     "--file-path",
-    "-file",
+    "-path",
     type=str,
     required=True,
     help="""
@@ -54,10 +54,10 @@ def cli():
     "--model",
     "-m",
     type=str,
-    default="llama3.1:70b",
+    default="gpt-oss:20b",
     required=False,
     help="""
-    (Optional) The model to use for the generator. Defaults to "llama3.1:70b".
+    (Optional) The model to use for the generator. Defaults to "gpt-oss:20b".
     """,
 )
 @click.option(
@@ -136,7 +136,8 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
             target_path = target_dir / paper.name
             paper.rename(target_path)
 
-    elapsed_time = time.time() - start_time
+        elapsed_time = time.time() - start_time
+        run_group.attrs["elapsed_time"] = elapsed_time
     click.echo(f"Processed arXiv papers in {elapsed_time:.2f} seconds\n\n")
 
 
@@ -146,7 +147,7 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
 )
 @click.option(
     "--data-path",
-    "-data",
+    "-path",
     type=str,
     default="./data",
     required=False,
@@ -178,10 +179,10 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
     "--model",
     "-m",
     type=str,
-    default="llama3.1:70b",
+    default="gpt-oss:20b",
     required=False,
     help="""
-    (Optional) The model to use for the generator. Defaults to "llama3.1:70b".
+    (Optional) The model to use for the generator. Defaults to "gpt-oss:20b".
     """,
 )
 @click.option(
@@ -197,6 +198,7 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
 )
 def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
     start_time = time.time()
+    paper_time = start_time
 
     if query not in QUERY_REGISTRY:
         click.echo(
@@ -261,6 +263,9 @@ def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
                 target_dir.mkdir(exist_ok=True)
                 target_path = target_dir / paper.name
                 paper.rename(target_path)
+
+            paper_time = time.time() - paper_time
+            run_group.attrs["elapsed_time"] = paper_time
 
     elapsed_time = time.time() - start_time
     click.echo(f"Processed arXiv papers in {elapsed_time:.2f} seconds\n\n")

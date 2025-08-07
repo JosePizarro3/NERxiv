@@ -31,6 +31,10 @@ Example 5:
     - Input text: We study SrVO3, a system who is similar to SrTiO3 but with a different electronic structure.
     - Answer: SrVO3
 
+Example 6:
+    - Input text: The system is doped La1âxSrxNiO2, for x=0.2.
+    - Answer: La0.8Sr0.2NiO2
+
 Text:
 {text}
 """
