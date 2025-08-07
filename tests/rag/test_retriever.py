@@ -8,11 +8,11 @@ from nerxiv.rag import CustomRetriever, LangChainRetriever
 
 def test_custom_retriever_mocked():
     """Tests the `get_relevant_chunks` method of the `CustomRetriever` class."""
-    with patch("ragxiv.rag.retriever.SentenceTransformer") as mock_model:
+    with patch("nerxiv.rag.retriever.SentenceTransformer") as mock_model:
         mock_instance = mock_model.return_value
 
         # Fake embeddings: query (1 x dim) and chunks (N x dim)
-        def fake_encode(x, convert_to_tensor=True):
+        def fake_encode(x, convert_to_tensor=False):
             if isinstance(x, str):
                 return torch.ones(1, 384)  # query embedding
             return torch.ones(len(x), 384)  # chunk embeddings
@@ -27,7 +27,8 @@ def test_custom_retriever_mocked():
         ]
 
         # Mock the query on relevant chunks
-        result = CustomRetriever().get_relevant_chunks(chunks=chunks)
+        query = "What methods were used?"
+        result = CustomRetriever(query=query).get_relevant_chunks(chunks=chunks)
         assert isinstance(result, str)
         splitted_result = result.split("\n\n")
         assert "DMFT" in splitted_result[0]
@@ -37,8 +38,8 @@ def test_custom_retriever_mocked():
 def test_langchain_retriever_mocked():
     """Tests the `get_relevant_chunks` method of the `LangChainRetriever` class."""
     with (
-        patch("ragxiv.rag.retriever.HuggingFaceEmbeddings") as mock_embed_cls,
-        patch("ragxiv.rag.retriever.InMemoryVectorStore") as mock_store_cls,
+        patch("nerxiv.rag.retriever.HuggingFaceEmbeddings") as mock_embed_cls,
+        patch("nerxiv.rag.retriever.InMemoryVectorStore") as mock_store_cls,
     ):
         # Mock embeddings
         mock_embed = MagicMock()
@@ -62,7 +63,10 @@ def test_langchain_retriever_mocked():
         ]
 
         # Mock the query on relevant chunks
-        result = LangChainRetriever().get_relevant_chunks(chunks=chunks, n_top_chunks=2)
+        query = "What methods were used?"
+        result = LangChainRetriever(query=query).get_relevant_chunks(
+            chunks=chunks, n_top_chunks=2
+        )
         assert isinstance(result, str)
         splitted_result = result.split("\n\n")
         assert "DMFT" in splitted_result[0]
