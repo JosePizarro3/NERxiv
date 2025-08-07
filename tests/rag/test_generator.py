@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from nerxiv.rag import LLMGenerator, answer_to_dict
+from nerxiv.rag import LLMGenerator
 
 
 @pytest.mark.parametrize(
@@ -20,8 +20,8 @@ def test_llm_generator_generate_mocked(
     """Tests the `_check_tokens_limit` and `generate` methods of the `LLMGenerator` class."""
     # Mock OllamaLLM + AutoTokenizer
     with (
-        patch("ragxiv.rag.generator.OllamaLLM") as mock_llm_cls,
-        patch("ragxiv.rag.generator.AutoTokenizer") as mock_tokenizer_cls,
+        patch("nerxiv.rag.generator.OllamaLLM") as mock_llm_cls,
+        patch("nerxiv.rag.generator.AutoTokenizer") as mock_tokenizer_cls,
     ):
         # --- Mock the tokenizer ---
         mock_tokenizer = MagicMock()
@@ -39,20 +39,3 @@ def test_llm_generator_generate_mocked(
         prompt = "Extract all computational methods."
         assert generator._check_tokens_limit(prompt=prompt) == check_result
         assert generator.generate(prompt=prompt) == mocked_answer
-
-
-@pytest.mark.parametrize(
-    "answer, result",
-    [
-        # no list of dictionaries
-        ("no list of dictionaries found", []),
-        # successful
-        (
-            '[\n    {"answer": "This is the answer."}\n]',
-            [{"answer": "This is the answer."}],
-        ),
-    ],
-)
-def test_answer_to_dict(answer: str, result: list[dict]):
-    """Tests the `answer_to_dict` utility function."""
-    assert answer_to_dict(answer=answer) == result
