@@ -87,7 +87,7 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
         retriever_query=retriever_query,
         template=template,
         query=query,
-        start_time=start_time,
+        paper_time=start_time,
         logger=logger,
     )
     click.echo(f"Processed arXiv papers in {paper_time:.2f} seconds\n\n")
@@ -169,7 +169,7 @@ def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
             retriever_query=retriever_query,
             template=template,
             query=query,
-            start_time=paper_time,
+            paper_time=paper_time,
             logger=logger,
         )
 

@@ -24,7 +24,7 @@ def cleared_log_storage():
     yield log_storage
 
 
-def hdf5_test_file(tmp_path: str, text: str = "Some scientific content here.") -> str:
+def hdf5_test_file(tmp_path: str, text: str = "Some scientific content here.") -> Path:
     """Creates a minimal HDF5 file with expected structure."""
     file_path = Path(tmp_path) / "1234.5678.hdf5"
     with h5py.File(file_path, "w") as f:

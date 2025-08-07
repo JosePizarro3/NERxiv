@@ -22,7 +22,7 @@ def run_prompt_paper(
     retriever_query: str = "",
     template: str = "",
     query: str = "material",
-    start_time: float = 0.0,
+    paper_time: float = 0.0,
     logger: "BoundLoggerLazyProxy" = logger,
 ) -> float:
     """Runs the prompt based on `retriever_query` and `template` on a given `paper`.
@@ -35,7 +35,7 @@ def run_prompt_paper(
         retriever_query (str, optional): The query used in the retriever. This is set using `query` and the `QUERY_REGISTRY`. Defaults to "".
         template (str, optional): The template used in the generator. This is set using `query` and the `QUERY_REGISTRY`.. Defaults to "".
         query (str, optional): The query used for retrieval and generation. See the registry in `nerxiv/prompts/__init__.py`. Defaults to "material".
-        start_time (float, optional): The starting time of this prompt. Defaults to 0.0.
+        paper_time (float, optional): The starting time of this paper prompting. Defaults to 0.0.
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
 
     Returns:
@@ -100,6 +100,6 @@ def run_prompt_paper(
             target_path = target_dir / paper.name
             paper.rename(target_path)
 
-        paper_time = time.time() - start_time
+        paper_time = time.time() - paper_time
         run_group.attrs["elapsed_time"] = paper_time
     return paper_time
