@@ -4,9 +4,9 @@ from pathlib import Path
 import click
 
 from nerxiv.logger import logger
-from nerxiv.prompts import QUERY_REGISTRY
+from nerxiv.prompts import PROMPT_REGISTRY
 
-from .prompt import run_prompt_paper
+from .run_prompt import run_prompt_paper
 
 
 @click.group(help="Entry point to run `pyrxiv` CLI commands.")
@@ -61,21 +61,23 @@ def cli():
     "--query",
     "-q",
     type=str,
-    default="material",
+    default="material_formula",
     required=False,
     help="""
-    (Optional) The query used for retrieval and generation. See the registry in `nerxiv/prompts/__init__.py`. Defaults to "material".
+    (Optional) The query used for retrieval and generation. See the registry PROMPT_REGISTRY. Defaults to "material_formula".
     """,
 )
 def prompt(file_path, retriever_model, n_top_chunks, model, query):
     start_time = time.time()
 
-    if query not in QUERY_REGISTRY:
+    if query not in PROMPT_REGISTRY:
         click.echo(
-            f"Query '{query}' not found in registry. Available queries are: {list(QUERY_REGISTRY.keys())}"
+            f"Query '{query}' not found in registry. Available queries are: {list(PROMPT_REGISTRY.keys())}"
         )
         return
-    retriever_query, template = QUERY_REGISTRY.get(query)
+    entry = PROMPT_REGISTRY[query]
+    retriever_query = entry.retriever_query
+    prompt = entry.prompt
 
     # Transform to Path and get the hdf5 data
     paper = Path(file_path)
@@ -85,7 +87,7 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
         n_top_chunks=n_top_chunks,
         model=model,
         retriever_query=retriever_query,
-        template=template,
+        prompt=prompt,
         query=query,
         paper_time=start_time,
         logger=logger,
@@ -141,22 +143,24 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
     "--query",
     "-q",
     type=str,
-    default="material",
+    default="material_formula",
     required=False,
     help="""
-    (Optional) The query used for retrieval and generation. See the registry in `nerxiv/prompts/__init__.py`. Defaults to "material".
+    (Optional) The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "material_formula".
     """,
 )
 def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
     start_time = time.time()
     paper_time = start_time
 
-    if query not in QUERY_REGISTRY:
+    if query not in PROMPT_REGISTRY:
         click.echo(
-            f"Query '{query}' not found in registry. Available queries are: {list(QUERY_REGISTRY.keys())}"
+            f"Query '{query}' not found in registry. Available queries are: {list(PROMPT_REGISTRY.keys())}"
         )
         return
-    retriever_query, template = QUERY_REGISTRY.get(query)
+    entry = PROMPT_REGISTRY[query]
+    retriever_query = entry.retriever_query
+    template = entry.prompt
 
     # list all papers `{data_path}/*.hdf5`
     papers = list(Path(data_path).rglob("*.hdf5"))
