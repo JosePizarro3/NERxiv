@@ -89,7 +89,7 @@ class Prompt(BaseModel):
             expert_lines = f"You are a {self.expert} assistant"
             if self.sub_field_expertise:
                 expert_lines = (
-                    f"{expert_lines} with expertise in {self.sub_field_expertise}."
+                    f"{expert_lines} with expertise in {self.sub_field_expertise}"
                 )
             lines.append(expert_lines)
 
@@ -97,9 +97,9 @@ class Prompt(BaseModel):
         if self.main_instruction:
             instruction_lines = f"Given the following scientific text, your task is: {self.main_instruction}"
             if self.secondary_instructions:
-                instruction_lines = f"{instruction_lines}.\nAdditionally, you also need to follow these instructions:"
+                instruction_lines = f"{instruction_lines}\nAdditionally, you also need to follow these instructions:"
                 for sec_instruction in self.secondary_instructions:
-                    instruction_lines += f"\n{sec_instruction}"
+                    instruction_lines += f"\n- {sec_instruction}"
             lines.append(instruction_lines)
 
         # Constraints
@@ -113,7 +113,7 @@ class Prompt(BaseModel):
         if self.examples:
             example_lines = "Examples of how to answer the prompt:"
             for i, example in enumerate(self.examples):
-                example_lines += f"\nExample {i}:\n- Input text: {example.input}\n  Answer: {example.output}"
+                example_lines += f"\nExample {i + 1}:\n- Input text: {example.input}\n  Answer: {example.output}"
             lines.append(example_lines)
 
         # Structured schema
