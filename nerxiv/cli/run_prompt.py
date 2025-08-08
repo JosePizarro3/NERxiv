@@ -7,11 +7,12 @@ import h5py
 
 from nerxiv.chunker import Chunker
 from nerxiv.logger import logger
-from nerxiv.prompts import prompt as prompt_template
 from nerxiv.rag import CustomRetriever, LLMGenerator
 
 if TYPE_CHECKING:
     from structlog._config import BoundLoggerLazyProxy
+
+    from nerxiv.prompts.prompts import Prompt
 
 
 def run_prompt_paper(
@@ -20,8 +21,8 @@ def run_prompt_paper(
     n_top_chunks: int = 5,
     model: str = "gpt-oss:20b",
     retriever_query: str = "",
-    template: str = "",
-    query: str = "material",
+    prompt: Prompt | None = None,
+    query: str = "material_formula",
     paper_time: float = 0.0,
     logger: "BoundLoggerLazyProxy" = logger,
 ) -> float:
@@ -33,8 +34,8 @@ def run_prompt_paper(
         n_top_chunks (int, optional): The number of top chunks to retrieve. Defaults to 5.
         model (_type_, optional): The model used in the generator. Defaults to "gpt-oss:20b".
         retriever_query (str, optional): The query used in the retriever. This is set using `query` and the `QUERY_REGISTRY`. Defaults to "".
-        template (str, optional): The template used in the generator. This is set using `query` and the `QUERY_REGISTRY`.. Defaults to "".
-        query (str, optional): The query used for retrieval and generation. See the registry in `nerxiv/prompts/__init__.py`. Defaults to "material".
+        prompt (Prompt, optional): The prompt used in the generator. This is set using `query` and the `QUERY_REGISTRY`.. Defaults to None.
+        query (str, optional): The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "material_formula".
         paper_time (float, optional): The starting time of this paper prompting. Defaults to 0.0.
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
 
@@ -48,8 +49,8 @@ def run_prompt_paper(
     if not paper.name.endswith(".hdf5"):
         logger.error(f"File {paper} is not an HDF5 file.")
         return 0.0
-    if not retriever_query or not template:
-        logger.error("Retriever query and template must be provided.")
+    if not retriever_query or not prompt:
+        logger.error("`retriever_query` and `prompt` must be provided.")
         return 0.0
 
     # Writing prompting results to the HDF5 of the paper
@@ -72,7 +73,8 @@ def run_prompt_paper(
 
         # Generation
         generator = LLMGenerator(model=model, text=text, logger=logger)
-        answer = generator.generate(prompt=prompt_template(template, text=text))
+        built_prompt = prompt.build(text=text)
+        answer = generator.generate(prompt=built_prompt)
 
         # Store raw answer in HDF5
         raw_answer_group = f.require_group("raw_llm_answers")
@@ -90,7 +92,7 @@ def run_prompt_paper(
         query_group.create_dataset(
             "retriever_query", data=retriever_query.encode("utf-8")
         )
-        query_group.create_dataset("template", data=template.encode("utf-8"))
+        query_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
         query_group.create_dataset("answer", data=answer.encode("utf-8"))
 
         # Move hdf5 files to a model subfolder
