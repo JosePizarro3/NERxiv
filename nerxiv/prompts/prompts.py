@@ -92,7 +92,7 @@ class BasePrompt(BaseModel):
         Returns:
             str: The formatted constraints string.
         """
-        constraint_lines = "Important constaints when generating the output:"
+        constraint_lines = "Important constraints when generating the output:"
         for constraint in self.constraints:
             constraint_lines += f"\n- {constraint}"
         return constraint_lines
