@@ -2,7 +2,8 @@
 
 ![CI](https://github.com/JosePizarro3/NERxiv/actions/workflows/actions.yml/badge.svg)
 ![Coverage](https://coveralls.io/repos/github/JosePizarro3/NERxiv/badge.svg?branch=main)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: PolyForm NC 1.0.0](https://img.shields.io/badge/license-PolyForm_NC_1.0.0-orange.svg)](LICENSE)
+<!--[![Commercial License Available](https://img.shields.io/badge/commercial-license-green.svg)](COMMERCIAL-LICENSE.md)-->
 <!-- [![PyPI version](https://img.shields.io/pypi/v/nerxiv.svg)]
 [![Python versions](https://img.shields.io/pypi/pyversions/nerxiv.svg)] -->
 
@@ -100,9 +101,3 @@ ruff format . --check
 ```
 
 Manually fix anything Ruff cannot handle automatically.
-
-
-# License
-
-PolyForm Noncommercial 1.0.0 — free for non-commercial use.
-Commercial licensing is available. Contact Jose M. Pizarro for details.
