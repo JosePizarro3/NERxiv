@@ -100,3 +100,9 @@ ruff format . --check
 ```
 
 Manually fix anything Ruff cannot handle automatically.
+
+
+# License
+
+PolyForm Noncommercial 1.0.0 — free for non-commercial use.
+Commercial licensing is available. Contact Jose M. Pizarro for details.
