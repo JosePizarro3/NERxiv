@@ -7,12 +7,11 @@ import h5py
 
 from nerxiv.chunker import Chunker
 from nerxiv.logger import logger
+from nerxiv.prompts.prompts import BasePrompt
 from nerxiv.rag import CustomRetriever, LLMGenerator
 
 if TYPE_CHECKING:
     from structlog._config import BoundLoggerLazyProxy
-
-    from nerxiv.prompts.prompts import Prompt
 
 
 def run_prompt_paper(
@@ -21,7 +20,7 @@ def run_prompt_paper(
     n_top_chunks: int = 5,
     model: str = "gpt-oss:20b",
     retriever_query: str = "",
-    prompt: Prompt | None = None,
+    prompt: BasePrompt | None = None,
     query: str = "material_formula",
     paper_time: float = 0.0,
     logger: "BoundLoggerLazyProxy" = logger,
@@ -34,7 +33,7 @@ def run_prompt_paper(
         n_top_chunks (int, optional): The number of top chunks to retrieve. Defaults to 5.
         model (_type_, optional): The model used in the generator. Defaults to "gpt-oss:20b".
         retriever_query (str, optional): The query used in the retriever. This is set using `query` and the `QUERY_REGISTRY`. Defaults to "".
-        prompt (Prompt, optional): The prompt used in the generator. This is set using `query` and the `QUERY_REGISTRY`.. Defaults to None.
+        prompt (BasePrompt, optional): The prompt used in the generator. This is set using `query` and the `QUERY_REGISTRY`.. Defaults to None.
         query (str, optional): The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "material_formula".
         paper_time (float, optional): The starting time of this paper prompting. Defaults to 0.0.
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
