@@ -68,19 +68,19 @@ PROMPT_REGISTRY = {
             examples=[
                 Example(
                     input="The system is a bulk crystal of silicon, which has a diamond cubic structure.",
-                    output="```json\n'ChemicalFormulation': {'iupac': 'Si2'}```",
+                    output="```json\n'ChemicalFormulation': {'iupac': 'Si2'}\n```",
                 ),
                 Example(
                     input="We study the material with iupac formula Fe2O3, and its doped variant Fe2O3.25.",
-                    output="```json'ChemicalFormulation': [{'iupac': 'Fe2O3'}, {'iupac': 'Fe2O3.25'}]]```",
+                    output="```json\n'ChemicalFormulation': [{'iupac': 'Fe2O3'}, {'iupac': 'Fe2O3.25'}]]\n```",
                 ),
                 Example(
                     input="We study SrVO3, a system who is similar to SrTiO3 but with a different electronic structure.",
-                    output="```json\n'ChemicalFormulation': {'iupac': 'SrVO3'}```",
+                    output="```json\n'ChemicalFormulation': {'iupac': 'SrVO3'}\n```",
                 ),
                 Example(
                     input="The system is doped La1âxSrxNiO2, for x=0.2.",
-                    output="```json\n'ChemicalFormulation': {'iupac': 'La0.8Sr0.2NiO2'}```",
+                    output="```json\n'ChemicalFormulation': {'iupac': 'La0.8Sr0.2NiO2'}\n```",
                 ),
             ],
         ),

@@ -53,7 +53,7 @@ class BasePrompt(BaseModel):
         description="""
         Constraints to be followed in the output of the prompt. These are formatted as
 
-        'Important constaints when generating the output: `constraints`'.
+        'Important constraints when generating the output: `constraints`'.
 
         They are mainly used as instructions to avoid unused text, broken formats or sentences, etc.
         """,
