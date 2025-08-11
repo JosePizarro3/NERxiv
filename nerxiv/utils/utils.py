@@ -1,4 +1,5 @@
 import json
+import re
 from typing import TYPE_CHECKING
 
 from pymatgen.core import Composition
@@ -51,6 +52,19 @@ def answer_to_formulas(answer: str) -> list[ChemicalFormulation]:
             "Some formulas could not be parsed. Please check the input format."
         )
     return chemical_formulations
+
+
+def clean_description(description: str) -> str:
+    """
+    Cleans the description by removing extra spaces and leading/trailing whitespace.
+
+    Args:
+        description (str): The description string to be cleaned.
+
+    Returns:
+        str: The cleaned description string with extra spaces removed.
+    """
+    return re.sub(r"\s+", " ", description).strip()
 
 
 # def material_pre_filtering(
