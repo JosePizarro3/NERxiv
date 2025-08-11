@@ -3,6 +3,22 @@ from pymatgen.core import Composition
 
 
 class ChemicalFormulation(BaseModel):
+    """
+    A ChemicalFormulation is a descriptive representation of the chemical composition of a material
+    system, expressed in one or more standardized formula formats (e.g., IUPAC, anonymous, Hill, or
+    reduced), each encoding the stoichiometry and elemental ordering according to specific conventions.
+
+    For the compound H2O2 (hydrogen peroxide), the different formulations would be:
+
+        iupac: H2O2
+
+        anonymous: AB
+
+        hill: H2O2
+
+        reduced: H2O2
+    """
+
     iupac: str | None = Field(
         None,
         description="""
