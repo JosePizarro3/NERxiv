@@ -1,3 +1,13 @@
+<h1 align="center">
+  <picture>
+    <source srcset="https://github.com/JosePizarro3/NERxiv/raw/main/docs/assets/nerxiv_logo_name.png">
+    <img src="https://github.com/JosePizarro3/NERxiv/raw/main/docs/assets/nerxiv_logo_name.png"
+         alt="NERxiv logo"
+         style="width: 25rem">
+  </picture>
+</h1>
+
+
 <h4 align="center">
 
 ![CI](https://github.com/JosePizarro3/NERxiv/actions/workflows/actions.yml/badge.svg)
@@ -102,3 +112,36 @@ ruff format . --check
 ```
 
 Manually fix anything Ruff cannot handle automatically.
+
+### Documentation writing
+
+To view the documentation locally, make sure to have installed the extra `[docu]` packages:
+
+```sh
+uv pip install -e '[docu]'
+```
+
+**Note**: This command installs `mkdocs`, `mkdocs-material`, and other documentation-related dependencies.
+
+The first time, build the server:
+
+```sh
+mkdocs build
+```
+
+Run the documentation server:
+
+```sh
+mkdocs serve
+```
+
+The output looks like:
+
+```sh
+INFO    -  Building documentation...
+INFO    -  Cleaning site directory
+INFO    -  [14:07:47] Watching paths for changes: 'docs', 'mkdocs.yml'
+INFO    -  [14:07:47] Serving on http://127.0.0.1:8000/
+```
+
+Simply click on `http://127.0.0.1:8000/`. The changes in the `md` files of the documentation are immediately reflected when the files are saved (the local web will automatically refresh).

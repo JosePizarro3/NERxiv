@@ -1,0 +1,66 @@
+site_name: NERxiv
+site_description: Documentation page for NERxiv.
+site_author: Jose M. Pizarro
+repo_url: https://github.com/JosePizarro3/NERxiv
+nav:
+  - Home: index.md
+  - Tutorial:
+    - Placeholder: tutorials/placeholder.md
+  - How-to guides:
+    - Placeholder: howtos/placeholder.md
+    - Big topic placeholder:
+      - Placeholder 1: howtos/bigtopic/placeholder1.md
+      - Placeholder 2: howtos/bigtopic/placeholder2.md
+  - Explanations:
+    - Placeholder: explanations/placeholder.md
+  - References:
+    - Placeholder: references/placeholder.md
+theme:
+  name: material
+  palette:
+    primary: custom
+    accent: custom
+    # - scheme: default
+    # - media: "(prefers-color-scheme: light)"
+    #   toggle:
+    #     icon: material/weather-sunny
+    #     name: Switch to light mode
+    # - scheme: slate
+    # - media: "(prefers-color-scheme: dark)"
+      # toggle:
+      #   icon: material/weather-night
+      #   name: Switch to dark mode
+  logo: assets/nerxiv_logo.png
+  favicon: assets/nerxiv_logo.png
+  features:
+    - navigation.path
+    - navigation.footer
+    - navigation.top
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+plugins:
+  - search
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - footnotes
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - toc:
+      permalink: True
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+extra_css:
+  - stylesheets/extra.css
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js'
+  - 'https://unpkg.com/cytoscape@3.19.1/dist/cytoscape.min.js'
