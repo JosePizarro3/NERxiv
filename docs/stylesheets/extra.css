@@ -1,34 +1,27 @@
 @font-face {
-    font-family: "BAM Klavika-Light";
-    src: url("../assets/fonts/BAMKlavika-Light.ttf");
+    font-family: "Satoshi Variable";
+    src: url("../assets/fonts/Satoshi-Variable.ttf");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
-    font-family: "BAM Klavika-LightItalic";
-    src: url("../assets/fonts/BAMKlavika-LightItalic.ttf");
-    font-weight: normal;
+    font-family: "Satoshi Variable Title";
+    src: url("../assets/fonts/Satoshi-Variable.ttf");
+    font-weight: 1000;
     font-style: normal;
 }
 
 @font-face {
-    font-family: "BAM Klavika-Medium";
-    src: url("../assets/fonts/BAMKlavika-Medium.ttf");
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: "BAM Klavika-MediumItalic";
-    src: url("../assets/fonts/BAMKlavika-MediumItalic.ttf");
+    font-family: "Satoshi Variable Italic";
+    src: url("../assets/fonts/Satoshi-VariableItalic.ttf");
     font-weight: normal;
     font-style: normal;
 }
 
 :root {
-    --md-text-font: "BAM Klavika-Light";
-    --titles-font: "BAM Klavika-Medium";
+    --md-text-font: "Satoshi Variable", sans-serif;
+    --titles-font: "Satoshi Variable Title", sans-serif;
     --md-code-font: "Noto Mono";
 
     /* BAM colors */
@@ -57,6 +50,16 @@
     --bam-gelb-darker: rgb(230, 155, 0);
     --bam-gelb-darkest: rgb(205, 125, 0);
 
+    --nerxiv-green-dark: rgb(15, 112, 96);
+    --nerxiv-green: rgb(20, 170, 145);
+    --nerxiv-grey: rgb(180, 184, 189);
+    /* --nerxiv-grey-dark: rgb(226, 229, 233);
+    --nerxiv-grey-light: rgb(209, 213, 218); */
+    --nerxiv-green-grey: rgb(89, 117, 111);
+    --nerxiv-green-grey-dark: rgb(234, 238, 237);
+    --nerxiv-green-grey-darker: rgb(157, 165, 163);
+    --nerxiv-green-grey-light: rgb(246, 250, 248);
+
     /* Backgrounds, primaries, and secondaries */
     --background-light: var(--bam-weiss);
     --color-light: var(--bam-schwarz-100);
@@ -70,9 +73,9 @@
 
     --grid-background-light: rgb(238, 229, 174, 0.5);
 
-    --md-primary-fg-color: var(--bam-rot-dark);  /* for hrefs */
-    --md-accent-fg-color: var(--bam-rot);  /* when hovering hrefs */
-    --md-primary-bg-color: var(--bam-rot);  /* for search icon */
+    --md-primary-fg-color: var(--nerxiv-green-dark);  /* for hrefs */
+    --md-accent-fg-color: var(--nerxiv-green);  /* when hovering hrefs */
+    --md-primary-bg-color: var(--nerxiv-green);  /* for search icon */
     --md-default-bg-color: var(--bam-weiss);
 }
 
@@ -82,7 +85,7 @@
 }
 
 .md-header, .md-header__inner {
-    background-color: var(--bam-weiss-dark);
+    background-color: var(--nerxiv-green-grey-dark);
     color: var(--bam-schwarz-100);
 }
 
@@ -100,20 +103,25 @@
     font-family: var(--titles-font);
 }
 
+.md-search__form {
+    background-color: var(--nerxiv-green-grey-darker);
+    border-radius: 8px;
+}
+
 .md-search__form:hover {
     background-color: rgba(0,0,0,.13);
 }
 
 .md-source {
-    color: var(--bam-rot-dark);
+    color: var(--nerxiv-green-dark);
 }
 
 .md-source:hover {
-    color: var(--bam-rot);
+    color: var(--nerxiv-green);
 }
 
 .md-main {
-    background-color: var(--bam-weiss);
+    background-color: var(--nerxiv-green-grey-light);
 }
 
 .md-content__inner, .md-typeset {
@@ -162,5 +170,5 @@
 }
 
 .md-footer {
-    background-color: var(--bam-blau-darkest);
+    background-color: var(--nerxiv-green-grey);
 }
