@@ -1,7 +1,7 @@
 <h4 align="center">
 
 ![CI](https://github.com/JosePizarro3/NERxiv/actions/workflows/actions.yml/badge.svg)
-![Coverage](https://coveralls.io/repos/github/JosePizarro3/NERxiv/badge.svg?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/JosePizarro3/NERxiv/badge.svg?branch=main&nocache=1)](https://coveralls.io/github/JosePizarro3/NERxiv?branch=main)
 [![License: PolyForm NC 1.0.0](https://img.shields.io/badge/license-PolyForm_NC_1.0.0-orange.svg)](LICENSE)
 <!--[![Commercial License Available](https://img.shields.io/badge/commercial-license-green.svg)](COMMERCIAL-LICENSE.md)-->
 <!-- [![PyPI version](https://img.shields.io/pypi/v/nerxiv.svg)]
