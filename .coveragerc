@@ -1,0 +1,5 @@
+[run]
+omit =
+    nerxiv/_version.py
+    */__init__.py
+    nerxiv/cli/*

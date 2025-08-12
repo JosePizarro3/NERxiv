@@ -49,6 +49,9 @@ dev = [
 ]
 docu = [
   "marimo[recommended]",
+  "mkdocs-material",
+  "mkdocs-click",
+  "mkdocstrings-python",
 ]
 
 [project.scripts]
