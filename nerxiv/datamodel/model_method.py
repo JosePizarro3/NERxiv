@@ -2,11 +2,29 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+DFT_CODES_MAP = {
+    "FPLO": {
+        "basis_set": "(L)APW+lo",
+        "xc_functionals": ["LDA, GGA"],
+        "soc": True,
+    },
+    "VASP": {
+        "basis_set": "plane waves",
+        "xc_functionals": ["LDA", "GGA", "metaGGA", "hyperGGA", "hybrid"],
+        "soc": True,
+    },
+    "WIEN2K": {
+        "basis_set": "(L)APW+lo",
+        "xc_functionals": ["LDA", "GGA", "metaGGA", "hyperGGA", "hybrid"],
+        "soc": True,
+    },
+}
+
 
 class Program(BaseModel):
     """
     A Program is a software application or tool used in the context of materials science,
-    computational chemistry, or related fields. Its metadata includes the name and potentially the version used.
+    computational chemistry, or related fields. Its metadata includes the name as an acronym and potentially the version used.
 
     For example, for a simulation using the Vienna Ab initio Simulation Package (VASP) with
     version 5.4.4, the metadata would be:
