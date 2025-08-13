@@ -239,21 +239,25 @@ class StructuredPrompt(BasePrompt):
         for field in self.target_fields:
             prop = properties.get(field, {})
             prop_description = clean_description(prop.get("description"))
-            prop_types = [
-                p.get("type") for p in prop.get("anyOf", []) if p.get("type") != "null"
-            ]  # only non-null types
-            instruction_lines += f"\n- {field} defined as '{prop_description}' and which is of type {prop_types[0]}"
+            prop_type = prop.get("type")
+            if not prop_type:
+                prop_types = [
+                    p.get("type")
+                    for p in prop.get("anyOf", [])
+                    if p.get("type") != "null"
+                ]  # only non-null types
+                prop_type = prop_types[0]
+            instruction_lines += f"\n- {field} defined as '{prop_description}' and which is of type {prop_type}"
             # TODO add data type
 
         instruction_lines += (
             "\nYou must return the extracted values in the following format:"
-            "\n```json\n"
-            f"'{name}': " + "{\n"
+            "\n{" + f"'{name}': " + "{"
         )
         for field in self.target_fields:
-            instruction_lines += f"    '{field}': <parsed-value>,\n"
+            instruction_lines += f"'{field}': <parsed-value>, "
 
-        instruction_lines += "}\n```\n"
+        instruction_lines += "} }"
         return instruction_lines
 
     def build(self, text: str) -> str:

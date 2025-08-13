@@ -160,7 +160,7 @@ def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
         return
     entry = PROMPT_REGISTRY[query]
     retriever_query = entry.retriever_query
-    template = entry.prompt
+    prompt = entry.prompt
 
     # list all papers `{data_path}/*.hdf5`
     papers = list(Path(data_path).rglob("*.hdf5"))
@@ -171,7 +171,7 @@ def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
             n_top_chunks=n_top_chunks,
             model=model,
             retriever_query=retriever_query,
-            template=template,
+            prompt=prompt,
             query=query,
             paper_time=paper_time,
             logger=logger,
