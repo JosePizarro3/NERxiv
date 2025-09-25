@@ -1,9 +1,54 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" version="28.2.5">
   <diagram name="Page-1" id="jk1--OkMI3baJWRES09H">
-    <mxGraphModel>
+    <mxGraphModel dx="2864" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-2" value="" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#000000;shape=mxgraph.azure.file;gradientColor=default;" vertex="1" parent="1">
+          <mxGeometry x="-720" y="398" width="169.2" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-3" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Phosphor_Regular_Vol_4-2948/puzzle-piece-1403.svg;strokeWidth=1;imageBorder=none;" vertex="1" parent="1">
+          <mxGeometry x="-34" y="360" width="256" height="256" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-5" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Phosphor_Regular_Vol_4-2948/robot-1474.svg" vertex="1" parent="1">
+          <mxGeometry x="-290" y="360" width="256" height="256" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-7" value="" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.code_file;pointerEvents=1;" vertex="1" parent="1">
+          <mxGeometry x="480" y="398" width="180.5" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-11" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Boxicons_Solid_Vol_2-2639/bxs-face-876.svg" vertex="1" parent="1">
+          <mxGeometry x="660.5" y="398" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-13" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Material_Core-2642/star-outline-985.svg;imageBackground=default;imageBorder=none;opacity=30;" vertex="1" parent="1">
+          <mxGeometry x="20" y="407" width="164.31" height="172.5" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-14" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Phosphor_Regular_Vol_4-2948/puzzle-piece-1403.svg;strokeWidth=1;imageBorder=none;imageBackground=default;" vertex="1" parent="1">
+          <mxGeometry x="-530" y="360" width="256" height="256" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-16" value="Paper text" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;" vertex="1" parent="1">
+          <mxGeometry x="-690" y="608" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-17" value="Chunks" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;" vertex="1" parent="1">
+          <mxGeometry x="-432" y="608" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-18" value="Retriever" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;" vertex="1" parent="1">
+          <mxGeometry x="-192" y="608" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-19" value="Top-k chunks" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;" vertex="1" parent="1">
+          <mxGeometry x="64" y="616" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-20" value="LLM Generator" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;" vertex="1" parent="1">
+          <mxGeometry x="310" y="616" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-22" value="Schema extraction" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;" vertex="1" parent="1">
+          <mxGeometry x="540.25" y="616" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-24" value="Human validation" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;" vertex="1" parent="1">
+          <mxGeometry x="730.5" y="616" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z0rA6u2CzzTuBgQvHcI8-25" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Boxicons_Regular_Vol_1-2633/bx-bot-774.svg" vertex="1" parent="1">
+          <mxGeometry x="210" y="360" width="240" height="240" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
