@@ -97,6 +97,19 @@ class BasePrompt(BaseModel):
             constraint_lines += f"\n- {constraint}"
         return constraint_lines
 
+    def build(self) -> str:
+        """
+        Builds the prompt based on the fields defined in this class. This is used to format the prompt
+        and append the `text` to be sent to the LLM for generation.
+
+        Raises:
+            NotImplementedError: This method should be implemented in subclasses.
+
+        Returns:
+            str: The formatted prompt ready to be sent to the LLM.
+        """
+        raise NotImplementedError("This method should be implemented in subclasses.")
+
 
 class Prompt(BasePrompt):
     """
