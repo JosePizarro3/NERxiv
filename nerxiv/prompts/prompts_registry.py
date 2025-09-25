@@ -71,6 +71,10 @@ PROMPT_REGISTRY = {
                     output="```json\n'ChemicalFormulation': {'iupac': 'Si2'}\n```",
                 ),
                 Example(
+                    input="The square lattice model is used to simulate the behavior of electrons in a simplified system.",
+                    output="model",
+                ),
+                Example(
                     input="We study the material with iupac formula Fe2O3, and its doped variant Fe2O3.25.",
                     output="```json\n'ChemicalFormulation': [{'iupac': 'Fe2O3'}, {'iupac': 'Fe2O3.25'}]]\n```",
                 ),
