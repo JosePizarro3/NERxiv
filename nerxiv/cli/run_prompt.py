@@ -97,19 +97,19 @@ def run_prompt_paper(
         query_group.create_dataset("answer", data=answer.encode("utf-8"))
         # Store chunks and top-k chunks
         chunks_group = query_group.require_group("chunks")
+        chunks_group.attrs["n_chunks"] = len(chunks)
         for i, chunk in enumerate(chunks):
             chunks_group.create_dataset(
                 f"chunk_{i:04d}", data=chunk.page_content.encode("utf-8")
             )
             chunks_group.attrs["chunker"] = chunk.metadata.get("source")
-            chunks_group.attrs["n_chunks"] = len(chunks)
 
         top_k_chunks = text.split("\n\n")
+        chunks_group.attrs["n_top_k_chunks"] = len(top_k_chunks)
         for i, top_k_chunk in enumerate(top_k_chunks):
             chunks_group.create_dataset(
                 f"top_k_chunk_{i:04d}", data=top_k_chunk.encode("utf-8")
             )
-            chunks_group.attrs["n_top_k_chunks"] = len(top_k_chunks)
 
         paper_time = time.time() - paper_time
         run_group.attrs["elapsed_time"] = paper_time

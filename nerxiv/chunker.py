@@ -80,7 +80,7 @@ class Chunker(BaseChunker):
             )
         ]
         chunks = text_splitter.split_documents(pages)
-        self.logger.info(f"Text chunked into fixed {len(chunks)} parts.")
+        self.logger.info(f"Text chunked into {len(chunks)} fixed chunks.")
         return chunks
 
 
@@ -107,9 +107,7 @@ class SemanticChunker(BaseChunker):
                     metadata={"source": "nerxiv.chunker.SemanticChunker"},
                 )
             )
-        self.logger.info(
-            f"Text chunked into semantically chunked {len(chunks)} sentences."
-        )
+        self.logger.info(f"Text chunked into {len(chunks)} semantic chunks.")
         return chunks
 
 
@@ -153,9 +151,7 @@ class AdvancedSemanticChunker(BaseChunker):
             for chunk in chunks
             if chunk
         ]
-        self.logger.info(
-            f"Text chunked in semantically chunk {len(final_chunks)} sentences"
-        )
+        self.logger.info(f"Text chunked into {len(final_chunks)} semantic chunks.")
         return final_chunks
 
 
