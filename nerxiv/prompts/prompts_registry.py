@@ -50,6 +50,45 @@ PROMPT_REGISTRY = {
             ],
         ),
     ),
+    "only_dmft": PromptRegistryEntry(
+        retriever_query="""Identify all mentions of the method used in the text. The method can be DMFT, DFT+U, DFT,
+        Quantum Monte Carlo, Exact Diagonalization, etc.""",
+        prompt=Prompt(
+            expert="Condensed Matter Physics",
+            main_instruction="identify all mentions of the method being used in the simulation",
+            secondary_instructions=[
+                "Look for mentions of the method applied over the material.",
+                "If the method is DMFT (or any other variant of it like DFT+DMFT, EDMFT) return a boolean True. If not return False.",
+                "Only consider if the mention of a method corresponds to an actual simulation of that material.",
+                "Ignore mentions of similar methods, or whether the method is used as a reference or comparison.",
+            ],
+            constraints=[
+                "Only return the expected answer asked for, without any additional text, explanation, or thinking block."
+            ],
+            examples=[
+                Example(
+                    input="We use DFT+DMFT to study the electronic properties of the LaCuO4.",
+                    output="True",
+                ),
+                Example(
+                    input="We use DFT to study the electronic properties of the LaCuO4.",
+                    output="False",
+                ),
+                Example(
+                    input="We use Quantum Monte Carlo to study the electronic properties of the LaCuO4.",
+                    output="False",
+                ),
+                Example(
+                    input="In another material, MnO, the DMFT results are in good agreement with our DFT+U results.",
+                    output="False",
+                ),
+                Example(
+                    input="We use DFT+U to study the electronic properties of the LaCuO4.",
+                    output="False",
+                ),
+            ],
+        ),
+    ),
     "material_formula_structured": PromptRegistryEntry(
         retriever_query="""Identify all mentions of the system being simulated. The system can be a bulk crystal, a molecule,
         a nanostructure, and in general, any material. It can also be a toy model such as the square lattice,

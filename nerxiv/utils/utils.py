@@ -1,7 +1,10 @@
 import json
 import re
+from collections.abc import Callable
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+import h5py
 from pymatgen.core import Composition
 
 if TYPE_CHECKING:
@@ -83,3 +86,51 @@ def clean_description(description: str) -> str:
 #     if answer != "model":
 #         return answer_to_formulas(answer)
 #     return []
+
+
+def material_formula_predicate(answer: str) -> bool:
+    """
+    Predicate function to determine if the answer indicates the presence of a material formula.
+
+    Args:
+        answer (str): The answer string to be evaluated.
+
+    Returns:
+        bool: True if the answer is "model", indicating a material formula is present; False otherwise.
+    """
+    return answer == "model"
+
+
+def only_dmft_predicate(answer: str) -> bool:
+    """
+    Predicate function to determine if the answer indicates the absence of DMFT method.
+
+    Args:
+        answer (str): The answer string to be evaluated.
+
+    Returns:
+        bool: True if the answer is not "True", indicating DMFT is not used; False if DMFT is used.
+    """
+    return answer != "True"
+
+
+def files_to_subfolder_answer(
+    path: str = "./data",
+    run: str = "run_0000",
+    predicate: Callable[[str], bool] | None = None,
+) -> None:
+    files = list(Path(path).rglob("*.hdf5"))
+    for file in files:
+        with h5py.File(file, "a") as f:
+            run_group = f["raw_llm_answers"][run]
+            # run_group only has one key associated with what we are naming the subfolder
+            subfolder_name = next(iter(run_group.keys()))
+
+            # Check if the answer is going through a specific predicate (e.g., see `model_predicate()` utility function) or simply checking if the answer is True or False
+            answer = run_group[subfolder_name]["answer"][()].decode("utf-8").strip()
+            if (predicate or (lambda a: a == "True"))(answer):
+                # Create subfolder and move file
+                target_dir = file.parent / subfolder_name
+                target_dir.mkdir(exist_ok=True)
+                target_path = target_dir / file.name
+                file.rename(target_path)
