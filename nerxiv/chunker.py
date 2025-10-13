@@ -133,8 +133,8 @@ class AdvancedSemanticChunker(BaseChunker):
         nlp = get_spacy_model()
         doc = nlp(self.text)
         sentences = [sent.text.strip() for sent in doc.sents if sent.text.strip()]
-        # Adjust number of clusters based on number of sentences
-        n_chunks = max(n_chunks, min(len(sentences) // 10, 50))
+        # Adjust number of clusters: at most one per sentence (1 <= n_chunks <= len(sentences))
+        n_chunks = max(min(n_chunks, len(sentences)), 1)
 
         # Fit KMeans to the sentence embeddings
         embeddings = self.model.encode(sentences, show_progress_bar=False)

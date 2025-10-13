@@ -1,6 +1,9 @@
-import pytest
+from unittest.mock import MagicMock, patch
 
-from nerxiv.chunker import Chunker
+import pytest
+from langchain_core.documents import Document
+
+from nerxiv.chunker import AdvancedSemanticChunker, Chunker, SemanticChunker
 
 
 class TestChunker:
@@ -65,3 +68,97 @@ class TestChunker:
         assert len(chunks) == len(result)
         for i, chunk in enumerate(chunks):
             assert chunk.page_content == result[i]
+
+
+class TestSemanticChunker:
+    @patch("nerxiv.chunker.get_spacy_model")
+    def test_chunk_text(self, mock_get_spacy):
+        # Create sentence mocks
+        mock_sent1 = MagicMock()
+        mock_sent1.text = "Sentence one."
+        mock_sent2 = MagicMock()
+        mock_sent2.text = "Sentence two."
+
+        # Create a mock NLP doc that has .sents
+        mock_doc = MagicMock()
+        mock_doc.sents = [mock_sent1, mock_sent2]
+
+        # Make the NLP model callable, returning the mock doc
+        mock_nlp_instance = MagicMock()
+        mock_nlp_instance.return_value = mock_doc
+        mock_get_spacy.return_value = mock_nlp_instance
+
+        text = "Dummy text."
+        chunker = SemanticChunker(text=text)
+        chunks = chunker.chunk_text()
+
+        assert isinstance(chunks, list)
+        assert all(isinstance(c, Document) for c in chunks)
+        assert chunks[0].page_content == "Sentence one."
+        assert chunks[1].page_content == "Sentence two."
+        assert chunks[0].metadata["source"] == "nerxiv.chunker.SemanticChunker"
+
+
+class TestAdvancedSemanticChunker:
+    @patch("nerxiv.chunker.get_sentence_model")
+    @patch("nerxiv.chunker.get_spacy_model")
+    def test_chunk_text(self, mock_get_spacy, mock_get_sentence_model):
+        # Mock spacy model
+        mock_sent1 = MagicMock()
+        mock_sent1.text = "Sentence one."
+        mock_sent2 = MagicMock()
+        mock_sent2.text = "Sentence two."
+
+        mock_doc = MagicMock()
+        mock_doc.sents = [mock_sent1, mock_sent2]
+
+        mock_nlp_instance = MagicMock()
+        mock_nlp_instance.return_value = mock_doc  # NLP(text) returns doc
+        mock_get_spacy.return_value = mock_nlp_instance
+
+        # Mock sentence transformer model
+        mock_model = MagicMock()
+        # One embedding per sentence
+        mock_model.encode.return_value = [[0.1, 0.2], [0.3, 0.4]]
+        mock_get_sentence_model.return_value = mock_model
+
+        text = "Sentence one. Sentence two."
+        chunker = AdvancedSemanticChunker(text=text)
+        chunks = chunker.chunk_text(n_chunks=2)
+
+        assert isinstance(chunks, list)
+        assert len(chunks) > 0
+        assert all(isinstance(c, Document) for c in chunks)
+        for c in chunks:
+            assert c.metadata["source"] == "nerxiv.chunker.AdvancedSemanticChunker"
+        # Ensure SentenceTransformer.encode was called
+        mock_model.encode.assert_called_once()
+
+    @patch("nerxiv.chunker.get_sentence_model")
+    @patch("nerxiv.chunker.get_spacy_model")
+    def test_chunk_text_fewer_sentences_than_n_clusters(
+        self, mock_get_spacy, mock_get_sentence_model
+    ):
+        # Mock spacy model
+        mock_sent1 = MagicMock()
+        mock_sent1.text = "Only one sentence."
+
+        mock_doc = MagicMock()
+        mock_doc.sents = [mock_sent1]
+
+        mock_nlp_instance = MagicMock()
+        mock_nlp_instance.return_value = mock_doc  # NLP(text) returns doc
+        mock_get_spacy.return_value = mock_nlp_instance
+
+        # Mock sentence transformer model
+        mock_model = MagicMock()
+        # One embedding per sentence
+        mock_model.encode.return_value = [[0.1, 0.2]]
+        mock_get_sentence_model.return_value = mock_model
+
+        text = "Only one sentence."
+        chunker = AdvancedSemanticChunker(text=text)
+        chunks = chunker.chunk_text(n_chunks=5)
+
+        assert len(chunks) == 1  # Only one sentence available
+        assert chunks[0].page_content == "Only one sentence."
