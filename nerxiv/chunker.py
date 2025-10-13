@@ -120,12 +120,12 @@ class AdvancedSemanticChunker(BaseChunker):
         super().__init__(text=text, **kwargs)
         self.model = get_sentence_model()
 
-    def chunk_text(self, n_chunks: int = 15) -> list[Document]:
+    def chunk_text(self, n_chunks: int = 10) -> list[Document]:
         """
         Chunk the text into smaller parts based on semantic meaning using KMeans clustering on sentence embeddings.
 
         Args:
-            n_chunks (int, optional): The number of chunks for the text to be chunked. Defaults to 15.
+            n_chunks (int, optional): The number of chunks for the text to be chunked. Defaults to 10.
 
         Returns:
             list[Document]: The list of chunks as `Document` objects.
@@ -133,7 +133,8 @@ class AdvancedSemanticChunker(BaseChunker):
         nlp = get_spacy_model()
         doc = nlp(self.text)
         sentences = [sent.text.strip() for sent in doc.sents if sent.text.strip()]
-        n_chunks = min(n_chunks, len(sentences))
+        # Adjust number of clusters based on number of sentences
+        n_chunks = max(n_chunks, min(len(sentences) // 10, 50))
 
         # Fit KMeans to the sentence embeddings
         embeddings = self.model.encode(sentences, show_progress_bar=False)
