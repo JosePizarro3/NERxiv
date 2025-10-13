@@ -5,7 +5,7 @@ from nerxiv.prompts import PROMPT_REGISTRY
 
 def test_PROMPT_REGISTRY():
     registered_queries = set(PROMPT_REGISTRY.keys())
-    expected_queries = {"material_formula", "material_formula_structured"}
+    expected_queries = {"material_formula", "material_formula_structured", "only_dmft"}
     if registered_queries != expected_queries:
         pytest.fail(
             f"`PROMPT_REGISTRY` query keys have changed.\n"
