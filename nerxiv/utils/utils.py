@@ -88,11 +88,29 @@ def clean_description(description: str) -> str:
 #     return []
 
 
-def material_formula_predicate(answer):
+def material_formula_predicate(answer: str) -> bool:
+    """
+    Predicate function to determine if the answer indicates the presence of a material formula.
+
+    Args:
+        answer (str): The answer string to be evaluated.
+
+    Returns:
+        bool: True if the answer is "model", indicating a material formula is present; False otherwise.
+    """
     return answer == "model"
 
 
-def only_dmft_predicate(answer):
+def only_dmft_predicate(answer: str) -> bool:
+    """
+    Predicate function to determine if the answer indicates the absence of DMFT method.
+
+    Args:
+        answer (str): The answer string to be evaluated.
+
+    Returns:
+        bool: True if the answer is not "True", indicating DMFT is not used; False if DMFT is used.
+    """
     return answer != "True"
 
 

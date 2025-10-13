@@ -58,7 +58,7 @@ PROMPT_REGISTRY = {
             main_instruction="identify all mentions of the method being used in the simulation",
             secondary_instructions=[
                 "Look for mentions of the method applied over the material.",
-                "If the method is DMFT (or any other variant of it like DFT+DMFT, EDMFT) return a boolean True. If not return False."
+                "If the method is DMFT (or any other variant of it like DFT+DMFT, EDMFT) return a boolean True. If not return False.",
                 "Only consider if the mention of a method corresponds to an actual simulation of that material.",
                 "Ignore mentions of similar methods, or whether the method is used as a reference or comparison.",
             ],
