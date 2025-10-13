@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 import spacy
+import spacy.cli
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
@@ -16,7 +17,11 @@ _SENTENCE_MODEL = None
 def get_spacy_model():
     global _SPACY_NLP
     if _SPACY_NLP is None:
-        _SPACY_NLP = spacy.load("en_core_web_sm", disable=["ner"])
+        try:
+            _SPACY_NLP = spacy.load("en_core_web_sm", disable=["ner"])
+        except OSError:
+            spacy.cli.download("en_core_web_sm")
+            _SPACY_NLP = spacy.load("en_core_web_sm", disable=["ner"])
     return _SPACY_NLP
 
 
@@ -116,6 +121,15 @@ class AdvancedSemanticChunker(BaseChunker):
         self.model = get_sentence_model()
 
     def chunk_text(self, n_chunks: int = 15) -> list[Document]:
+        """
+        Chunk the text into smaller parts based on semantic meaning using KMeans clustering on sentence embeddings.
+
+        Args:
+            n_chunks (int, optional): The number of chunks for the text to be chunked. Defaults to 15.
+
+        Returns:
+            list[Document]: The list of chunks as `Document` objects.
+        """
         nlp = get_spacy_model()
         doc = nlp(self.text)
         sentences = [sent.text.strip() for sent in doc.sents if sent.text.strip()]
@@ -130,16 +144,14 @@ class AdvancedSemanticChunker(BaseChunker):
             chunks[cluster].append(sentences[i])
 
         # Combine sentences in each cluster to form chunks
-        final_chunks = []
-        for chunk in chunks:
-            if not chunk:
-                continue
-            final_chunks.append(
-                Document(
-                    page_content=" ".join(chunk),
-                    metadata={"source": "nerxiv.chunker.AdvancedSemanticChunker"},
-                )
+        final_chunks = [
+            Document(
+                page_content=" ".join(chunk),
+                metadata={"source": "nerxiv.chunker.AdvancedSemanticChunker"},
             )
+            for chunk in chunks
+            if chunk
+        ]
         self.logger.info(
             f"Text chunked in semantically chunk {len(final_chunks)} sentences"
         )
