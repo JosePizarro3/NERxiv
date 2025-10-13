@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import h5py
 
-from nerxiv.chunker import Chunker
+from nerxiv.chunker import _CHUNKER_MAP, Chunker
 from nerxiv.logger import logger
 from nerxiv.prompts.prompts import BasePrompt
 from nerxiv.rag import CustomRetriever, LLMGenerator
@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 def run_prompt_paper(
     paper: Path,
+    chunker: str = "Chunker",
     retriever_model: str = "all-MiniLM-L6-v2",
     n_top_chunks: int = 5,
     model: str = "gpt-oss:20b",
@@ -29,6 +30,7 @@ def run_prompt_paper(
 
     Args:
         paper (Path): Path to the HDF5 file containing the paper data.
+        chunker (str, optional): The chunker class to use for chunking the text. Defaults to `Chunker`.
         retriever_model (str, optional): The model used in the retriever. Defaults to "all-MiniLM-L6-v2".
         n_top_chunks (int, optional): The number of top chunks to retrieve. Defaults to 5.
         model (_type_, optional): The model used in the generator. Defaults to "gpt-oss:20b".
@@ -58,8 +60,8 @@ def run_prompt_paper(
         text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
 
         # Chunking text
-        chunker = Chunker(text=text)
-        chunks = chunker.chunk_text()
+        chunker_cls = _CHUNKER_MAP.get(chunker, Chunker)(text=text)
+        chunks = chunker_cls.chunk_text()
 
         # Retrieval
         retriever = CustomRetriever(
@@ -93,13 +95,21 @@ def run_prompt_paper(
         )
         query_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
         query_group.create_dataset("answer", data=answer.encode("utf-8"))
+        # Store chunks and top-k chunks
+        chunks_group = query_group.require_group("chunks")
+        for i, chunk in enumerate(chunks):
+            chunks_group.create_dataset(
+                f"chunk_{i:04d}", data=chunk.page_content.encode("utf-8")
+            )
+            chunks_group.attrs["chunker"] = chunk.metadata.get("source")
+            chunks_group.attrs["n_chunks"] = len(chunks)
 
-        # Move hdf5 files to a model subfolder
-        if answer == "model":
-            target_dir = paper.parent / "model"
-            target_dir.mkdir(exist_ok=True)
-            target_path = target_dir / paper.name
-            paper.rename(target_path)
+        top_k_chunks = text.split("\n\n")
+        for i, top_k_chunk in enumerate(top_k_chunks):
+            chunks_group.create_dataset(
+                f"top_k_chunk_{i:04d}", data=top_k_chunk.encode("utf-8")
+            )
+            chunks_group.attrs["n_top_k_chunks"] = len(top_k_chunks)
 
         paper_time = time.time() - paper_time
         run_group.attrs["elapsed_time"] = paper_time

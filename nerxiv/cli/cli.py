@@ -28,6 +28,17 @@ def cli():
     """,
 )
 @click.option(
+    "--chunker",
+    "-ch",
+    type=str,
+    default="Chunker",
+    required=False,
+    help="""
+    (Optional) The chunker class to use for chunking the text. Defaults to `Chunker`.
+    Options are: `Chunker`, `SemanticChunker`, `AdvancedSemanticChunker`.
+    """,
+)
+@click.option(
     "--retriever-model",
     "-rm",
     type=str,
@@ -67,7 +78,7 @@ def cli():
     (Optional) The query used for retrieval and generation. See the registry PROMPT_REGISTRY. Defaults to "material_formula".
     """,
 )
-def prompt(file_path, retriever_model, n_top_chunks, model, query):
+def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query):
     start_time = time.time()
 
     if query not in PROMPT_REGISTRY:
@@ -83,6 +94,7 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
     paper = Path(file_path)
     paper_time = run_prompt_paper(
         paper=paper,
+        chunker=chunker,
         retriever_model=retriever_model,
         n_top_chunks=n_top_chunks,
         model=model,
@@ -107,6 +119,17 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
     required=False,
     help="""
     (Optional) The path to folder containing all the HDF5 file used to prompt the LLM.
+    """,
+)
+@click.option(
+    "--chunker",
+    "-ch",
+    type=str,
+    default="Chunker",
+    required=False,
+    help="""
+    (Optional) The chunker class to use for chunking the text. Defaults to `Chunker`.
+    Options are: `Chunker`, `SemanticChunker`, `AdvancedSemanticChunker`.
     """,
 )
 @click.option(
@@ -149,7 +172,7 @@ def prompt(file_path, retriever_model, n_top_chunks, model, query):
     (Optional) The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "material_formula".
     """,
 )
-def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
+def prompt_all(data_path, chunker, retriever_model, n_top_chunks, model, query):
     start_time = time.time()
     paper_time = start_time
 
@@ -167,6 +190,7 @@ def prompt_all(data_path, retriever_model, n_top_chunks, model, query):
     for paper in papers:
         paper_time = run_prompt_paper(
             paper=paper,
+            chunker=chunker,
             retriever_model=retriever_model,
             n_top_chunks=n_top_chunks,
             model=model,
