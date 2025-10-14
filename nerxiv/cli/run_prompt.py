@@ -25,6 +25,7 @@ def run_prompt_paper(
     query: str = "material_formula",
     paper_time: float = 0.0,
     logger: "BoundLoggerLazyProxy" = logger,
+    **kwargs,
 ) -> float:
     """Runs the prompt based on `retriever_query` and `template` on a given `paper`.
 
@@ -73,7 +74,7 @@ def run_prompt_paper(
         )
 
         # Generation
-        generator = LLMGenerator(model=model, text=text, logger=logger)
+        generator = LLMGenerator(model=model, text=text, logger=logger, **kwargs)
         built_prompt = prompt.build(text=text)
         answer = generator.generate(prompt=built_prompt)
 

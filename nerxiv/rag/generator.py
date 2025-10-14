@@ -1,7 +1,7 @@
+import inspect
 import re
 
 from langchain_ollama.llms import OllamaLLM
-from transformers import AutoTokenizer
 
 from nerxiv.logger import logger
 
@@ -18,47 +18,23 @@ class LLMGenerator:
         if not text:
             raise ValueError("`text` is required for LLM generation.")
         self.text = text
-
         self.logger = kwargs.get("logger", logger)
 
-        # ! note this is a list to keep track of the models tested, rather than a complete list of all the LLM models available
-        self._huggingface_model_map = {
-            "deepseek-r1": ("deepseek-ai/DeepSeek-R1", 131072),
-            "llama3.1": ("meta-llama/Llama-3.1-8B-Instruct", 131072),
-            "llama3.1:70b": ("meta-llama/Llama-3.1-70B", 131072),
-            "qwen3:32b": ("Qwen/Qwen3-32B", 40960),
+        # Define default values for metadata extraction
+        defaults = {
+            "temperature": 0.2,
+            "format": "json",
         }
+        merged_args = {**defaults, **kwargs}
 
-        self.llm = OllamaLLM(model=model)
+        # Dynamically detect valid OllamaLLM kwargs
+        sig = inspect.signature(OllamaLLM)
+        valid_params = set(sig.parameters.keys())
+        # Filter kwargs
+        ollama_kwargs = {k: v for k, v in merged_args.items() if k in valid_params}
+
+        self.llm = OllamaLLM(model=model, **ollama_kwargs)
         self.logger.info(f"LLM model: {model}")
-
-    def _check_tokens_limit(self, prompt: str = "") -> bool:
-        """
-        Checks if the prompt length exceeds the token limit for the specified LLM model.
-
-        Args:
-            prompt (str, optional): The prompt to be checked if it exceeds the token limit. Defaults to "".
-
-        Returns:
-            bool: True if the prompt length is within the token limit, False otherwise.
-        """
-        try:
-            huggingface_model, tokens_limit = self._huggingface_model_map.get(
-                self.llm.model
-            )
-            tokenizer = AutoTokenizer.from_pretrained(huggingface_model)
-        except Exception:
-            self.logger.critical(
-                f"Failed to load the tokenizer for model {self.llm.model}. We will continue with prompting anyways"
-            )
-            return True
-        num_tokens = len(tokenizer(prompt)["input_ids"])
-        if num_tokens > tokens_limit:
-            self.logger.critical(
-                f"Prompt is too long ({num_tokens}) for the context window ({tokens_limit})."
-            )
-            return False
-        return True
 
     def generate(
         self,
@@ -78,9 +54,6 @@ class LLMGenerator:
         Returns:
             str: The generated and cleaned answer from the LLM model.
         """
-        # Check if the prompt is empty or exceeds the token limit
-        if not self._check_tokens_limit(prompt=prompt) or not prompt:
-            return ""
 
         def _delete_thinking(answer: str = "") -> str:
             """
