@@ -1,3 +1,4 @@
+import re
 import time
 from pathlib import Path
 
@@ -9,9 +10,14 @@ from nerxiv.prompts import PROMPT_REGISTRY
 from .run_prompt import run_prompt_paper
 
 
-def parse_llm_option_to_args(llm_option: list[str]) -> dict:
+def parse_llm_option_to_args(llm_option: tuple[str]) -> dict:
     """
     Parses a list of key=value strings from `llm_option` into a dictionary.
+
+    Example:
+        ("temperature=0.7", "num_ctx=8192", "reasoning=true", "base_url=https://api.openai.com/v1")
+        -> {"temperature": 0.7, "num_ctx": 8192, "reasoning": True, "base_url": "https://api.openai.com/v1"}
+
 
     Args:
         llm_option (list[str]): List of key=value strings.
@@ -25,14 +31,19 @@ def parse_llm_option_to_args(llm_option: list[str]) -> dict:
             click.echo(f"Invalid --llm-option format: {option}. Use key=value.")
             continue
         key, value = option.split("=", 1)
+        value = value.strip()
         try:
             # Attempt to cast to int/float/bool if possible
             if value.lower() in {"true", "false"}:
                 value = value.lower() == "true"
-            elif "." in value:
+            elif re.fullmatch(r"[-+]?\d*\.\d+", value):
                 value = float(value)
             elif value.isdigit():
                 value = int(value)
+            elif value.lower() == "none":
+                value = None
+            elif value in {"''", '""'}:
+                value = ""
         except Exception:
             continue
         llm_kwargs[key] = value
