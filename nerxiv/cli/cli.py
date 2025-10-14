@@ -38,7 +38,7 @@ def parse_llm_option_to_args(llm_option: tuple[str]) -> dict:
                 value = value.lower() == "true"
             elif re.fullmatch(r"[-+]?\d*\.\d+", value):
                 value = float(value)
-            elif value.isdigit():
+            elif re.fullmatch(r"\d+", value):
                 value = int(value)
             elif value.lower() == "none":
                 value = None
