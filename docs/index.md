@@ -15,7 +15,8 @@ hide: toc
 
 The **Tutorials** are designed to guide you through the general and basic understanding of the functionalities of NERxiv. These are intended for learning the software in a first approach.
 
-- [Using the RAG Extractor Agent](tutorials/rag-extractor-tutorial.md)
+- [Downloading arXiv papers as HDF5 files](tutorials/pyrxiv_download_hdf5.md)
+- [Using the RAG Extractor Agent](tutorials/rag_extractor_tutorial.md)
 
 </div>
 
@@ -52,7 +53,7 @@ The **Explanations** give you a theoretical background about the main concepts u
 
 The **References** include the glossary of used terms and API documentation.
 
-- [References](references/placeholder.md)
+- [API Reference](references/api.md)
 
 </div>
 

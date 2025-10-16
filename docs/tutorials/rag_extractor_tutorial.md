@@ -2,24 +2,18 @@
 
 This tutorial will guide you through using NERxiv's RAG (Retrieval-Augmented Generation) extractor agent to extract structured metadata from scientific papers. The RAG agent combines text chunking, semantic retrieval, and LLM-based generation to intelligently extract information from arXiv papers.
 
-## What is the RAG Extractor Agent?
-
 The RAG extractor agent is a three-stage pipeline that:
 
 1. **Chunks** the paper text into smaller, manageable pieces
 2. **Retrieves** the most relevant chunks based on a query
-3. **Generates** structured answers using an LLM model
+3. **Generates** structured JSON answers using an LLM model
 
-This approach allows the system to work with long papers that exceed the token limits of most LLMs while focusing on the most relevant content for your query.
+!!! note "Prerequisites"
+    - **Python ≥ 3.10** installed
+    - Downloaded and set up [Ollama](https://ollama.com/download) for running LLMs locally
+    - At least one LLM model pulled: `ollama pull llama3.1` (or your preferred model)
+    - An HDF5 file containing extracted paper text using [`pyrxiv`](https://github.com/JosePizarro3/pyrxiv) (see [Tutorial - Downloading arXiv papers as HDF5 files](pyrxiv_download_hdf5.md))
 
-## Prerequisites
-
-Before starting, ensure you have:
-
-- Installed NERxiv: `pip install nerxiv`
-- Downloaded and set up [Ollama](https://ollama.com/download) for running LLMs locally
-- At least one LLM model pulled: `ollama pull llama3.1` (or your preferred model)
-- An HDF5 file containing extracted paper text (see Tutorial 1 for text extraction)
 
 ## Basic Usage
 
@@ -172,10 +166,10 @@ import h5py
 with h5py.File("paper.hdf5", "r") as f:
     # List all runs
     runs = list(f["raw_llm_answers"].keys())
-    
+
     # Access the latest run
     latest_run = f["raw_llm_answers"][runs[-1]]
-    
+
     # Read the answer
     answer = latest_run["material_formula"]["answer"][()].decode("utf-8")
     print(answer)
