@@ -5,5 +5,12 @@
 # an LLM.
 # ############################################################################
 
-from .generator import LLMGenerator
-from .retriever import CustomRetriever, LangChainRetriever
+"""RAG subpackage.
+
+This package contains retriever/generator implementations. Importing the
+submodules directly (for example `from nerxiv.rag import retriever`) is the
+recommended pattern to avoid pulling optional dependencies at package import
+time.
+"""
+
+__all__ = []
