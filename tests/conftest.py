@@ -1,8 +1,12 @@
 import os
 from pathlib import Path
 
-import h5py
 import pytest
+
+try:
+    import h5py
+except Exception:  # pragma: no cover - optional dependency for some tests
+    h5py = None
 
 from nerxiv.logger import log_storage
 
@@ -26,6 +30,8 @@ def cleared_log_storage():
 
 def hdf5_test_file(tmp_path: str, text: str = "Some scientific content here.") -> Path:
     """Creates a minimal HDF5 file with expected structure."""
+    if h5py is None:
+        raise RuntimeError("h5py is required to create an HDF5 test file but it's not installed")
     file_path = Path(tmp_path) / "1234.5678.hdf5"
     with h5py.File(file_path, "w") as f:
         paper_id = "1234.5678"
