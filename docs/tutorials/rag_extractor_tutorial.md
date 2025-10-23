@@ -10,10 +10,73 @@ The RAG extractor agent is a three-stage pipeline that:
 
 !!! note "Prerequisites"
     - **Python ≥ 3.10** installed
+    - A virtual environment with `nerxiv` installed
     - Downloaded and set up [Ollama](https://ollama.com/download) for running LLMs locally
     - At least one LLM model pulled: `ollama pull llama3.1` (or your preferred model)
     - An HDF5 file containing extracted paper text using [`pyrxiv`](https://github.com/JosePizarro3/pyrxiv) (see [Tutorial - Downloading arXiv papers as HDF5 files](pyrxiv_download_hdf5.md))
 
+
+## Installation and Setup
+
+### Create an empty test directory
+
+We will test the `nerxiv` functionalities in an empty directory. Open your terminal and type:
+```bash
+mkdir test_nerxiv
+cd test_nerxiv/
+```
+
+### Create a Virtual Environment
+
+We strongly recommend using a virtual environment to avoid conflicts with other packages.
+
+**Using venv:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+**Using conda:**
+```bash
+conda create --name .venv python=3.10  # or any version 3.10 <= python <= 3.12
+conda activate .venv
+```
+
+### Install the Package
+
+`nerxiv` is part of the PyPI registry and can be installed via pip:
+```bash
+pip install --upgrade pip
+pip install nerxiv
+```
+
+!!! tip "Faster Installation"
+    For faster installation, you can use [`uv`](https://docs.astral.sh/uv/):
+    ```bash
+    pip install uv
+    uv pip install nerxiv
+    ```
+
+### Verify Installation
+
+You can verify that the installation was successful by opening the terminal and typing:
+```bash
+nerxiv --help
+```
+
+If everything was successful, you will see the usage of the CLI:
+```sh
+Usage: nerxiv [OPTIONS] COMMAND [ARGS]...
+
+  Entry point to run `nerxiv` CLI commands.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  prompt      Prompts the LLM with the text from the HDF5 file and stores...
+  prompt_all  Prompts the LLM with the text from all the HDF5 file and...
+```
 
 ## Basic Usage
 

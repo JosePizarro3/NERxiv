@@ -50,7 +50,7 @@ def parse_llm_option_to_args(llm_option: tuple[str]) -> dict:
     return llm_kwargs
 
 
-@click.group(help="Entry point to run `pyrxiv` CLI commands.")
+@click.group(help="Entry point to run `nerxiv` CLI commands.")
 def cli():
     pass
 
