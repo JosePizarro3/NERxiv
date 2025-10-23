@@ -11,7 +11,7 @@ The RAG extractor agent is a three-stage pipeline that:
 <div class="click-zoom">
     <label>
         <input type="checkbox">
-        <img src="../assets/drawio/rag_simplified.drawio.png" alt="NERxiv pipeline simplified." width="70%" title="Click to zoom in">
+        <img src="../../assets/drawio/rag_simplified.drawio.png" alt="NERxiv pipeline simplified." width="80%" title="Click to zoom in">
     </label>
 </div>
 
@@ -108,7 +108,7 @@ This will:
 The chunker divides the paper text into smaller pieces. NERxiv provides three chunking strategies:
 
 - **`Chunker`**: Fixed-size chunks with overlap (default: 1000 characters, 200 overlap)
-- **`SemanticChunker`**: Sentence-level semantic chunking using spaCy
+- **`SemanticChunker`**: Sentence-level semantic chunking using [spaCy](https://pypi.org/project/spacy/)
 - **`AdvancedSemanticChunker`**: KMeans-based clustering on sentence embeddings
 
 Example with semantic chunking:
@@ -117,13 +117,15 @@ Example with semantic chunking:
 nerxiv prompt --file-path paper.hdf5 --chunker SemanticChunker
 ```
 
+See [API References](../references/api.md#nerxiv.chunker) for more details on these classes.
+
 ### Step 2: Retrieval
 
 The retriever uses a sentence transformer model to:
 
-1. Encode the retrieval query and all chunks into embeddings
+1. Encode the retrieval query and all chunks into embeddings. The retrieval query is defined in [`nerxiv.prompts.prompt_registry.py`](https://github.com/JosePizarro3/NERxiv/blob/main/nerxiv/prompts/prompts_registry.py) in the `PROMPT_REGISTRY` variable (see below)
 2. Compute cosine similarity between the query and each chunk
-3. Return the top N most relevant chunks
+3. Return the top-k most relevant chunks relative to the retrieval query
 
 The default retriever model is `all-MiniLM-L6-v2` from SentenceTransformers, but you can specify others:
 
@@ -131,7 +133,7 @@ The default retriever model is `all-MiniLM-L6-v2` from SentenceTransformers, but
 nerxiv prompt --file-path paper.hdf5 --retriever-model all-mpnet-base-v2
 ```
 
-You can also adjust how many chunks to retrieve:
+You can also adjust how many top-k chunks to retrieve:
 
 ```bash
 nerxiv prompt --file-path paper.hdf5 --n-top-chunks 10
@@ -146,7 +148,7 @@ The LLM generator takes the retrieved chunks and answers your query using a care
 NERxiv comes with predefined queries in the `PROMPT_REGISTRY`. Each query has:
 
 - A **retriever query**: Guides what content to retrieve
-- A **prompt template**: Instructs the LLM on how to answer
+- A **prompt template**: Instructs the LLM on what to extract
 
 Available queries include:
 
@@ -160,9 +162,11 @@ Example:
 nerxiv prompt --file-path paper.hdf5 --query only_dmft
 ```
 
+Learn more about defining your own custom `PROMPT_REGISTRY` in [How-to: Create Custom Prompts](../howtos/create_custom_prompts.md).
+
 ## Configuring LLM Parameters
 
-You can fine-tune the LLM behavior using `--llm-option` (or `-llmo`) flags. These are passed as `key=value` pairs:
+The LLM behavior is controled using `--llm-option` (or `-llmo`) flags. These are corresponding to the inputs of [`OllamaLLM`](https://python.langchain.com/api_reference/ollama/llms/langchain_ollama.llms.OllamaLLM.html) and are passed as `key=value` pairs:
 
 ```bash
 nerxiv prompt \
@@ -186,7 +190,7 @@ Here's a complete example extracting material formulas with custom settings:
 
 ```bash
 nerxiv prompt \
-  --file-path /data/papers/2502.12144v1.hdf5 \
+  --file-path ./data/papers/2502.12144v1.hdf5 \
   --chunker AdvancedSemanticChunker \
   --retriever-model all-mpnet-base-v2 \
   --n-top-chunks 8 \
@@ -211,7 +215,7 @@ To process all papers in a directory, use the `prompt-all` command:
 
 ```bash
 nerxiv prompt-all \
-  --data-path /path/to/papers/ \
+  --data-path /directory/containing/the/papers/ \
   --query material_formula \
   --model llama3.1:70b
 ```
@@ -233,7 +237,7 @@ You can inspect the results by opening the HDF5 file with any HDF5 viewer or usi
 ```python
 import h5py
 
-with h5py.File("paper.hdf5", "r") as f:
+with h5py.File("path/to/paper.hdf5", "r") as f:
     # List all runs
     runs = list(f["raw_llm_answers"].keys())
 
@@ -244,11 +248,3 @@ with h5py.File("paper.hdf5", "r") as f:
     answer = latest_run["material_formula"]["answer"][()].decode("utf-8")
     print(answer)
 ```
-
-## Next Steps
-
-Now that you understand the RAG extractor basics, explore:
-
-- [How to customize chunking strategies](../howtos/customize-chunking.md)
-- [How to create custom prompts](../howtos/create-custom-prompts.md)
-- [Understanding RAG](../explanations/what-is-rag.md)

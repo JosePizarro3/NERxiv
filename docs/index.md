@@ -29,7 +29,7 @@ The **How-to guides** provide step-by-step instructions for a wide range of task
 - [Customize Chunking Strategies](howtos/customize-chunking.md)
 - [Configure Retrieval Models](howtos/configure-retrieval-models.md)
 - [Use Different LLM Models](howtos/use-different-llm-models.md)
-- [Create Custom Prompts](howtos/create-custom-prompts.md)
+- [Create Custom Prompts](howtos/create_custom_prompts.md)
 - [Adjust LLM Parameters](howtos/adjust-llm-parameters.md)
 
 </div>
