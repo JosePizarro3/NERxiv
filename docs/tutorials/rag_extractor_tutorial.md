@@ -8,6 +8,13 @@ The RAG extractor agent is a three-stage pipeline that:
 2. **Retrieves** the most relevant chunks based on a query
 3. **Generates** structured JSON answers using an LLM model
 
+<div class="click-zoom">
+    <label>
+        <input type="checkbox">
+        <img src="../assets/drawio/rag_simplified.drawio.png" alt="NERxiv pipeline simplified." width="70%" title="Click to zoom in">
+    </label>
+</div>
+
 !!! note "Prerequisites"
     - **Python ≥ 3.10** installed
     - A virtual environment with `nerxiv` installed
