@@ -52,6 +52,7 @@ docu = [
   "marimo[recommended]",
   "mkdocs-material",
   "mkdocs-click",
+  "mkdocstrings",
   "mkdocstrings-python",
 ]
 

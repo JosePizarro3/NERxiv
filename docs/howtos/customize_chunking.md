@@ -1,10 +1,7 @@
 # How-to: Customize Chunking Strategies
 
-This guide shows you how to choose and configure different chunking strategies for your RAG pipeline.
+This guide shows you how to choose and configure different chunking strategies for your RAG pipeline. You can read more about why chunking matters in [Explanation: Understanding Chunking Strategies](../explanations/understanding_chunking.md).
 
-## Why Chunking Matters
-
-Scientific papers are often too long to fit in an LLM's context window. Chunking divides the text into smaller pieces, but how you chunk affects what information the retriever can find and how well the LLM can answer your queries.
 
 ## Available Chunkers
 
@@ -12,9 +9,10 @@ NERxiv provides three chunking strategies:
 
 ### 1. Fixed-Size Chunker (Default)
 
-The `Chunker` class uses fixed character-based chunks with overlap.
+The [`Chunker`](../references/api.md#nerxiv.chunker.Chunker) class uses fixed character-based chunks with overlap.
 
 **When to use:**
+
 - General-purpose chunking
 - When you want consistent chunk sizes
 - When processing speed is important
@@ -32,15 +30,12 @@ chunker = Chunker(text=paper_text)
 chunks = chunker.chunk_text(chunk_size=1000, chunk_overlap=200)
 ```
 
-**Parameters:**
-- `chunk_size` (default: 1000): Number of characters per chunk
-- `chunk_overlap` (default: 200): Overlap between consecutive chunks
-
 ### 2. Semantic Chunker
 
-The `SemanticChunker` uses spaCy to create chunks at sentence boundaries.
+The [`SemanticChunker`](../references/api.md#nerxiv.chunker.SemanticChunker) uses spaCy to create chunks at sentence boundaries.
 
 **When to use:**
+
 - When you want to preserve sentence integrity
 - When semantic coherence is important
 - For extracting specific facts or statements
@@ -62,9 +57,10 @@ This chunker automatically groups sentences together while maintaining semantic 
 
 ### 3. Advanced Semantic Chunker
 
-The `AdvancedSemanticChunker` uses KMeans clustering on sentence embeddings to group semantically similar sentences.
+The [`AdvancedSemanticChunker`](../references/api.md#nerxiv.chunker.AdvancedSemanticChunker) uses KMeans clustering on sentence embeddings to group semantically similar sentences.
 
 **When to use:**
+
 - When you want topically coherent chunks
 - When extracting complex, multi-sentence information
 - When you know approximately how many topics are in the paper
@@ -82,12 +78,7 @@ chunker = AdvancedSemanticChunker(text=paper_text)
 chunks = chunker.chunk_text(n_chunks=10)
 ```
 
-**Parameters:**
-- `n_chunks` (default: 10): Number of semantic clusters to create
-
 ## Choosing the Right Strategy
-
-Here's a decision guide:
 
 | Your Goal | Recommended Chunker | Why |
 |-----------|-------------------|-----|
@@ -97,33 +88,6 @@ Here's a decision guide:
 | General metadata extraction | `SemanticChunker` | Good balance of speed and quality |
 | Highly specific technical queries | `AdvancedSemanticChunker` | Better topical grouping |
 
-## Example Comparison
-
-Let's extract material formulas using different chunkers:
-
-**Fixed-size chunking:**
-```bash
-nerxiv prompt \
-  --file-path paper.hdf5 \
-  --chunker Chunker \
-  --query material_formula
-```
-
-**Semantic chunking:**
-```bash
-nerxiv prompt \
-  --file-path paper.hdf5 \
-  --chunker SemanticChunker \
-  --query material_formula
-```
-
-**Advanced semantic chunking:**
-```bash
-nerxiv prompt \
-  --file-path paper.hdf5 \
-  --chunker AdvancedSemanticChunker \
-  --query material_formula
-```
 
 ## Advanced Configuration
 
@@ -186,16 +150,3 @@ for i, chunk in enumerate(chunks[:3]):
     print(chunk.page_content)
     print()
 ```
-
-## Performance Considerations
-
-- **`Chunker`**: Fastest, no NLP models required
-- **`SemanticChunker`**: Medium speed, loads spaCy model once
-- **`AdvancedSemanticChunker`**: Slowest, computes embeddings for all sentences
-
-For batch processing many papers, consider using the simpler `Chunker` first, then optimize with semantic chunkers if needed.
-
-## Related Guides
-
-- [How to configure retrieval models](configure-retrieval-models.md)
-- [How to create custom prompts](create-custom-prompts.md)
