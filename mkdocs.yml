@@ -20,7 +20,7 @@ nav:
     - Prompt Engineering for Metadata Extraction: explanations/prompt_engineering.md
   - References:
     - Glossary: references/glossary.md
-    # - API Reference: references/api.md
+    - API Reference: references/api.md
 theme:
   name: material
   palette:

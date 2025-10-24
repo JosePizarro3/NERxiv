@@ -54,7 +54,7 @@ The **Explanations** give you a theoretical background about the main concepts u
 The **References** include the glossary of used terms and API documentation.
 
 - [Glossary](references/glossary.md)
-<!-- - [API Reference](references/api.md) -->
+- [API Reference](references/api.md)
 
 </div>
 
