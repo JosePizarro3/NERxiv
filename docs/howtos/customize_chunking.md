@@ -1,4 +1,4 @@
-# How to Customize Chunking Strategies
+# How-to: Customize Chunking Strategies
 
 This guide shows you how to choose and configure different chunking strategies for your RAG pipeline.
 

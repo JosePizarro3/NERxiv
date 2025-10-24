@@ -26,7 +26,7 @@ The **Tutorials** are designed to guide you through the general and basic unders
 
 The **How-to guides** provide step-by-step instructions for a wide range of tasks. These are oriented for a practical application so you can use them as a fast entry point when searching for specific information.
 
-- [Customize Chunking Strategies](howtos/customize-chunking.md)
+- [Customize Chunking Strategies](howtos/customize_chunking.md)
 - [Configure Retrieval Models](howtos/configure-retrieval-models.md)
 - [Use Different LLM Models](howtos/use-different-llm-models.md)
 - [Create Custom Prompts](howtos/create_custom_prompts.md)
