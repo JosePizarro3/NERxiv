@@ -20,7 +20,7 @@ The RAG extractor agent is a three-stage pipeline that:
     - A virtual environment with `nerxiv` installed
     - Downloaded and set up [Ollama](https://ollama.com/download) for running LLMs locally
     - At least one LLM model pulled: `ollama pull llama3.1` (or your preferred model)
-    - An HDF5 file containing extracted paper text using [`pyrxiv`](https://github.com/JosePizarro3/pyrxiv) (see [Tutorial - Downloading arXiv papers as HDF5 files](pyrxiv_download_hdf5.md))
+    - An HDF5 file containing extracted paper text using [`pyrxiv`](https://github.com/JosePizarro3/pyrxiv)
 
 
 ## Installation and Setup

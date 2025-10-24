@@ -5,7 +5,6 @@ repo_url: https://github.com/JosePizarro3/NERxiv
 nav:
   - Home: index.md
   - Tutorial:
-    - Downloading arXiv papers as HDF5 files: tutorials/pyrxiv_download_hdf5.md
     - Using the RAG Extractor Agent: tutorials/rag_extractor_tutorial.md
   - How-to guides:
     - Create Custom Prompts: howtos/create_custom_prompts.md

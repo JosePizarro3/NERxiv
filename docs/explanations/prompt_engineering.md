@@ -2,8 +2,6 @@
 
 Prompt engineering is the art and science of crafting instructions that guide LLMs to produce accurate, consistent, and useful outputs. This explanation covers principles, techniques, and best practices for extracting metadata from scientific papers.
 
-## What is Prompt Engineering?
-
 A prompt is the instruction given to an LLM. In NERxiv, prompts guide the LLM to extract specific information from retrieved paper chunks.
 
 **Basic prompt**:
@@ -13,7 +11,7 @@ Extract the chemical formula from this text.
 
 **Engineered prompt**:
 ```
-You are a Condensed Matter Physics assistant. Your task is to identify 
+You are a Condensed Matter Physics assistant. Your task is to identify
 all mentions of the system being simulated in the following text.
 
 Look for:
@@ -33,6 +31,7 @@ Important constraints:
 ```
 
 The engineered prompt provides:
+
 - **Role**: Expert identity
 - **Task**: Clear objective
 - **Instructions**: What to look for
@@ -54,7 +53,7 @@ sub_field_expertise="many-body physics simulations"
 
 Generated prompt section:
 ```
-You are a Condensed Matter Physics assistant with expertise in 
+You are a Condensed Matter Physics assistant with expertise in
 many-body physics simulations.
 ```
 
@@ -131,6 +130,28 @@ examples=[
 
 **Power of examples**: Shows the model exactly what you want, especially for format and edge cases.
 
+### 6. Schema and Target Fields to Extract Structured Outputs
+
+Specify the pydantic `BaseModel` class and the target field defined within that class to extract metadata from:
+```python
+output_schema=ChemicalFormulation,
+target_field=["iupac", "hill"],
+```
+
+NERxiv functionalities will read the description of both the schema class and targetted fields and generate a prompt from it:
+```
+Given the following scientific text, your task is: to identify all mentions of the ChemicalFormulation. This is defined as A ChemicalFormulation is a descriptive representation of the chemical composition of a material system, expressed in one or more standardized formula formats (e.g., IUPAC, anonymous, Hill, or reduced), each encoding the stoichiometry and elemental ordering according to specific conventions. For the compound H2O2 (hydrogen peroxide), the different formulations would be: iupac: H2O2 anonymous: AB hill: H2O2 reduced: H2O2. You must extract the values of the following fields:
+- iupac defined as 'Chemical formula where the elements are ordered using a formal list based on electronegativity as defined in the IUPAC nomenclature of inorganic chemistry (2005): - https://en.wikipedia.org/wiki/List_of_inorganic_compounds Contains reduced integer chemical proportion numbers where the proportion number is omitted if it is 1.' and which is of type string
+- hill defined as 'Chemical formula where Carbon is placed first, then Hydrogen, and then all the other elements in alphabetical order. If Carbon is not present, the order is alphabetical.' and which is of type string
+You must return the extracted values in the following format:
+    ```json
+    'ChemicalFormulation': {
+        'iupac': <parsed-value>,
+        'hill': <parsed-value>,
+    }
+    ```
+```
+
 ## Principles of Effective Prompts
 
 ### Principle 1: Clarity Over Brevity
@@ -142,7 +163,7 @@ Get the formulas.
 
 ✅ **Clear**:
 ```
-Extract all chemical formulas representing materials that were 
+Extract all chemical formulas representing materials that were
 actually simulated or synthesized in this study.
 ```
 
@@ -155,12 +176,12 @@ Is DMFT used?
 
 ✅ **With context**:
 ```
-You are a Condensed Matter Physics expert. Determine whether 
-DMFT (Dynamical Mean Field Theory) or its variants (DFT+DMFT, EDMFT) 
+You are a Condensed Matter Physics expert. Determine whether
+DMFT (Dynamical Mean Field Theory) or its variants (DFT+DMFT, EDMFT)
 were used as a primary computational method in this study.
 ```
 
-### Principle 3: Handle Edge Cases
+### Principle 3: Handle Edge Cases as Constraints
 
 Common edge cases in scientific papers:
 
@@ -185,7 +206,7 @@ Expected: Extract "nickelate" even without exact formula
 
 Add instructions for these:
 ```python
-secondary_instructions=[
+constraints=[
     "Only consider methods actually used, not just mentioned for comparison",
     "Expand symbolic formulas (e.g., La₁₋ₓSrₓNiO₂ with x=0.2 → La₀.₈Sr₀.₂NiO₂)",
     "Include material class names if specific formulas aren't given"
@@ -224,23 +245,6 @@ examples=[
         output="La₀.₈Sr₀.₂NiO₂"
     )
 ]
-```
-
-### Principle 5: Control Output Format
-
-Be explicit about format:
-
-❌ **Vague**:
-```
-List the methods.
-```
-
-✅ **Explicit**:
-```
-Constraints:
-- Return method names only, one per line
-- No numbering, bullets, or explanations
-- Format: "Method Name 1\nMethod Name 2"
 ```
 
 ## Common Prompting Patterns
@@ -373,109 +377,6 @@ Example(
 
 The model learns the exact format you want.
 
-## Debugging Prompts
-
-### Problem: Inconsistent Output Format
-
-**Solution**: Add more format constraints and examples
-
-```python
-constraints=[
-    "Each item on a new line",
-    "No numbering or bullets",
-    "Format: 'key: value'",
-    "Do not wrap in markdown code blocks"
-]
-```
-
-### Problem: Model Ignores Instructions
-
-**Solution**: Move critical instructions to constraints and repeat in examples
-
-```python
-# Weak
-secondary_instructions=["Only return formulas, no explanations"]
-
-# Strong
-constraints=[
-    "IMPORTANT: Return ONLY the formula",
-    "No additional text or explanations",
-    "No thinking blocks or reasoning"
-]
-```
-
-### Problem: Missing Edge Cases
-
-**Solution**: Add edge case examples
-
-```python
-examples=[
-    # Add example showing the edge case
-    Example(
-        input="Our work differs from DMFT studies by Smith et al.",
-        output="None"  # DMFT not used, just referenced
-    )
-]
-```
-
-### Problem: Too Verbose
-
-**Solution**: Lower temperature and strengthen constraints
-
-```bash
-nerxiv prompt --file-path paper.hdf5 -llmo temperature=0.0
-```
-
-```python
-constraints=[
-    "Return ONLY the requested information",
-    "No introductory phrases like 'The answer is...'",
-    "No concluding remarks"
-]
-```
-
-## Model-Specific Considerations
-
-### GPT-style Models (LLaMA, Mistral)
-
-- Follow instructions well
-- May be verbose without constraints
-- Good with JSON output
-- Use `temperature=0.1-0.2` for extraction
-
-### DeepSeek-R1
-
-- Includes thinking process in `<think>` tags
-- NERxiv automatically removes these
-- Excellent for complex reasoning
-- Use `temperature=0.2-0.3`
-
-### Qwen Models
-
-- Strong technical understanding
-- Good with structured output
-- Use `format=json` for structured prompts
-- Use `temperature=0.1-0.2`
-
-## Testing Prompts
-
-Test on diverse examples:
-
-```python
-test_cases = [
-    "Simple case: Fe₂O₃ was studied.",
-    "Complex: La₁₋ₓSrₓNiO₂ with x=0.2 was synthesized at 800°C.",
-    "Edge case: Our DFT results differ from DMFT studies.",
-    "Ambiguous: The nickelate sample was analyzed."
-]
-
-for text in test_cases:
-    generator = LLMGenerator(model="llama3.1:8b", text=text)
-    answer = generator.generate(prompt=your_prompt.build(text=text))
-    print(f"Input: {text}")
-    print(f"Output: {answer}\n")
-```
-
 ## Best Practices Summary
 
 1. **Be specific**: Clear tasks, detailed instructions
@@ -486,9 +387,3 @@ for text in test_cases:
 6. **Test iteratively**: Try on diverse inputs, refine based on failures
 7. **Use low temperature**: 0.0-0.2 for factual extraction
 8. **Keep it focused**: One clear task per prompt
-
-## Related Topics
-
-- [What is RAG?](what-is-rag.md) - Understanding the full pipeline
-- [How to Create Custom Prompts](../howtos/create-custom-prompts.md) - Implementation guide
-- [How to Adjust LLM Parameters](../howtos/adjust-llm-parameters.md) - Parameter tuning

@@ -15,7 +15,6 @@ hide: toc
 
 The **Tutorials** are designed to guide you through the general and basic understanding of the functionalities of NERxiv. These are intended for learning the software in a first approach.
 
-- [Downloading arXiv papers as HDF5 files](tutorials/pyrxiv_download_hdf5.md)
 - [Using the RAG Extractor Agent](tutorials/rag_extractor_tutorial.md)
 
 </div>
