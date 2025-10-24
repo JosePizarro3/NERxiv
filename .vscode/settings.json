@@ -12,7 +12,7 @@
       "${workspaceFolder}/.venv/**": true
   },
   "files.exclude": {
-      "\"**/*.pyc\": {\"when\": \"$(basename).py\"}": true,
+      "**/*.pyc": true,
       "**/__pycache__": true,
       "**/node_modules": true
   },
@@ -23,33 +23,6 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports.ruff": "always",
-    "source.fixAll.ruff": "always",
-  },
-  "launch": {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "nerxiv Python",
-        "type": "debugpy",
-        "request": "launch",
-        "console": "integratedTerminal",
-        "program": "${workspaceFolder}/nerxiv/test.py",  // path to your entry point Python module
-      },
-      {
-        "name": "nerxiv tests",
-        "type": "debugpy",
-        "request": "launch",
-        "console": "integratedTerminal",
-        "program": "${workspaceFolder}/.venv/bin/pytest",  // path to your virtual environment
-        "justMyCode": false,
-        "env": {
-        "_PYTEST_RAISE": "1"
-        },
-        "args": [
-            "-sv",
-            "${workspaceFolder}/tests/test.py"  // path to your testing module
-        ]
-      },
-    ]
-  },
+    "source.fixAll.ruff": "always"
+  }
 }
