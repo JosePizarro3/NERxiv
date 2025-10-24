@@ -1,10 +1,6 @@
-# How to Configure Retrieval Models
+# How-to: Configure Retrieval Models
 
 This guide explains how to select and configure different retrieval models for the semantic search component of the RAG pipeline.
-
-## What is the Retriever?
-
-The retriever converts both your query and text chunks into high-dimensional vectors (embeddings) and finds chunks with the highest similarity to your query. This ensures the LLM sees only the most relevant parts of the paper.
 
 ## Default Configuration
 
@@ -15,6 +11,7 @@ nerxiv prompt --file-path paper.hdf5
 ```
 
 This model:
+
 - Is lightweight (~80MB)
 - Produces 384-dimensional embeddings
 - Works well for general semantic search
@@ -50,10 +47,9 @@ nerxiv prompt \
   --n-top-chunks 10
 ```
 
-**Guidelines:**
-- **3-5 chunks**: Fast, focused answers (default: 5)
-- **7-10 chunks**: More context, better for complex queries
-- **15+ chunks**: Risk of exceeding LLM context or diluting relevance
+- 3-5 chunks: Fast, focused answers (default: 5)
+- 7-10 chunks: More context, better for complex queries
+- 15+ chunks: Risk of exceeding LLM context or diluting relevance
 
 ## Complete Example
 
@@ -97,7 +93,7 @@ print(top_chunks)
 
 ## Understanding Similarity Scores
 
-The retriever computes cosine similarity between embeddings. Scores range from -1 to 1:
+The retriever computes cosine similarity between embeddings. Scores range from -1 to 1, and in absolute value:
 
 - **0.7-1.0**: Very relevant
 - **0.5-0.7**: Moderately relevant
@@ -114,38 +110,9 @@ Example output:
 INFO - Top 5 chunks retrieved with similarities of tensor([0.8234, 0.7891, 0.7456, 0.7123, 0.6890])
 ```
 
-## When to Use Different Models
 
-### Use `all-MiniLM-L6-v2` (default) when:
-- Processing many papers quickly
-- Running on CPU-only systems
-- Memory is limited
-- General metadata extraction is sufficient
-
-### Use `all-mpnet-base-v2` when:
-- Quality matters more than speed
-- Extracting complex technical information
-- Default model misses relevant content
-- You have GPU acceleration
-
-### Use `msmarco-distilbert-base-v4` when:
-- Maximum retrieval quality is needed
-- Processing individual papers interactively
-- You have GPU available
-- Query is very specific or technical
-
-## Multilingual Papers
-
-For non-English papers, use a multilingual model:
-
-```bash
-nerxiv prompt \
-  --file-path paper.hdf5 \
-  --retriever-model paraphrase-multilingual-mpnet-base-v2
-```
-
-This model supports 50+ languages including Spanish, German, French, Chinese, and more.
-
+<!--
+!!! Didn't test it myself!
 ## Optimizing for Domain-Specific Content
 
 Scientific papers may benefit from domain-specific retrieval models. You can fine-tune a model on your domain:
@@ -183,7 +150,7 @@ Then use your fine-tuned model:
 nerxiv prompt \
   --file-path paper.hdf5 \
   --retriever-model ./my-domain-model
-```
+``` -->
 
 ## LangChain Alternative
 
@@ -233,9 +200,3 @@ for i, idx in enumerate(sorted_indices):
     print(f"\n=== Chunk {i+1} (similarity: {similarities[idx]:.4f}) ===")
     print(chunk_texts[idx][:200])  # First 200 chars
 ```
-
-## Related Guides
-
-- [How to customize chunking strategies](customize-chunking.md)
-- [How to use different LLM models](use-different-llm-models.md)
-- [Understanding semantic retrieval](../explanations/semantic-retrieval.md)

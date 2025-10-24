@@ -26,11 +26,11 @@ The **Tutorials** are designed to guide you through the general and basic unders
 
 The **How-to guides** provide step-by-step instructions for a wide range of tasks. These are oriented for a practical application so you can use them as a fast entry point when searching for specific information.
 
-- [Customize Chunking Strategies](howtos/customize_chunking.md)
-- [Configure Retrieval Models](howtos/configure-retrieval-models.md)
-- [Use Different LLM Models](howtos/use-different-llm-models.md)
 - [Create Custom Prompts](howtos/create_custom_prompts.md)
-- [Adjust LLM Parameters](howtos/adjust-llm-parameters.md)
+- [Customize Chunking Strategies](howtos/customize_chunking.md)
+- [Configure Retrieval Models](howtos/configure_retrieval_models.md)
+- [Use Different LLM Models](howtos/use_different_llm_models.md)
+- [Adjust LLM Parameters](howtos/adjust_llm_parameters.md)
 
 </div>
 
@@ -40,10 +40,10 @@ The **How-to guides** provide step-by-step instructions for a wide range of task
 
 The **Explanations** give you a theoretical background about the main concepts used in NERxiv.
 
-- [What is RAG?](explanations/what-is-rag.md)
-- [Understanding Chunking Strategies](explanations/chunking-strategies.md)
-- [How Semantic Retrieval Works](explanations/semantic-retrieval.md)
-- [Prompt Engineering for Metadata Extraction](explanations/prompt-engineering.md)
+- [What is RAG?](explanations/what_is_rag.md)
+- [Understanding Chunking Strategies](explanations/understanding_chunking.md)
+- [How Semantic Retrieval Works](explanations/semantic_retrieval.md)
+- [Prompt Engineering for Metadata Extraction](explanations/prompt_engineering.md)
 
 </div>
 

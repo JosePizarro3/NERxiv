@@ -111,16 +111,18 @@ Imagine embeddings as arrows in space:
                        / | \
                       /  |  \
           Chunk 1: "DFT used"  (angle: 15°, sim: 0.97)
-                    /   |   \
-                   /    |    \
-      Chunk 2: "QMC methods" (angle: 45°, sim: 0.71)
-                 /     |     \
-                /      |      \
-  Chunk 3: "Weather data" (angle: 90°, sim: 0.0)
+                    /         \
+                   /           \
+         Chunk 2: "QMC methods" (angle: 45°, sim: 0.71)
+                                 \
+                                  \
+               Chunk 3: "Weather data" (angle: 90°, sim: 0.0)
 ```
 
-Small angle = high similarity
-Large angle = low similarity
+where:
+
+- Small angle = high similarity
+- Large angle = low similarity
 
 ## Retrieval in NERxiv
 
@@ -158,28 +160,28 @@ top_chunks = retriever.get_relevant_chunks(
 def get_relevant_chunks(chunks, n_top_chunks):
     # 1. Extract text from chunks
     chunk_texts = [chunk.page_content for chunk in chunks]
-    
+
     # 2. Encode query
     query_embedding = model.encode(query)
     # Shape: (384,)
-    
+
     # 3. Encode all chunks
     chunk_embeddings = model.encode(chunk_texts)
     # Shape: (100, 384) for 100 chunks
-    
+
     # 4. Compute cosine similarity
     similarities = cosine_similarity(query_embedding, chunk_embeddings)
     # Shape: (100,) - one score per chunk
     # Example: [0.87, 0.34, 0.92, 0.15, ..., 0.45]
-    
+
     # 5. Sort by similarity (descending)
     sorted_indices = argsort(similarities, descending=True)
     # Example: [2, 0, 99, 42, 15, ...]  (chunk 2 most similar)
-    
+
     # 6. Select top N chunks
     top_indices = sorted_indices[:n_top_chunks]
     top_chunks = [chunk_texts[i] for i in top_indices]
-    
+
     # 7. Join and return
     return "\n\n".join(top_chunks)
 ```
@@ -218,7 +220,6 @@ Different models create different embeddings, affecting retrieval quality.
 | `all-MiniLM-L6-v2` | 384 | General text (1B pairs) | General purpose, fast |
 | `all-mpnet-base-v2` | 768 | General text (1B pairs) | Higher quality, slower |
 | `msmarco-distilbert-base-v4` | 768 | MS MARCO (passage ranking) | Question answering |
-| `paraphrase-multilingual-mpnet-base-v2` | 768 | 50+ languages | Multilingual papers |
 
 ### Why Model Choice Matters
 
@@ -282,19 +283,8 @@ Chunk: 3000 words covering multiple topics
 May match query but contains mostly irrelevant content
 ```
 
-**Solution**: Balance chunk size based on task (see [Chunking Strategies](chunking-strategies.md))
+**Solution**: Balance chunk size based on task (see [Explanation: Understanding Chunking Strategies](understanding_chunking.md))
 
-### Limitation 4: Multilingual Challenges
-
-Standard models work best in English:
-
-```
-Query: "chemical formula" (English)
-Chunk: "Chemische Formel" (German)
-May not match well with English-only model
-```
-
-**Solution**: Use multilingual models like `paraphrase-multilingual-mpnet-base-v2`
 
 ## Advanced: How Models Learn Embeddings
 
@@ -350,7 +340,7 @@ nerxiv prompt --file-path paper.hdf5 --n-top-chunks 3
 nerxiv prompt --file-path paper.hdf5 --n-top-chunks 12
 ```
 
-**Rule of thumb**: 
+**Rule of thumb**:
 - Simple queries: 3-5 chunks
 - Complex queries: 8-12 chunks
 - Exploratory: 15+ chunks
@@ -399,13 +389,8 @@ Semantic retrieval works by:
 4. **Selecting** top N chunks for the LLM
 
 This approach:
+
 - Understands meaning, not just keywords
 - Works with synonyms and paraphrasing
 - Enables precise relevance ranking
 - Scales to large document collections
-
-## Related Topics
-
-- [What is RAG?](what-is-rag.md) - The full pipeline
-- [Understanding Chunking Strategies](chunking-strategies.md) - The previous stage
-- [How to Configure Retrieval Models](../howtos/configure-retrieval-models.md) - Practical guide

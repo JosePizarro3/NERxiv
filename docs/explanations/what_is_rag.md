@@ -15,14 +15,25 @@ LLMs like GPT, LLaMA, or Qwen are powerful text generation models, but they have
 
 RAG solves these problems by adding a retrieval step before generation:
 
+```mermaid
+flowchart TD
+    subgraph Traditional_LLM["Traditional LLM"]
+        A1[Question + Entire Paper] --> B1[LLM]
+        B1 --> C1[Answer]
+        note1[Too long, too slow, often exceeds limits]
+    end
 ```
-Traditional LLM:
-Question + Entire Paper → LLM → Answer
-(Too long, too slow, often exceeds limits)
 
-RAG Pipeline:
-Question → Retriever → Relevant Chunks → LLM + Question → Answer
-(Efficient, focused, within limits)
+```mermaid
+flowchart TD
+    subgraph RAG_Pipeline["RAG Pipeline"]
+        A2[Question] --> B2[Retriever]
+        B2 --> C2[Relevant Chunks]
+        C2 --> D2[LLM + Question]
+        D2 --> E2[Answer]
+        note2[Efficient, focused, within limits]
+    end
+
 ```
 
 ## The Three Stages of RAG
@@ -186,11 +197,7 @@ Both techniques can improve LLM performance, but they're different:
 | **Transparency** | Can see retrieved chunks | Black box |
 | **Best for** | Document-specific queries | Task-specific behaviors |
 
-**NERxiv uses RAG** because:
-- Each paper is different (new knowledge)
-- No training data needed
-- Transparent and debuggable
-- Cost-effective for research
+In fact, both can be used at the same time in a process where, first, RAG retrieves and populates a given schema with metadata validated from a human, and second, fine-tuning improves the metadata extraction by measuring the performance of RAG.
 
 ## Limitations of RAG
 
@@ -264,17 +271,3 @@ answer = generator.generate(prompt=prompt_template.build(text=relevant_text))
 
 print(answer)  # "La₀.₈Sr₀.₂NiO₂"
 ```
-
-## Further Reading
-
-To deepen your understanding:
-
-- [Understanding Chunking Strategies](chunking-strategies.md) - How chunking affects retrieval
-- [How Semantic Retrieval Works](semantic-retrieval.md) - Deep dive into embeddings and similarity
-- [Prompt Engineering for Metadata Extraction](prompt-engineering.md) - Optimizing the generation stage
-
-## Related Guides
-
-- [Tutorial: Using the RAG Extractor Agent](../tutorials/rag-extractor-tutorial.md)
-- [How to Customize Chunking Strategies](../howtos/customize-chunking.md)
-- [How to Configure Retrieval Models](../howtos/configure-retrieval-models.md)

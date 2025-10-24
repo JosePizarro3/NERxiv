@@ -8,16 +8,16 @@ nav:
     - Downloading arXiv papers as HDF5 files: tutorials/pyrxiv_download_hdf5.md
     - Using the RAG Extractor Agent: tutorials/rag_extractor_tutorial.md
   - How-to guides:
-    - Customize Chunking Strategies: howtos/customize_chunking.md
-    - Configure Retrieval Models: howtos/configure-retrieval-models.md
-    - Use Different LLM Models: howtos/use-different-llm-models.md
     - Create Custom Prompts: howtos/create_custom_prompts.md
-    - Adjust LLM Parameters: howtos/adjust-llm-parameters.md
+    - Customize Chunking Strategies: howtos/customize_chunking.md
+    - Configure Retrieval Models: howtos/configure_retrieval_models.md
+    - Use Different LLM Models: howtos/use_different_llm_models.md
+    - Adjust LLM Parameters: howtos/adjust_llm_parameters.md
   - Explanations:
-    - What is RAG?: explanations/what-is-rag.md
+    - What is RAG?: explanations/what_is_rag.md
     - Understanding Chunking Strategies: explanations/understanding_chunking.md
-    - How Semantic Retrieval Works: explanations/semantic-retrieval.md
-    - Prompt Engineering for Metadata Extraction: explanations/prompt-engineering.md
+    - How Semantic Retrieval Works: explanations/semantic_retrieval.md
+    - Prompt Engineering for Metadata Extraction: explanations/prompt_engineering.md
   - References:
     - Glossary: references/glossary.md
     # - API Reference: references/api.md
@@ -70,7 +70,11 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - toc:
       permalink: True
       toc_depth: 3

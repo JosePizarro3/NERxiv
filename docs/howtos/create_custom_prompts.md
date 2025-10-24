@@ -1,4 +1,4 @@
-# How to Create Custom Prompts
+# How-to: Create Custom Prompts
 
 This guide shows you how to create and register custom prompts for extracting specific information from scientific papers using the RAG pipeline.
 
@@ -9,9 +9,9 @@ NERxiv uses a `PROMPT_REGISTRY` to manage different extraction tasks. Each entry
 1. **Retriever query**: What to look for when retrieving chunks
 2. **Prompt template**: How to instruct the LLM to extract information
 
-## Anatomy of a Prompt
+## Anatomy of `Prompt`
 
-A prompt consists of several components:
+`Prompt` consists of several components:
 
 ```python
 from nerxiv.prompts.prompts import Prompt, Example
@@ -41,11 +41,11 @@ prompt = Prompt(
 )
 ```
 
-## Creating a Simple Custom Prompt
+### Creating a Simple Custom Prompt
 
 Let's create a prompt to extract author affiliations.
 
-### Step 1: Define the Prompt
+#### Step 1: Define the Prompt
 
 Create a new file `my_prompts.py`:
 
@@ -85,7 +85,7 @@ AFFILIATION_ENTRY = PromptRegistryEntry(
 )
 ```
 
-### Step 2: Register the Prompt
+#### Step 2: Register the Prompt
 
 Add your prompt to the registry:
 
@@ -96,7 +96,7 @@ from nerxiv.prompts import PROMPT_REGISTRY
 PROMPT_REGISTRY["affiliations"] = AFFILIATION_ENTRY
 ```
 
-### Step 3: Use the Custom Prompt
+#### Step 3: Use the Custom Prompt
 
 ```bash
 nerxiv prompt \
@@ -105,9 +105,9 @@ nerxiv prompt \
   --model llama3.1:70b
 ```
 
-## Creating a Structured Prompt
+## Creating a `StructuredPrompt`
 
-For structured output (JSON), use `StructuredPrompt`:
+For structured output (JSON), use `StructuredPrompt` instead:
 
 ```python
 from nerxiv.prompts.prompts import StructuredPrompt, PromptRegistryEntry, Example
@@ -125,7 +125,6 @@ computational_prompt = StructuredPrompt(
     output_schema=ComputationalDetails,
     target_fields=["software", "parameters", "hardware"],
     constraints=[
-        "Return valid JSON matching the schema",
         "Extract only explicitly mentioned information",
         "Use null for missing fields"
     ],
@@ -144,9 +143,11 @@ PROMPT_REGISTRY["computational_details"] = PromptRegistryEntry(
 )
 ```
 
+As you can see, the amount of information and free text needed to be passed is less than in the case of `Prompt`, see [Anatomy of `Prompt`](#anatomy-of-prompt).
+
 ## Best Practices
 
-### 1. Write Clear Instructions
+### Write Clear Instructions
 
 **Bad:**
 ```python
@@ -163,7 +164,7 @@ secondary_instructions=[
 ]
 ```
 
-### 2. Provide Diverse Examples
+### Provide Diverse Examples
 
 Include edge cases:
 
@@ -192,7 +193,7 @@ examples=[
 ]
 ```
 
-### 3. Use Appropriate Constraints
+### Use Appropriate Constraints
 
 Guide the output format:
 
@@ -205,7 +206,7 @@ constraints=[
 ]
 ```
 
-### 4. Tailor the Retriever Query
+### Tailor the Retriever Query
 
 Make it specific:
 
@@ -217,61 +218,6 @@ retriever_query="Find relevant information"
 retriever_query="Identify paragraphs describing computational methods, software packages, and simulation parameters"
 ```
 
-## Real-World Example: Extract Experimental Conditions
-
-Let's create a comprehensive prompt for extracting experimental conditions:
-
-```python
-from nerxiv.prompts.prompts import Prompt, PromptRegistryEntry, Example
-
-experimental_conditions_prompt = Prompt(
-    expert="Experimental Physics",
-    sub_field_expertise="materials characterization and synthesis",
-    main_instruction="extract all experimental conditions including temperature, pressure, atmosphere, and duration",
-    secondary_instructions=[
-        "Look for synthesis or measurement conditions",
-        "Include units with numerical values",
-        "Note if conditions changed during the experiment",
-        "Check methods section, results, and figure captions"
-    ],
-    constraints=[
-        "Format as 'parameter: value unit'",
-        "One condition per line",
-        "Use standard SI units where possible",
-        "Return 'Not specified' if no conditions are mentioned"
-    ],
-    examples=[
-        Example(
-            input="Samples were annealed at 800°C for 4 hours in nitrogen atmosphere.",
-            output="Temperature: 800°C\nDuration: 4 hours\nAtmosphere: nitrogen"
-        ),
-        Example(
-            input="Measurements were performed at room temperature under ambient pressure.",
-            output="Temperature: room temperature\nPressure: ambient"
-        ),
-        Example(
-            input="The reaction was conducted at 150°C and 5 bar for 2 hours.",
-            output="Temperature: 150°C\nPressure: 5 bar\nDuration: 2 hours"
-        )
-    ]
-)
-
-PROMPT_REGISTRY["experimental_conditions"] = PromptRegistryEntry(
-    retriever_query="Find descriptions of experimental conditions including temperature, pressure, atmosphere, time, and other synthesis or measurement parameters",
-    prompt=experimental_conditions_prompt
-)
-```
-
-Use it:
-
-```bash
-nerxiv prompt \
-  --file-path paper.hdf5 \
-  --query experimental_conditions \
-  --model qwen2.5:32b \
-  -llmo temperature=0.1
-```
-
 ## Testing Custom Prompts
 
 Test your prompt on sample text:
@@ -281,17 +227,19 @@ from nerxiv.rag import LLMGenerator
 
 # Sample text
 text = """
-The thin films were grown by pulsed laser deposition at a substrate 
-temperature of 650°C in an oxygen partial pressure of 10⁻³ mbar. 
-The growth rate was maintained at 0.1 nm/s for 30 minutes.
+The calculations were performed using VASP version 6.3.
+The plane-wave cutoff energy was set to 520 eV, and the
+Brillouin zone was sampled with a 6x6x6 Monkhorst-Pack k-point grid.
+All calculations were run on a workstation with 2x Intel Xeon CPUs
+and 128 GB RAM.
 """
 
 # Generate answer
 generator = LLMGenerator(model="llama3.1:8b", text=text, temperature=0.2)
-prompt_text = experimental_conditions_prompt.build(text=text)
+prompt_text = computational_prompt.build(text=text)
 answer = generator.generate(prompt=prompt_text)
 
-print("Extracted conditions:")
+print("Extracted computational details:")
 print(answer)
 ```
 
@@ -349,7 +297,7 @@ Custom prompts for NERxiv
 Usage:
     from custom_prompts import register_custom_prompts
     register_custom_prompts()
-    
+
     # Then use normally
     nerxiv prompt --file-path paper.hdf5 --query my_custom_query
 """
@@ -359,21 +307,15 @@ from nerxiv.prompts.prompts import Prompt, PromptRegistryEntry, Example
 
 def register_custom_prompts():
     """Register all custom prompts to the global registry"""
-    
+
     # Add your prompts here
     PROMPT_REGISTRY["custom_query"] = PromptRegistryEntry(
         retriever_query="...",
         prompt=Prompt(...)
     )
-    
+
     print(f"Registered {len(PROMPT_REGISTRY)} prompts")
 
 # Auto-register on import
 register_custom_prompts()
 ```
-
-## Related Guides
-
-- [How to adjust LLM parameters](adjust-llm-parameters.md)
-- [Understanding prompt engineering](../explanations/prompt-engineering.md)
-- [Using the RAG extractor agent](../tutorials/rag-extractor-tutorial.md)
