@@ -15,7 +15,7 @@ hide: toc
 
 The **Tutorials** are designed to guide you through the general and basic understanding of the functionalities of NERxiv. These are intended for learning the software in a first approach.
 
-- [Placeholder](tutorials/placeholder.md)
+- [Using the RAG Extractor Agent](tutorials/rag_extractor_tutorial.md)
 
 </div>
 
@@ -25,12 +25,11 @@ The **Tutorials** are designed to guide you through the general and basic unders
 
 The **How-to guides** provide step-by-step instructions for a wide range of tasks. These are oriented for a practical application so you can use them as a fast entry point when searching for specific information.
 
-
-- [Placeholder](howtos/placeholder.md)
-- Big Topic:
-    - [Placeholder 1](howtos/bigtopic/placeholder1.md)
-    - [Placeholder 2](howtos/bigtopic/placeholder2.md)
-
+- [Create Custom Prompts](howtos/create_custom_prompts.md)
+- [Customize Chunking Strategies](howtos/customize_chunking.md)
+- [Configure Retrieval Models](howtos/configure_retrieval_models.md)
+- [Use Different LLM Models](howtos/use_different_llm_models.md)
+- [Adjust LLM Parameters](howtos/adjust_llm_parameters.md)
 
 </div>
 
@@ -40,7 +39,10 @@ The **How-to guides** provide step-by-step instructions for a wide range of task
 
 The **Explanations** give you a theoretical background about the main concepts used in NERxiv.
 
-- [Placeholder](explanations/placeholder.md)
+- [What is RAG?](explanations/what_is_rag.md)
+- [Understanding Chunking Strategies](explanations/understanding_chunking.md)
+- [How Semantic Retrieval Works](explanations/semantic_retrieval.md)
+- [Prompt Engineering for Metadata Extraction](explanations/prompt_engineering.md)
 
 </div>
 
@@ -50,7 +52,8 @@ The **Explanations** give you a theoretical background about the main concepts u
 
 The **References** include the glossary of used terms and API documentation.
 
-- [References](references/placeholder.md)
+- [Glossary](references/glossary.md)
+- [API Reference](references/api.md)
 
 </div>
 

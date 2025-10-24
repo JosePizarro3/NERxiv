@@ -121,7 +121,7 @@
 }
 
 .md-main {
-    background-color: var(--nerxiv-green-grey-light);
+    background-color: var(--bam-weiss);
 }
 
 .md-content__inner, .md-typeset {
@@ -157,7 +157,7 @@
 }
 
 .md-nav__title {
-    color: var(--bam-schwarz-60)
+    color: var(--bam-schwarz);
 }
 
 .md-nav--primary .md-nav__title {
@@ -171,4 +171,31 @@
 
 .md-footer {
     background-color: var(--nerxiv-green-grey);
+}
+
+.md-nav--secondary .md-nav__title{
+    background-color: transparent;
+    z-index: 2;
+    box-shadow: 0 0 -.4rem .4rem var(--md-default-bg-color);
+}
+
+.click-zoom {
+    text-align: center;
+}
+
+.click-zoom input[type=checkbox] {
+    z-index: 0;
+    display: none
+}
+
+.click-zoom img {
+    transition: transform 0.25s ease;
+    z-index: 0;
+    cursor: zoom-in
+}
+
+.click-zoom input[type=checkbox]:checked~img {
+    transform: scale(2.3);
+    z-index: 0;
+    cursor: zoom-out
 }
