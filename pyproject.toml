@@ -30,7 +30,7 @@ dependencies = [
   "langchain-core>=0.3.20",
   "langchain-ollama",
   "langchain-huggingface",
-  "langchaing-text-splitters",
+  "langchain-text-splitters",
   "pyrxiv>=0.4.3",
   "pymatgen",
   "spacy",
