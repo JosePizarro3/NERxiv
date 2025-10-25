@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper gh-pages branch handling
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -28,4 +30,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Use --force to ensure clean deployment in CI/CD, as the gh-pages branch is auto-generated
           mkdocs gh-deploy --force
