@@ -86,18 +86,19 @@ def run_prompt_paper(
         existing_runs = list(query_group.keys())
         run_id = f"run_{len(existing_runs):04d}"  # Auto-increment run ID
         run_group = query_group.create_group(run_id)
-        # Store run metadata and answer
+        # Store general metainformation
         run_group.attrs["model"] = model
         run_group.attrs["query"] = query
+        run_group.attrs["retriever_model"] = retriever_model
+        run_group.attrs["n_top_chunks"] = n_top_chunks
         run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
         run_group.create_dataset(
             "retriever_query", data=retriever_query.encode("utf-8")
         )
+        # Store prompt and answer
         run_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
         run_group.create_dataset("answer", data=answer.encode("utf-8"))
         # Store chunks and top-k chunks
-        run_group.attrs["retriever_model"] = retriever_model
-        run_group.attrs["n_top_chunks"] = n_top_chunks
         chunks_group = run_group.require_group("chunks")
         chunks_group.attrs["n_chunks"] = len(chunks)
         for i, chunk in enumerate(chunks):
