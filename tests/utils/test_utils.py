@@ -43,7 +43,7 @@ def test_clean_description():
     ],
 )
 def test_material_formula_predicate(answer, expected):
-    """Tests the `material_formula_predicate` function."""
+    """Tests the `filter_material_formula_predicate` function."""
     assert filter_material_formula_predicate(answer) == expected
 
 
@@ -56,7 +56,7 @@ def test_material_formula_predicate(answer, expected):
     ],
 )
 def test_only_dmft_predicate(answer, expected):
-    """Tests the `only_dmft_predicate` function."""
+    """Tests the `filter_only_dmft_predicate` function."""
     assert filter_only_dmft_predicate(answer) == expected
 
 
