@@ -305,7 +305,7 @@ class StructuredPrompt(BasePrompt):
 class PromptRegistryEntry(BaseModel):
     """
     Represents a registry entry for a prompt, containing the retriever query and the prompt itself. This
-    is used to register prompts in the `QUERY_REGISTRY` and `RETRIEVER_QUERY_REGISTRY`.
+    is used to register prompts in the `PROMPT_REGISTRY` defined in `nerxiv.prompts.prompts_registry.py`.
     """
 
     retriever_query: str = Field(..., description="The query used in the retriever.")
