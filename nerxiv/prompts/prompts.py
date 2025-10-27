@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from nerxiv.utils import clean_description
 
@@ -310,3 +310,17 @@ class PromptRegistryEntry(BaseModel):
 
     retriever_query: str = Field(..., description="The query used in the retriever.")
     prompt: BasePrompt = Field(..., description="The prompt to use for the query.")
+
+    @field_validator("retriever_query", mode="before")
+    @classmethod
+    def clean_retriever_query(cls, value: str) -> str:
+        """
+        Cleans the retriever query by removing extra whitespace and newlines.
+
+        Args:
+            value (str): The retriever query to clean.
+
+        Returns:
+            str: The cleaned retriever query.
+        """
+        return " ".join(value.split())
