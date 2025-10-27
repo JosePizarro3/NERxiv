@@ -22,7 +22,7 @@ def run_prompt_paper(
     model: str = "gpt-oss:20b",
     retriever_query: str = "",
     prompt: BasePrompt | None = None,
-    query: str = "material_formula",
+    query: str = "filter_material_formula",
     paper_time: float = 0.0,
     logger: "BoundLoggerLazyProxy" = logger,
     **kwargs,
@@ -37,7 +37,7 @@ def run_prompt_paper(
         model (_type_, optional): The model used in the generator. Defaults to "gpt-oss:20b".
         retriever_query (str, optional): The query used in the retriever. This is set using `query` and the `QUERY_REGISTRY`. Defaults to "".
         prompt (BasePrompt, optional): The prompt used in the generator. This is set using `query` and the `QUERY_REGISTRY`.. Defaults to None.
-        query (str, optional): The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "material_formula".
+        query (str, optional): The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "filter_material_formula".
         paper_time (float, optional): The starting time of this paper prompting. Defaults to 0.0.
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
 
