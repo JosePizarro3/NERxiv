@@ -19,14 +19,14 @@ class DFT(BaseSection):
         """,
     )
 
-    code_version: str = Field(
+    code_version: str | None = Field(
         None,
         description="""
         Version of the DFT code. For example, '6.7', '7.3.2'.
         """,
     )
 
-    exchange_correlation_functional: str = Field(
+    exchange_correlation_functional: str | None = Field(
         None,
         description="""
         Exchange-correlation functional used. For example, 'LDA', 'PBE'.
