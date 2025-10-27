@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BaseSection(BaseModel):
@@ -6,6 +6,15 @@ class BaseSection(BaseModel):
     for all section classes defined in `nerxiv/datamodel/`."""
 
     model_config = ConfigDict(extra="forbid")
+
+    extra_metainfo: list[str] = Field(
+        default_factory=list,
+        description="""
+        List of additional phrases or observations extracted from the paper that do not fit any
+        structured field. Useful for later analysis or LLM post-processing. For example,
+        ['calculation converged in 120 steps', 'used experimental lattice constants']
+        """,
+    )
 
     def normalize(self) -> None:
         """

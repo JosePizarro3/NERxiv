@@ -6,7 +6,7 @@
       "exchange_correlation_functional": "PBE",
       "basis_set": "plane-wave",
       "pseudopotentials": null,
-      "core_electrons_treatment": "PAW",
+      "core_electrons_treatment": "PAW (WRONG!!!)",
       "wavefunction_cutoff": null,
       "wavefunction_cutoff_units": null,
       "density_cutoff": null,
