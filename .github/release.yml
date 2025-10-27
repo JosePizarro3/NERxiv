@@ -32,5 +32,7 @@ changelog:
       labels: [types]
     - title: 🧹 Linting
       labels: [linting]
+    - title: 🧩 Datamodel Changes
+      labels: [datamodel]
     - title: 🤷‍♂️ Other Changes
       labels: ['*']

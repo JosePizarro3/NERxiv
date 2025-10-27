@@ -10,7 +10,7 @@ from pymatgen.core import Composition
 if TYPE_CHECKING:
     from structlog._config import BoundLoggerLazyProxy
 
-from nerxiv.datamodel.model_system import ChemicalFormulation
+from nerxiv.datamodel.crystal_structure import ChemicalFormulation
 from nerxiv.logger import logger
 
 

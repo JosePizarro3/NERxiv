@@ -1,8 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
 from pymatgen.core import Composition
 
+from nerxiv.datamodel.base_section import BaseSection
 
-class ChemicalFormulation(BaseModel):
+
+class ChemicalFormulation(BaseSection):
     """
     A ChemicalFormulation is a descriptive representation of the chemical composition of a material
     system, expressed in one or more standardized formula formats (e.g., IUPAC, anonymous, Hill, or
@@ -75,11 +77,12 @@ class ChemicalFormulation(BaseModel):
         self.hill = composition.hill_formula
         self.reduced = composition.reduced_formula
 
+    def normalize(self) -> None:
+        pass
 
-class ModelSystem(BaseModel):
-    chemical_formulation: ChemicalFormulation | None = Field(
-        None,
-        description="""
-        Chemical formulation of the system being simulated, including IUPAC, anonymous, hill, and reduced formulas.
-        """,
-    )
+
+class CrystalStructure(BaseSection):
+    """Section representing the crystal structure information of a material."""
+
+    def normalize(self) -> None:
+        pass
