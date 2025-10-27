@@ -244,7 +244,7 @@ class StructuredPrompt(BasePrompt):
             model.get("description", "<<no definition provided>>")
         )
         instruction_lines = f"Given the following scientific text, your task is: to identify all mentions of the {name}. "
-        instruction_lines += f"This is defined as {description}. "
+        instruction_lines += f"This is defined as: {description}. "
 
         instruction_lines += "You must extract the values of the following fields:"
         # getting the fields defined for the class and maching them with `target_fields`
@@ -260,17 +260,14 @@ class StructuredPrompt(BasePrompt):
                     if p.get("type") != "null"
                 ]  # only non-null types
                 prop_type = prop_types[0]
-            instruction_lines += f"\n- {field} defined as '{prop_description}' and which is of type {prop_type}"
-            # TODO add data type
+            instruction_lines += (
+                f"\n- '{field}' defined as {prop_description} of type {prop_type}"
+            )
 
-        instruction_lines += (
-            "\nYou must return the extracted values in the following format:"
-            "\n{" + f"'{name}': " + "{"
-        )
+        instruction_lines += f"\nYou must return the extracted dictionary in JSON format for '{name}' with the values being a dictionary of pairs keys "
         for field in self.target_fields:
-            instruction_lines += f"'{field}': <parsed-value>, "
-
-        instruction_lines += "} }"
+            instruction_lines += f"'{field}', "
+        instruction_lines += "and their corresponding values as values."
         return instruction_lines
 
     def build(self, text: str) -> str:
@@ -302,7 +299,7 @@ class StructuredPrompt(BasePrompt):
             lines.append(self._build_examples())
 
         # Appending text
-        lines.append(f"\nText:\n{text}")
+        lines.append(f"Text:\n{text}")
         return "\n".join(lines)
 
 
