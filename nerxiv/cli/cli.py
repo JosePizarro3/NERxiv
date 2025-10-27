@@ -113,10 +113,10 @@ def cli():
     "--query",
     "-q",
     type=str,
-    default="material_formula",
+    default="filter_material_formula",
     required=False,
     help="""
-    (Optional) The query used for retrieval and generation. See the registry PROMPT_REGISTRY. Defaults to "material_formula".
+    (Optional) The query used for retrieval and generation. See the registry PROMPT_REGISTRY. Defaults to "filter_material_formula".
     """,
 )
 @click.option(
@@ -221,10 +221,10 @@ def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_
     "--query",
     "-q",
     type=str,
-    default="material_formula",
+    default="filter_material_formula",
     required=False,
     help="""
-    (Optional) The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "material_formula".
+    (Optional) The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "filter_material_formula".
     """,
 )
 @click.option(

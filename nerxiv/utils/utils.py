@@ -5,12 +5,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import h5py
-from pymatgen.core import Composition
 
 if TYPE_CHECKING:
     from structlog._config import BoundLoggerLazyProxy
 
-from nerxiv.datamodel.crystal_structure import ChemicalFormulation
 from nerxiv.logger import logger
 
 
@@ -39,24 +37,6 @@ def answer_to_dict(
     return dict_answer
 
 
-def answer_to_formulas(answer: str) -> list[ChemicalFormulation]:
-    formulas = answer.split(",")
-    chemical_formulations = []
-    for formula in formulas:
-        try:
-            composition = Composition(formula)
-            chemical_formulations.append(
-                ChemicalFormulation().set_formulas(composition)
-            )
-        except Exception:
-            continue
-    if len(chemical_formulations) != len(formulas):
-        raise ValueError(
-            "Some formulas could not be parsed. Please check the input format."
-        )
-    return chemical_formulations
-
-
 def clean_description(description: str) -> str:
     """
     Cleans the description by removing extra spaces and leading/trailing whitespace.
@@ -70,25 +50,7 @@ def clean_description(description: str) -> str:
     return re.sub(r"\s+", " ", description).strip()
 
 
-# def material_pre_filtering(
-#     chunks: list[Document] = [],
-#     n_top_chunks: int = 5,
-#     answer_model: str = "llama3.1:70b",
-# ) -> list[ChemicalFormulation]:
-#     rag = RAG(
-#         retrieval_prompt=CHUNKS_MATERIAL,
-#         chunks=chunks,
-#         n_top_chunks=n_top_chunks,
-#         answer_model=answer_model,
-#     )
-#     answer = rag.answer(template=MATERIAL_TEMPLATE)
-
-#     if answer != "model":
-#         return answer_to_formulas(answer)
-#     return []
-
-
-def material_formula_predicate(answer: str) -> bool:
+def filter_material_formula_predicate(answer: str) -> bool:
     """
     Predicate function to determine if the answer indicates the presence of a material formula.
 
@@ -101,7 +63,7 @@ def material_formula_predicate(answer: str) -> bool:
     return answer == "model"
 
 
-def only_dmft_predicate(answer: str) -> bool:
+def filter_only_dmft_predicate(answer: str) -> bool:
     """
     Predicate function to determine if the answer indicates the absence of DMFT method.
 
