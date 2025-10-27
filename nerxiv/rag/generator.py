@@ -23,7 +23,6 @@ class LLMGenerator:
         # Define default values for metadata extraction
         defaults = {
             "temperature": 0.2,
-            "format": "json",
         }
         merged_args = {**defaults, **kwargs}
 

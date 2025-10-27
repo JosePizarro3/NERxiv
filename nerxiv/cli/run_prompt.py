@@ -80,24 +80,25 @@ def run_prompt_paper(
 
         # Store raw answer in HDF5
         raw_answer_group = f.require_group("raw_llm_answers")
-        # Auto-increment run ID
-        existing_runs = list(raw_answer_group.keys())
-        run_id = f"run_{len(existing_runs):04d}"
-        run_group = raw_answer_group.create_group(run_id)
+        # Define group for the `query` (e.g., raw_llm_answers/filter_material_formula)
+        query_group = raw_answer_group.require_group(query)
+        # Define group for the run ID (e.g., raw_llm_answers/filter_material_formula/run_0000)
+        existing_runs = list(query_group.keys())
+        run_id = f"run_{len(existing_runs):04d}"  # Auto-increment run ID
+        run_group = query_group.create_group(run_id)
         # Store run metadata and answer
-        run_group.attrs["retriever_model"] = retriever_model
         run_group.attrs["model"] = model
-        run_group.attrs["n_top_chunks"] = n_top_chunks
         run_group.attrs["query"] = query
         run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
-        query_group = run_group.require_group(query)
-        query_group.create_dataset(
+        run_group.create_dataset(
             "retriever_query", data=retriever_query.encode("utf-8")
         )
-        query_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
-        query_group.create_dataset("answer", data=answer.encode("utf-8"))
+        run_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
+        run_group.create_dataset("answer", data=answer.encode("utf-8"))
         # Store chunks and top-k chunks
-        chunks_group = query_group.require_group("chunks")
+        run_group.attrs["retriever_model"] = retriever_model
+        run_group.attrs["n_top_chunks"] = n_top_chunks
+        chunks_group = run_group.require_group("chunks")
         chunks_group.attrs["n_chunks"] = len(chunks)
         for i, chunk in enumerate(chunks):
             chunks_group.create_dataset(
