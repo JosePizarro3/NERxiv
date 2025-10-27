@@ -1,6 +1,6 @@
 import pytest
 
-from nerxiv.datamodel.model_system import ChemicalFormulation
+from nerxiv.datamodel.crystal_structure import ChemicalFormulation
 from nerxiv.prompts.prompts import BasePrompt, Example, Prompt, StructuredPrompt
 
 
