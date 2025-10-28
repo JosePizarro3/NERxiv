@@ -1,4 +1,5 @@
 {
+  "crystal_structure": [],
   "dft": [
     {
       "code": "VASP",
@@ -92,5 +93,9 @@
       "spin_treatment": "unrestricted",
       "relativistic_treatment": "atomic ZORA"
     }
-  ]
+  ],
+  "projection": [],
+  "interactions": [],
+  "dmft": [],
+  "analytical_continuation": []
 }
