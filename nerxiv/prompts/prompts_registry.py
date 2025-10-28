@@ -37,8 +37,14 @@ PROMPT_REGISTRY = {
         prompt=StructuredPrompt(
             expert="Condensed Matter Physics",
             output_schema=DFT,
-            target_fields=[],
-            constraints=[],
+            target_fields=["all"],
+            constraints=[
+                "Return ONLY the requested JSON object without any additional text or explanation.",
+                "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
+                "Do NOT infere values of fields that are not explicitly mentioned in the text.",
+                "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
+                "Ensure that all parsed values are of the correct data type as defined in the DFT schema.",
+            ],
             examples=[],
         ),
     ),
