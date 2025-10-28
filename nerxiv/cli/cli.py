@@ -64,8 +64,9 @@ def cli():
     "-path",
     type=str,
     required=True,
+    multiple=True,
     help="""
-    The path to the HDF5 file used to prompt the LLM.
+    The path to the HDF5 file or files used to prompt the LLM.
     """,
 )
 @click.option(
@@ -167,22 +168,23 @@ def prompt(
     chunker_kwargs = parse_llm_option_to_args(chunker_option)
 
     # Transform to Path and get the hdf5 data
-    paper = Path(file_path)
-    paper_time = run_prompt_paper(
-        paper=paper,
-        chunker=chunker,
-        retriever_model=retriever_model,
-        n_top_chunks=n_top_chunks,
-        model=model,
-        retriever_query=retriever_query,
-        prompt=prompt,
-        query=query,
-        paper_time=start_time,
-        logger=logger,
-        **chunker_kwargs,
-        **llm_kwargs,
-    )
-    click.echo(f"Processed arXiv papers in {paper_time:.2f} seconds\n\n")
+    for file in file_path:
+        paper = Path(file)
+        paper_time = run_prompt_paper(
+            paper=paper,
+            chunker=chunker,
+            retriever_model=retriever_model,
+            n_top_chunks=n_top_chunks,
+            model=model,
+            retriever_query=retriever_query,
+            prompt=prompt,
+            query=query,
+            paper_time=start_time,
+            logger=logger,
+            **chunker_kwargs,
+            **llm_kwargs,
+        )
+        click.echo(f"Processed arXiv paper {file} in {paper_time:.2f} seconds\n\n")
 
 
 @cli.command(
