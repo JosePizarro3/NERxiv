@@ -203,7 +203,7 @@ class StructuredPrompt(BasePrompt):
     target_fields: list[str] = Field(
         ...,
         description="""
-        The fields within `output_schema` that the prompt should extract.
+        The fields within `output_schema` that the prompt should extract. If set to `all`, all fields defined in `output_schema` will be extracted.
         """,
     )
 
@@ -221,6 +221,9 @@ class StructuredPrompt(BasePrompt):
         """
         model_properties = data.output_schema.model_json_schema().get("properties", {})
         for field in data.target_fields:
+            if field == "all":
+                data.target_fields = list(model_properties.keys())
+                break
             if field not in model_properties:
                 raise ValueError(
                     f"Field '{field}' is not defined in the output schema '{data.output_schema.__name__}'."
@@ -243,8 +246,8 @@ class StructuredPrompt(BasePrompt):
         description = clean_description(
             model.get("description", "<<no definition provided>>")
         )
-        instruction_lines = f"Given the following scientific text, your task is: to identify all mentions of the {name}. "
-        instruction_lines += f"This is defined as {description}. "
+        instruction_lines = f"Given the following scientific text, your task is: to identify all mentions of the {name} section. "
+        instruction_lines += f"This is defined as a {description} "
 
         instruction_lines += "You must extract the values of the following fields:"
         # getting the fields defined for the class and maching them with `target_fields`
@@ -255,18 +258,26 @@ class StructuredPrompt(BasePrompt):
             prop_types = [
                 p.get("type") for p in prop.get("anyOf", []) if p.get("type") != "null"
             ]  # only non-null types
-            instruction_lines += f"\n- {field} defined as '{prop_description}' and which is of type {prop_types[0]}"
+            if not prop_types:
+                instruction_lines += f"\n- {field} defined as {prop_description}"
+            else:
+                prop_type = prop_types[0]
+                if prop_type == "object":
+                    prop_type = "dictionary"
+                instruction_lines += f"\n- {field} defined as {prop_description} and which is of type {prop_type}"
             # TODO add data type
 
         instruction_lines += (
-            "\nYou must return the extracted values in the following format:"
+            "\nYou must return the extracted values in JSON format:"
             "\n```json\n"
-            f"'{name}': " + "{\n"
+            "{\n"
+            f"  '{name}': " + "{\n"
         )
         for field in self.target_fields:
             instruction_lines += f"    '{field}': <parsed-value>,\n"
 
-        instruction_lines += "}\n```\n"
+        instruction_lines += "  }\n}\n```\n"
+        instruction_lines += "Note that <parsed-value> means a value of the correct type defined for that field."
         return instruction_lines
 
     def build(self, text: str) -> str:
