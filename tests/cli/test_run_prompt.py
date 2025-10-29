@@ -272,7 +272,7 @@ class TestRunPromptPaperChunkerHash:
             cache_key = list(chunks_cache.keys())[0]
             cached_group = chunks_cache[cache_key]
 
-            assert cached_group.attrs["chunker"] == "Chunker"
+            assert cached_group.attrs["chunker"] == "nerxiv.chunker.Chunker"
             assert "n_chunks" in cached_group.attrs
             assert cached_group.attrs["chunker_hash"] == cache_key
 
