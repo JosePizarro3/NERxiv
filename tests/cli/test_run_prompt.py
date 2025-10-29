@@ -52,7 +52,7 @@ class TestRunPromptPaperChunkerHash:
     def test_chunker_hash_stored_in_hdf5(
         self, mock_retriever_cls, mock_generator_cls, mock_hdf5_file, mock_prompt
     ):
-        """Test that chunker hash is stored in HDF5."""
+        """Test that chunker hash and retriever hash are stored in HDF5."""
         mock_retriever_cls.return_value = MagicMock(
             get_relevant_chunks=MagicMock(return_value="Retrieved text")
         )
@@ -72,15 +72,22 @@ class TestRunPromptPaperChunkerHash:
             query="test_query",
         )
 
-        # Check that hash was stored
+        # Check that hashes were stored
         with h5py.File(mock_hdf5_file, "r") as f:
             run_group = f["raw_llm_answers/test_query/run_0000"]
             assert "chunker_hash" in run_group.attrs
             assert len(run_group.attrs["chunker_hash"]) == 64  # SHA256 hex length
+            assert "retriever_hash" in run_group.attrs
+            assert len(run_group.attrs["retriever_hash"]) == 64  # SHA256 hex length
 
-            # Check that chunks_cache was created
+            # Check that caches were created
             assert "chunks_cache" in f
             assert len(list(f["chunks_cache"].keys())) == 1
+            assert "retrieval_cache" in f
+            assert len(list(f["retrieval_cache"].keys())) == 1
+            
+            # Check that chunks and top_k_chunks are NOT stored in run group anymore
+            assert "chunks" not in run_group
 
     @patch("nerxiv.cli.run_prompt.LLMGenerator")
     @patch("nerxiv.cli.run_prompt.CustomRetriever")
@@ -271,4 +278,107 @@ class TestRunPromptPaperChunkerHash:
             # Check that params are stored as JSON
             params = json.loads(cached_group.attrs["chunker_params"])
             assert params["chunk_size"] == 500
+            assert params["chunk_overlap"] == 100
+
+    @patch("nerxiv.cli.run_prompt.LLMGenerator")
+    @patch("nerxiv.cli.run_prompt.CustomRetriever")
+    def test_retriever_cache_reuse(
+        self, mock_retriever_cls, mock_generator_cls, mock_hdf5_file, mock_prompt
+    ):
+        """Test that retrieval results are reused when retriever config matches."""
+        mock_retriever_cls.return_value = MagicMock(
+            get_relevant_chunks=MagicMock(return_value="Retrieved text")
+        )
+        mock_generator_cls.return_value = MagicMock(
+            generate=MagicMock(return_value="Generated answer")
+        )
+
+        # First run - creates chunks and performs retrieval
+        run_prompt_paper(
+            paper=mock_hdf5_file,
+            chunker="Chunker",
+            retriever_model="test-model",
+            n_top_chunks=5,
+            model="test-llm",
+            retriever_query="test query",
+            prompt=mock_prompt,
+            query="test_query",
+        )
+
+        # Second run - same chunker and retriever params, should reuse both caches
+        run_prompt_paper(
+            paper=mock_hdf5_file,
+            chunker="Chunker",
+            retriever_model="test-model",
+            n_top_chunks=5,
+            model="test-llm-2",  # Different model, but same retriever
+            retriever_query="test query",
+            prompt=mock_prompt,
+            query="test_query2",
+        )
+
+        # Verify that only one entry exists in both caches (both were reused)
+        with h5py.File(mock_hdf5_file, "r") as f:
+            assert len(list(f["chunks_cache"].keys())) == 1
+            assert len(list(f["retrieval_cache"].keys())) == 1
+
+            # Verify both runs reference the same hashes
+            hash1_chunker = f["raw_llm_answers/test_query/run_0000"].attrs["chunker_hash"]
+            hash2_chunker = f["raw_llm_answers/test_query2/run_0000"].attrs["chunker_hash"]
+            assert hash1_chunker == hash2_chunker
+
+            hash1_retriever = f["raw_llm_answers/test_query/run_0000"].attrs["retriever_hash"]
+            hash2_retriever = f["raw_llm_answers/test_query2/run_0000"].attrs["retriever_hash"]
+            assert hash1_retriever == hash2_retriever
+
+    @patch("nerxiv.cli.run_prompt.LLMGenerator")
+    @patch("nerxiv.cli.run_prompt.CustomRetriever")
+    def test_different_retriever_params_create_new_retrieval(
+        self, mock_retriever_cls, mock_generator_cls, mock_hdf5_file, mock_prompt
+    ):
+        """Test that different retriever parameters create new retrieval results."""
+        mock_retriever_cls.return_value = MagicMock(
+            get_relevant_chunks=MagicMock(return_value="Retrieved text")
+        )
+        mock_generator_cls.return_value = MagicMock(
+            generate=MagicMock(return_value="Generated answer")
+        )
+
+        # First run with n_top_chunks=5
+        run_prompt_paper(
+            paper=mock_hdf5_file,
+            chunker="Chunker",
+            retriever_model="test-model",
+            n_top_chunks=5,
+            model="test-llm",
+            retriever_query="test query",
+            prompt=mock_prompt,
+            query="test_query",
+        )
+
+        # Second run with n_top_chunks=10 (different retriever param)
+        run_prompt_paper(
+            paper=mock_hdf5_file,
+            chunker="Chunker",
+            retriever_model="test-model",
+            n_top_chunks=10,  # Different
+            model="test-llm",
+            retriever_query="test query",
+            prompt=mock_prompt,
+            query="test_query2",
+        )
+
+        # Verify that one chunker cache but two retrieval caches exist
+        with h5py.File(mock_hdf5_file, "r") as f:
+            assert len(list(f["chunks_cache"].keys())) == 1  # Same chunks
+            assert len(list(f["retrieval_cache"].keys())) == 2  # Different retrieval
+
+            # Verify runs have same chunker hash but different retriever hash
+            hash1_chunker = f["raw_llm_answers/test_query/run_0000"].attrs["chunker_hash"]
+            hash2_chunker = f["raw_llm_answers/test_query2/run_0000"].attrs["chunker_hash"]
+            assert hash1_chunker == hash2_chunker
+
+            hash1_retriever = f["raw_llm_answers/test_query/run_0000"].attrs["retriever_hash"]
+            hash2_retriever = f["raw_llm_answers/test_query2/run_0000"].attrs["retriever_hash"]
+            assert hash1_retriever != hash2_retriever
             assert params["chunk_overlap"] == 100

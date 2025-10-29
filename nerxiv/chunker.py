@@ -79,6 +79,46 @@ def compute_chunker_hash(
     return hashlib.sha256(hash_string.encode("utf-8")).hexdigest()
 
 
+def compute_retriever_hash(
+    chunker_hash: str,
+    retriever_model: str,
+    retriever_query: str,
+    n_top_chunks: int,
+) -> str:
+    """
+    Compute a hash to uniquely identify a retrieval configuration.
+
+    This hash is used to determine if retrieval (top-k chunks selection) can be 
+    reused from a previous run. The hash is based on:
+    - The chunker hash (ensures same base chunks)
+    - The retriever model
+    - The retriever query
+    - The number of top chunks to retrieve
+
+    Args:
+        chunker_hash (str): Hash of the chunking configuration.
+        retriever_model (str): The model used in the retriever (e.g., 'all-MiniLM-L6-v2').
+        retriever_query (str): The query used in the retriever.
+        n_top_chunks (int): The number of top chunks to retrieve.
+
+    Returns:
+        str: A hexadecimal hash string uniquely identifying this retrieval configuration.
+    """
+    # Create a dictionary with all components
+    hash_data = {
+        "chunker_hash": chunker_hash,
+        "retriever_model": retriever_model,
+        "retriever_query": retriever_query,
+        "n_top_chunks": n_top_chunks,
+    }
+
+    # Convert to JSON with sorted keys for consistent hashing
+    hash_string = json.dumps(hash_data, sort_keys=True)
+
+    # Compute SHA256 hash
+    return hashlib.sha256(hash_string.encode("utf-8")).hexdigest()
+
+
 class BaseChunker(ABC):
     """
     Abstract base class for chunking text into smaller parts for processing and avoiding the token limit of an LLM model.
