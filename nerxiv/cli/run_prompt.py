@@ -7,15 +7,11 @@ from typing import TYPE_CHECKING
 import h5py
 from langchain_core.documents import Document
 
-from nerxiv.chunker import (
-    _CHUNKER_MAP,
-    Chunker,
-    compute_chunker_hash,
-    compute_retriever_hash,
-)
+from nerxiv.chunker import _CHUNKER_MAP, Chunker
 from nerxiv.logger import logger
 from nerxiv.prompts.prompts import BasePrompt
 from nerxiv.rag import CustomRetriever, LLMGenerator
+from nerxiv.utils.caching import compute_chunker_hash, compute_retriever_hash
 
 if TYPE_CHECKING:
     from structlog._config import BoundLoggerLazyProxy
@@ -56,13 +52,13 @@ def run_prompt_paper(
 
     Note:
         This function implements a two-level caching mechanism:
-        
-        1. **Chunking cache** (chunks_cache/): Stores chunks indexed by chunker hash. 
+
+        1. **Chunking cache** (chunks_cache/): Stores chunks indexed by chunker hash.
            If the same text is chunked with the same parameters, cached chunks are reused.
-        
+
         2. **Retrieval cache** (retrieval_cache/): Stores top-k chunks indexed by retriever hash.
            If the same chunks are retrieved with the same retriever parameters, cached results are reused.
-        
+
         Run metadata only stores references (hashes) to the cached data, avoiding duplication.
         Additional kwargs are passed to LLMGenerator.
     """
@@ -102,7 +98,7 @@ def run_prompt_paper(
 
         # Check if chunks with this hash already exist in a global cache
         chunks_cache_group = f.require_group("chunks_cache")
-        
+
         if chunker_hash in chunks_cache_group:
             # Reuse existing chunks
             logger.info(f"Reusing chunks from cache with hash {chunker_hash}")
@@ -117,7 +113,9 @@ def run_prompt_paper(
                     "chunker", f"nerxiv.chunker.{chunker}"
                 )
                 chunks.append(
-                    Document(page_content=chunk_content, metadata={"source": chunk_source})
+                    Document(
+                        page_content=chunk_content, metadata={"source": chunk_source}
+                    )
                 )
         else:
             # Perform new chunking
@@ -148,10 +146,12 @@ def run_prompt_paper(
 
         # Check if retrieval results are cached
         retrieval_cache_group = f.require_group("retrieval_cache")
-        
+
         if retriever_hash in retrieval_cache_group:
             # Reuse cached retrieval results
-            logger.info(f"Reusing retrieval results from cache with hash {retriever_hash}")
+            logger.info(
+                f"Reusing retrieval results from cache with hash {retriever_hash}"
+            )
             cached_retrieval_group = retrieval_cache_group[retriever_hash]
             text = cached_retrieval_group["retrieved_text"][()].decode("utf-8")
         else:
@@ -192,20 +192,14 @@ def run_prompt_paper(
         # Store general metainformation
         run_group.attrs["model"] = model
         run_group.attrs["query"] = query
-        run_group.attrs["retriever_model"] = retriever_model
-        run_group.attrs["n_top_chunks"] = n_top_chunks
         run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
-        run_group.create_dataset(
-            "retriever_query", data=retriever_query.encode("utf-8")
-        )
         # Store prompt and answer
         run_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
         run_group.create_dataset("answer", data=answer.encode("utf-8"))
-        
+
         # Store references to cached data instead of duplicating
         run_group.attrs["chunker_hash"] = chunker_hash
         run_group.attrs["retriever_hash"] = retriever_hash
-        run_group.attrs["chunker"] = chunker
 
         paper_time = time.time() - paper_time
         run_group.attrs["elapsed_time"] = paper_time

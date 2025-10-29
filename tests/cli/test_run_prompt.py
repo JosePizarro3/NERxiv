@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import h5py
@@ -85,7 +84,7 @@ class TestRunPromptPaperChunkerHash:
             assert len(list(f["chunks_cache"].keys())) == 1
             assert "retrieval_cache" in f
             assert len(list(f["retrieval_cache"].keys())) == 1
-            
+
             # Check that chunks and top_k_chunks are NOT stored in run group anymore
             assert "chunks" not in run_group
 
@@ -186,7 +185,12 @@ class TestRunPromptPaperChunkerHash:
     @patch("nerxiv.cli.run_prompt.CustomRetriever")
     @patch("nerxiv.chunker.get_spacy_model")
     def test_different_chunker_creates_new_chunks(
-        self, mock_spacy, mock_retriever_cls, mock_generator_cls, mock_hdf5_file, mock_prompt
+        self,
+        mock_spacy,
+        mock_retriever_cls,
+        mock_generator_cls,
+        mock_hdf5_file,
+        mock_prompt,
     ):
         """Test that different chunker types create new chunks."""
         # Mock spacy for SemanticChunker
@@ -274,7 +278,7 @@ class TestRunPromptPaperChunkerHash:
             assert cached_group.attrs["chunker"] == "Chunker"
             assert "n_chunks" in cached_group.attrs
             assert cached_group.attrs["chunker_hash"] == cache_key
-            
+
             # Check that params are stored as JSON
             params = json.loads(cached_group.attrs["chunker_params"])
             assert params["chunk_size"] == 500
@@ -323,12 +327,20 @@ class TestRunPromptPaperChunkerHash:
             assert len(list(f["retrieval_cache"].keys())) == 1
 
             # Verify both runs reference the same hashes
-            hash1_chunker = f["raw_llm_answers/test_query/run_0000"].attrs["chunker_hash"]
-            hash2_chunker = f["raw_llm_answers/test_query2/run_0000"].attrs["chunker_hash"]
+            hash1_chunker = f["raw_llm_answers/test_query/run_0000"].attrs[
+                "chunker_hash"
+            ]
+            hash2_chunker = f["raw_llm_answers/test_query2/run_0000"].attrs[
+                "chunker_hash"
+            ]
             assert hash1_chunker == hash2_chunker
 
-            hash1_retriever = f["raw_llm_answers/test_query/run_0000"].attrs["retriever_hash"]
-            hash2_retriever = f["raw_llm_answers/test_query2/run_0000"].attrs["retriever_hash"]
+            hash1_retriever = f["raw_llm_answers/test_query/run_0000"].attrs[
+                "retriever_hash"
+            ]
+            hash2_retriever = f["raw_llm_answers/test_query2/run_0000"].attrs[
+                "retriever_hash"
+            ]
             assert hash1_retriever == hash2_retriever
 
     @patch("nerxiv.cli.run_prompt.LLMGenerator")
@@ -373,12 +385,27 @@ class TestRunPromptPaperChunkerHash:
             assert len(list(f["chunks_cache"].keys())) == 1  # Same chunks
             assert len(list(f["retrieval_cache"].keys())) == 2  # Different retrieval
 
+            chunks_cache = f["chunks_cache"]
+            cache_key = list(chunks_cache.keys())[0]
+            cached_group = chunks_cache[cache_key]
+            # Check that params are stored as JSON
+            params = json.loads(cached_group.attrs["chunker_params"])
+            assert params["chunk_size"] == 1000
+            assert params["chunk_overlap"] == 200
+
             # Verify runs have same chunker hash but different retriever hash
-            hash1_chunker = f["raw_llm_answers/test_query/run_0000"].attrs["chunker_hash"]
-            hash2_chunker = f["raw_llm_answers/test_query2/run_0000"].attrs["chunker_hash"]
+            hash1_chunker = f["raw_llm_answers/test_query/run_0000"].attrs[
+                "chunker_hash"
+            ]
+            hash2_chunker = f["raw_llm_answers/test_query2/run_0000"].attrs[
+                "chunker_hash"
+            ]
             assert hash1_chunker == hash2_chunker
 
-            hash1_retriever = f["raw_llm_answers/test_query/run_0000"].attrs["retriever_hash"]
-            hash2_retriever = f["raw_llm_answers/test_query2/run_0000"].attrs["retriever_hash"]
+            hash1_retriever = f["raw_llm_answers/test_query/run_0000"].attrs[
+                "retriever_hash"
+            ]
+            hash2_retriever = f["raw_llm_answers/test_query2/run_0000"].attrs[
+                "retriever_hash"
+            ]
             assert hash1_retriever != hash2_retriever
-            assert params["chunk_overlap"] == 100
