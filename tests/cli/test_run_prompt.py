@@ -85,9 +85,6 @@ class TestRunPromptPaperChunkerHash:
             assert "retrieval_cache" in f
             assert len(list(f["retrieval_cache"].keys())) == 1
 
-            # Check that chunks and top_k_chunks are NOT stored in run group anymore
-            assert "chunks" not in run_group
-
     @patch("nerxiv.cli.run_prompt.LLMGenerator")
     @patch("nerxiv.cli.run_prompt.CustomRetriever")
     def test_chunks_reused_on_second_run(

@@ -121,11 +121,14 @@ def run_prompt_paper(
             # Perform new chunking
             logger.info(f"Performing new chunking with hash {chunker_hash}")
             chunker_cls = _CHUNKER_MAP.get(chunker, Chunker)(text=text)
-            chunks = chunker_cls.chunk_text(**chunker_params)
+            if chunker in ("Chunker", "AdvancedSemanticChunker"):
+                chunks = chunker_cls.chunk_text(**chunker_params)
+            else:
+                chunks = chunker_cls.chunk_text()
 
             # Store chunks in cache
             cached_chunks_group = chunks_cache_group.create_group(chunker_hash)
-            cached_chunks_group.attrs["chunker"] = chunker
+            cached_chunks_group.attrs["chunker"] = f"nerxiv.chunker.{chunker}"
             cached_chunks_group.attrs["n_chunks"] = len(chunks)
             cached_chunks_group.attrs["chunker_hash"] = chunker_hash
             # Store chunker parameters as JSON string for readability
