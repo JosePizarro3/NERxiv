@@ -1,7 +1,6 @@
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import h5py
 import pytest
 
 from nerxiv.utils import (

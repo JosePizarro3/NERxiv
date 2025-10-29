@@ -1,14 +1,17 @@
 import datetime
+import json
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import h5py
+from langchain_core.documents import Document
 
 from nerxiv.chunker import _CHUNKER_MAP, Chunker
 from nerxiv.logger import logger
 from nerxiv.prompts.prompts import BasePrompt
 from nerxiv.rag import CustomRetriever, LLMGenerator
+from nerxiv.utils.caching import compute_chunker_hash, compute_retriever_hash
 
 if TYPE_CHECKING:
     from structlog._config import BoundLoggerLazyProxy
@@ -40,9 +43,24 @@ def run_prompt_paper(
         query (str, optional): The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "filter_material_formula".
         paper_time (float, optional): The starting time of this paper prompting. Defaults to 0.0.
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
+        chunk_size (int, optional): For Chunker, the size of each chunk. Defaults to 1000. Passed via kwargs.
+        chunk_overlap (int, optional): For Chunker, the overlap between chunks. Defaults to 200. Passed via kwargs.
+        n_chunks (int, optional): For AdvancedSemanticChunker, the number of chunks. Defaults to 10. Passed via kwargs.
 
     Returns:
         float: The time taken to run the prompt on the paper in seconds.
+
+    Note:
+        This function implements a two-level caching mechanism:
+
+        1. **Chunking cache** (chunks_cache/): Stores chunks indexed by chunker hash.
+           If the same text is chunked with the same parameters, cached chunks are reused.
+
+        2. **Retrieval cache** (retrieval_cache/): Stores top-k chunks indexed by retriever hash.
+           If the same chunks are retrieved with the same retriever parameters, cached results are reused.
+
+        Run metadata only stores references (hashes) to the cached data, avoiding duplication.
+        Additional kwargs are passed to LLMGenerator.
     """
     # Initial error handling
     if not paper.exists():
@@ -60,18 +78,106 @@ def run_prompt_paper(
         arxiv_id = f.filename.split("/")[-1].replace(".hdf5", "")
         text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
 
-        # Chunking text
-        chunker_cls = _CHUNKER_MAP.get(chunker, Chunker)(text=text)
-        chunks = chunker_cls.chunk_text()
+        # Extract chunker-specific parameters from kwargs
+        # Default parameters for each chunker type
+        chunker_params = {}
+        if chunker == "Chunker":
+            chunker_params = {
+                "chunk_size": kwargs.pop("chunk_size", 1000),
+                "chunk_overlap": kwargs.pop("chunk_overlap", 200),
+            }
+        elif chunker == "AdvancedSemanticChunker":
+            chunker_params = {"n_chunks": kwargs.pop("n_chunks", 10)}
+        # SemanticChunker has no parameters
 
-        # Retrieval
-        retriever = CustomRetriever(
-            model=retriever_model, query=retriever_query, logger=logger
+        # Compute hash for this chunking configuration
+        chunker_hash = compute_chunker_hash(
+            text=text, chunker_name=chunker, chunker_params=chunker_params
         )
-        text = retriever.get_relevant_chunks(
-            chunks=chunks,
+        logger.info(f"Chunker hash: {chunker_hash}")
+
+        # Check if chunks with this hash already exist in a global cache
+        chunks_cache_group = f.require_group("chunks_cache")
+
+        if chunker_hash in chunks_cache_group:
+            # Reuse existing chunks
+            logger.info(f"Reusing chunks from cache with hash {chunker_hash}")
+            cached_chunks_group = chunks_cache_group[chunker_hash]
+            n_chunks = cached_chunks_group.attrs["n_chunks"]
+            chunks = []
+            for i in range(n_chunks):
+                chunk_content = cached_chunks_group[f"chunk_{i:04d}"][()].decode(
+                    "utf-8"
+                )
+                chunk_source = cached_chunks_group.attrs.get(
+                    "chunker", f"nerxiv.chunker.{chunker}"
+                )
+                chunks.append(
+                    Document(
+                        page_content=chunk_content, metadata={"source": chunk_source}
+                    )
+                )
+        else:
+            # Perform new chunking
+            logger.info(f"Performing new chunking with hash {chunker_hash}")
+            chunker_cls = _CHUNKER_MAP.get(chunker, Chunker)(text=text)
+            if chunker in ("Chunker", "AdvancedSemanticChunker"):
+                chunks = chunker_cls.chunk_text(**chunker_params)
+            else:
+                chunks = chunker_cls.chunk_text()
+
+            # Store chunks in cache
+            cached_chunks_group = chunks_cache_group.create_group(chunker_hash)
+            cached_chunks_group.attrs["chunker"] = f"nerxiv.chunker.{chunker}"
+            cached_chunks_group.attrs["n_chunks"] = len(chunks)
+            cached_chunks_group.attrs["chunker_hash"] = chunker_hash
+            # Store chunker parameters as JSON string for readability
+            cached_chunks_group.attrs["chunker_params"] = json.dumps(chunker_params)
+            for i, chunk in enumerate(chunks):
+                cached_chunks_group.create_dataset(
+                    f"chunk_{i:04d}", data=chunk.page_content.encode("utf-8")
+                )
+
+        # Retrieval with caching
+        retriever_hash = compute_retriever_hash(
+            chunker_hash=chunker_hash,
+            retriever_model=retriever_model,
+            retriever_query=retriever_query,
             n_top_chunks=n_top_chunks,
         )
+        logger.info(f"Retriever hash: {retriever_hash}")
+
+        # Check if retrieval results are cached
+        retrieval_cache_group = f.require_group("retrieval_cache")
+
+        if retriever_hash in retrieval_cache_group:
+            # Reuse cached retrieval results
+            logger.info(
+                f"Reusing retrieval results from cache with hash {retriever_hash}"
+            )
+            cached_retrieval_group = retrieval_cache_group[retriever_hash]
+            text = cached_retrieval_group["retrieved_text"][()].decode("utf-8")
+        else:
+            # Perform new retrieval
+            logger.info(f"Performing new retrieval with hash {retriever_hash}")
+            retriever = CustomRetriever(
+                model=retriever_model, query=retriever_query, logger=logger
+            )
+            text = retriever.get_relevant_chunks(
+                chunks=chunks,
+                n_top_chunks=n_top_chunks,
+            )
+
+            # Store retrieval results in cache
+            cached_retrieval_group = retrieval_cache_group.create_group(retriever_hash)
+            cached_retrieval_group.attrs["chunker_hash"] = chunker_hash
+            cached_retrieval_group.attrs["retriever_model"] = retriever_model
+            cached_retrieval_group.attrs["retriever_query"] = retriever_query
+            cached_retrieval_group.attrs["n_top_chunks"] = n_top_chunks
+            cached_retrieval_group.attrs["retriever_hash"] = retriever_hash
+            cached_retrieval_group.create_dataset(
+                "retrieved_text", data=text.encode("utf-8")
+            )
 
         # Generation
         generator = LLMGenerator(model=model, text=text, logger=logger, **kwargs)
@@ -89,30 +195,14 @@ def run_prompt_paper(
         # Store general metainformation
         run_group.attrs["model"] = model
         run_group.attrs["query"] = query
-        run_group.attrs["retriever_model"] = retriever_model
-        run_group.attrs["n_top_chunks"] = n_top_chunks
         run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
-        run_group.create_dataset(
-            "retriever_query", data=retriever_query.encode("utf-8")
-        )
         # Store prompt and answer
         run_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
         run_group.create_dataset("answer", data=answer.encode("utf-8"))
-        # Store chunks and top-k chunks
-        chunks_group = run_group.require_group("chunks")
-        chunks_group.attrs["n_chunks"] = len(chunks)
-        for i, chunk in enumerate(chunks):
-            chunks_group.create_dataset(
-                f"chunk_{i:04d}", data=chunk.page_content.encode("utf-8")
-            )
-            chunks_group.attrs["chunker"] = chunk.metadata.get("source")
 
-        top_k_chunks = text.split("\n\n")
-        chunks_group.attrs["n_top_k_chunks"] = len(top_k_chunks)
-        for i, top_k_chunk in enumerate(top_k_chunks):
-            chunks_group.create_dataset(
-                f"top_k_chunk_{i:04d}", data=top_k_chunk.encode("utf-8")
-            )
+        # Store references to cached data instead of duplicating
+        run_group.attrs["chunker_hash"] = chunker_hash
+        run_group.attrs["retriever_hash"] = retriever_hash
 
         paper_time = time.time() - paper_time
         run_group.attrs["elapsed_time"] = paper_time
