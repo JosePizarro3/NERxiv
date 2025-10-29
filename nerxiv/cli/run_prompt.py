@@ -42,20 +42,18 @@ def run_prompt_paper(
         query (str, optional): The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "filter_material_formula".
         paper_time (float, optional): The starting time of this paper prompting. Defaults to 0.0.
         logger (BoundLoggerLazyProxy, optional): The logger to log messages. Defaults to logger.
-        **kwargs: Additional keyword arguments that can include:
-            - chunk_size (int): For Chunker, the size of each chunk. Defaults to 1000.
-            - chunk_overlap (int): For Chunker, the overlap between chunks. Defaults to 200.
-            - n_chunks (int): For AdvancedSemanticChunker, the number of chunks. Defaults to 10.
-            - Additional kwargs are passed to LLMGenerator.
+        chunk_size (int, optional): For Chunker, the size of each chunk. Defaults to 1000. Passed via kwargs.
+        chunk_overlap (int, optional): For Chunker, the overlap between chunks. Defaults to 200. Passed via kwargs.
+        n_chunks (int, optional): For AdvancedSemanticChunker, the number of chunks. Defaults to 10. Passed via kwargs.
 
     Returns:
         float: The time taken to run the prompt on the paper in seconds.
-        
+
     Note:
         This function implements a caching mechanism for chunks. If the same text is chunked
         with the same chunker and parameters, the cached chunks will be reused instead of
         re-chunking the text. The cache is stored in the HDF5 file under 'chunks_cache' group,
-        indexed by a hash of the chunking configuration.
+        indexed by a hash of the chunking configuration. Additional kwargs are passed to LLMGenerator.
     """
     # Initial error handling
     if not paper.exists():

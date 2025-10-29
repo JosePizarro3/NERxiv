@@ -136,7 +136,9 @@ def cli():
     type=str,
     required=False,
     help="""
-    (Optional) key=value pairs for chunker parameters (e.g. -cho chunk_size=500 -cho chunk_overlap=100 for Chunker, or -cho n_chunks=15 for AdvancedSemanticChunker).
+    (Optional) key=value pairs for chunker parameters.
+    Examples: -cho chunk_size=500 -cho chunk_overlap=100 for Chunker,
+    or -cho n_chunks=15 for AdvancedSemanticChunker.
     """,
 )
 def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_option, chunker_option):
@@ -256,7 +258,9 @@ def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_
     type=str,
     required=False,
     help="""
-    (Optional) key=value pairs for chunker parameters (e.g. -cho chunk_size=500 -cho chunk_overlap=100 for Chunker, or -cho n_chunks=15 for AdvancedSemanticChunker).
+    (Optional) key=value pairs for chunker parameters.
+    Examples: -cho chunk_size=500 -cho chunk_overlap=100 for Chunker,
+    or -cho n_chunks=15 for AdvancedSemanticChunker.
     """,
 )
 def prompt_all(
