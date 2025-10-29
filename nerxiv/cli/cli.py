@@ -129,7 +129,17 @@ def cli():
     (Optional) key=value pairs for OllamaLLM parameters (e.g. -llmo temperature=0.2 -llmo top_p=0.9).
     """,
 )
-def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_option):
+@click.option(
+    "--chunker-option",
+    "-cho",
+    multiple=True,
+    type=str,
+    required=False,
+    help="""
+    (Optional) key=value pairs for chunker parameters (e.g. -cho chunk_size=500 -cho chunk_overlap=100 for Chunker, or -cho n_chunks=15 for AdvancedSemanticChunker).
+    """,
+)
+def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_option, chunker_option):
     start_time = time.time()
 
     if query not in PROMPT_REGISTRY:
@@ -143,6 +153,7 @@ def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_
 
     # Parse key=value options into dict
     llm_kwargs = parse_llm_option_to_args(llm_option)
+    chunker_kwargs = parse_llm_option_to_args(chunker_option)
 
     # Transform to Path and get the hdf5 data
     paper = Path(file_path)
@@ -157,6 +168,7 @@ def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_
         query=query,
         paper_time=start_time,
         logger=logger,
+        **chunker_kwargs,
         **llm_kwargs,
     )
     click.echo(f"Processed arXiv papers in {paper_time:.2f} seconds\n\n")
@@ -237,8 +249,18 @@ def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_
     (Optional) key=value pairs for OllamaLLM parameters (e.g. -llmo temperature=0.2 -llmo top_p=0.9).
     """,
 )
+@click.option(
+    "--chunker-option",
+    "-cho",
+    multiple=True,
+    type=str,
+    required=False,
+    help="""
+    (Optional) key=value pairs for chunker parameters (e.g. -cho chunk_size=500 -cho chunk_overlap=100 for Chunker, or -cho n_chunks=15 for AdvancedSemanticChunker).
+    """,
+)
 def prompt_all(
-    data_path, chunker, retriever_model, n_top_chunks, model, query, llm_option
+    data_path, chunker, retriever_model, n_top_chunks, model, query, llm_option, chunker_option
 ):
     start_time = time.time()
     paper_time = start_time
@@ -254,6 +276,7 @@ def prompt_all(
 
     # Parse key=value options into dict
     llm_kwargs = parse_llm_option_to_args(llm_option)
+    chunker_kwargs = parse_llm_option_to_args(chunker_option)
 
     # list all papers `{data_path}/*.hdf5`
     papers = list(Path(data_path).rglob("*.hdf5"))
@@ -269,6 +292,7 @@ def prompt_all(
             query=query,
             paper_time=paper_time,
             logger=logger,
+            **chunker_kwargs,
             **llm_kwargs,
         )
 
