@@ -3,7 +3,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from langchain_core.documents import Document
 
-from nerxiv.chunker import AdvancedSemanticChunker, Chunker, SemanticChunker
+from nerxiv.chunker import (
+    AdvancedSemanticChunker,
+    Chunker,
+    SemanticChunker,
+    compute_chunker_hash,
+)
 
 
 class TestChunker:
@@ -162,3 +167,75 @@ class TestAdvancedSemanticChunker:
 
         assert len(chunks) == 1  # Only one sentence available
         assert chunks[0].page_content == "Only one sentence."
+
+
+class TestComputeChunkerHash:
+    """Tests for the compute_chunker_hash function."""
+
+    def test_hash_is_consistent(self):
+        """Tests that the same inputs produce the same hash."""
+        text = "This is a test text."
+        chunker_name = "Chunker"
+        chunker_params = {"chunk_size": 1000, "chunk_overlap": 200}
+
+        hash1 = compute_chunker_hash(text, chunker_name, chunker_params)
+        hash2 = compute_chunker_hash(text, chunker_name, chunker_params)
+
+        assert hash1 == hash2
+
+    def test_different_text_produces_different_hash(self):
+        """Tests that different texts produce different hashes."""
+        chunker_name = "Chunker"
+        chunker_params = {"chunk_size": 1000, "chunk_overlap": 200}
+
+        hash1 = compute_chunker_hash("Text A", chunker_name, chunker_params)
+        hash2 = compute_chunker_hash("Text B", chunker_name, chunker_params)
+
+        assert hash1 != hash2
+
+    def test_different_chunker_produces_different_hash(self):
+        """Tests that different chunkers produce different hashes."""
+        text = "This is a test text."
+        chunker_params = {}
+
+        hash1 = compute_chunker_hash(text, "Chunker", chunker_params)
+        hash2 = compute_chunker_hash(text, "SemanticChunker", chunker_params)
+
+        assert hash1 != hash2
+
+    def test_different_params_produce_different_hash(self):
+        """Tests that different parameters produce different hashes."""
+        text = "This is a test text."
+        chunker_name = "Chunker"
+
+        hash1 = compute_chunker_hash(
+            text, chunker_name, {"chunk_size": 1000, "chunk_overlap": 200}
+        )
+        hash2 = compute_chunker_hash(
+            text, chunker_name, {"chunk_size": 500, "chunk_overlap": 100}
+        )
+
+        assert hash1 != hash2
+
+    def test_hash_with_no_params(self):
+        """Tests that hash works with no parameters (SemanticChunker case)."""
+        text = "This is a test text."
+        chunker_name = "SemanticChunker"
+
+        hash1 = compute_chunker_hash(text, chunker_name, None)
+        hash2 = compute_chunker_hash(text, chunker_name, {})
+
+        # None and {} should produce the same hash
+        assert hash1 == hash2
+
+    def test_hash_format(self):
+        """Tests that the hash is in the expected format (SHA256 hex)."""
+        text = "This is a test text."
+        chunker_name = "Chunker"
+        chunker_params = {"chunk_size": 1000}
+
+        hash_value = compute_chunker_hash(text, chunker_name, chunker_params)
+
+        # SHA256 produces a 64-character hexadecimal string
+        assert len(hash_value) == 64
+        assert all(c in "0123456789abcdef" for c in hash_value)

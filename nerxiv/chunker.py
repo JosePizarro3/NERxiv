@@ -1,3 +1,5 @@
+import hashlib
+import json
 from abc import ABC, abstractmethod
 
 import spacy
@@ -8,6 +10,9 @@ from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 
 from nerxiv.logger import logger
+
+# Chunker version: increment this when chunker implementation changes
+CHUNKER_VERSION = "1.0.0"
 
 # Lazy-loaded singletons
 _SPACY_NLP = None
@@ -30,6 +35,48 @@ def get_sentence_model():
     if _SENTENCE_MODEL is None:
         _SENTENCE_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
     return _SENTENCE_MODEL
+
+
+def compute_chunker_hash(
+    text: str, chunker_name: str, chunker_params: dict | None = None
+) -> str:
+    """
+    Compute a hash to uniquely identify a chunking configuration.
+
+    This hash is used to determine if chunking can be reused from a previous run.
+    The hash is based on:
+    - The chunker version (changes when implementation changes)
+    - The chunker class name
+    - The chunker parameters (if any)
+    - The text being chunked
+
+    Args:
+        text (str): The text that will be chunked.
+        chunker_name (str): The name of the chunker class (e.g., 'Chunker', 'SemanticChunker').
+        chunker_params (dict, optional): Parameters passed to the chunk_text method.
+            For Chunker: {'chunk_size': 1000, 'chunk_overlap': 200}
+            For AdvancedSemanticChunker: {'n_chunks': 10}
+            For SemanticChunker: None or {}
+
+    Returns:
+        str: A hexadecimal hash string uniquely identifying this chunking configuration.
+    """
+    if chunker_params is None:
+        chunker_params = {}
+
+    # Create a dictionary with all components
+    hash_data = {
+        "version": CHUNKER_VERSION,
+        "chunker": chunker_name,
+        "params": chunker_params,
+        "text": text,
+    }
+
+    # Convert to JSON with sorted keys for consistent hashing
+    hash_string = json.dumps(hash_data, sort_keys=True)
+
+    # Compute SHA256 hash
+    return hashlib.sha256(hash_string.encode("utf-8")).hexdigest()
 
 
 class BaseChunker(ABC):

@@ -1,11 +1,13 @@
 import datetime
+import json
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import h5py
+from langchain_core.documents import Document
 
-from nerxiv.chunker import _CHUNKER_MAP, Chunker
+from nerxiv.chunker import _CHUNKER_MAP, Chunker, compute_chunker_hash
 from nerxiv.logger import logger
 from nerxiv.prompts.prompts import BasePrompt
 from nerxiv.rag import CustomRetriever, LLMGenerator
@@ -60,9 +62,60 @@ def run_prompt_paper(
         arxiv_id = f.filename.split("/")[-1].replace(".hdf5", "")
         text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
 
-        # Chunking text
-        chunker_cls = _CHUNKER_MAP.get(chunker, Chunker)(text=text)
-        chunks = chunker_cls.chunk_text()
+        # Extract chunker-specific parameters from kwargs
+        # Default parameters for each chunker type
+        chunker_params = {}
+        if chunker == "Chunker":
+            chunker_params = {
+                "chunk_size": kwargs.pop("chunk_size", 1000),
+                "chunk_overlap": kwargs.pop("chunk_overlap", 200),
+            }
+        elif chunker == "AdvancedSemanticChunker":
+            chunker_params = {"n_chunks": kwargs.pop("n_chunks", 10)}
+        # SemanticChunker has no parameters
+
+        # Compute hash for this chunking configuration
+        chunker_hash = compute_chunker_hash(
+            text=text, chunker_name=chunker, chunker_params=chunker_params
+        )
+        logger.info(f"Chunker hash: {chunker_hash}")
+
+        # Check if chunks with this hash already exist in a global cache
+        chunks_cache_group = f.require_group("chunks_cache")
+        
+        if chunker_hash in chunks_cache_group:
+            # Reuse existing chunks
+            logger.info(f"Reusing chunks from cache with hash {chunker_hash}")
+            cached_chunks_group = chunks_cache_group[chunker_hash]
+            n_chunks = cached_chunks_group.attrs["n_chunks"]
+            chunks = []
+            for i in range(n_chunks):
+                chunk_content = cached_chunks_group[f"chunk_{i:04d}"][()].decode(
+                    "utf-8"
+                )
+                chunk_source = cached_chunks_group.attrs.get(
+                    "chunker", f"nerxiv.chunker.{chunker}"
+                )
+                chunks.append(
+                    Document(page_content=chunk_content, metadata={"source": chunk_source})
+                )
+        else:
+            # Perform new chunking
+            logger.info(f"Performing new chunking with hash {chunker_hash}")
+            chunker_cls = _CHUNKER_MAP.get(chunker, Chunker)(text=text)
+            chunks = chunker_cls.chunk_text(**chunker_params)
+
+            # Store chunks in cache
+            cached_chunks_group = chunks_cache_group.create_group(chunker_hash)
+            cached_chunks_group.attrs["chunker"] = chunker
+            cached_chunks_group.attrs["n_chunks"] = len(chunks)
+            cached_chunks_group.attrs["chunker_hash"] = chunker_hash
+            # Store chunker parameters as JSON string for readability
+            cached_chunks_group.attrs["chunker_params"] = json.dumps(chunker_params)
+            for i, chunk in enumerate(chunks):
+                cached_chunks_group.create_dataset(
+                    f"chunk_{i:04d}", data=chunk.page_content.encode("utf-8")
+                )
 
         # Retrieval
         retriever = CustomRetriever(
@@ -98,9 +151,15 @@ def run_prompt_paper(
         # Store prompt and answer
         run_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
         run_group.create_dataset("answer", data=answer.encode("utf-8"))
+        
+        # Store reference to the chunker hash used for this run
+        run_group.attrs["chunker_hash"] = chunker_hash
+        run_group.attrs["chunker"] = chunker
+        
         # Store chunks and top-k chunks
         chunks_group = run_group.require_group("chunks")
         chunks_group.attrs["n_chunks"] = len(chunks)
+        chunks_group.attrs["chunker_hash"] = chunker_hash
         for i, chunk in enumerate(chunks):
             chunks_group.create_dataset(
                 f"chunk_{i:04d}", data=chunk.page_content.encode("utf-8")
