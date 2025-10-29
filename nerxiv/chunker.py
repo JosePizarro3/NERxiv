@@ -9,6 +9,9 @@ from sklearn.cluster import KMeans
 
 from nerxiv.logger import logger
 
+# ! Chunker version: increment this when this file changes (needed for provenance and caching)
+CHUNKER_VERSION = "1.0.0"
+
 # Lazy-loaded singletons
 _SPACY_NLP = None
 _SENTENCE_MODEL = None

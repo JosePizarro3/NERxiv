@@ -7,6 +7,9 @@ from sentence_transformers import SentenceTransformer, util
 
 from nerxiv.logger import logger
 
+# ! Retriever version: increment this when this file changes (needed for provenance and caching)
+RETRIEVER_VERSION = "1.0.0"
+
 
 # TODO add measure of performance
 # TODO check other model_name
