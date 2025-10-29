@@ -141,7 +141,16 @@ def cli():
     or -cho n_chunks=15 for AdvancedSemanticChunker.
     """,
 )
-def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_option, chunker_option):
+def prompt(
+    file_path,
+    chunker,
+    retriever_model,
+    n_top_chunks,
+    model,
+    query,
+    llm_option,
+    chunker_option,
+):
     start_time = time.time()
 
     if query not in PROMPT_REGISTRY:
@@ -264,7 +273,14 @@ def prompt(file_path, chunker, retriever_model, n_top_chunks, model, query, llm_
     """,
 )
 def prompt_all(
-    data_path, chunker, retriever_model, n_top_chunks, model, query, llm_option, chunker_option
+    data_path,
+    chunker,
+    retriever_model,
+    n_top_chunks,
+    model,
+    query,
+    llm_option,
+    chunker_option,
 ):
     start_time = time.time()
     paper_time = start_time
