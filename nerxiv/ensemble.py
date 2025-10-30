@@ -192,7 +192,7 @@ def run_ensemble_prompts(
         tuple[str, dict[str, Any] | None]: The raw combined answer text and averaged JSON (if StructuredPrompt)
     """
     # Set defaults
-    # Extract model from kwargs if present, but don't pass it to run_single_llm_prompt
+    # Extract model from kwargs, remove it to avoid passing it twice
     default_model = kwargs.pop("model", "gpt-oss:20b")
     if models is None:
         models = [default_model]

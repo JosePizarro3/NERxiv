@@ -1,7 +1,6 @@
 """Integration test for ensemble CLI functionality."""
 
 import tempfile
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
