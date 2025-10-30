@@ -30,6 +30,7 @@ Visit the [documentation page](https://JosePizarro3.github.io/NERxiv/) to learn 
 * Uses [`pyrxiv`](https://pypi.org/project/pyrxiv/) to fetch, download, and extract text from arXiv papers
 * Chunks and embeds text with SentenceTransformers or LangChain to categorize papers content using local LLMs (via Ollama)
 * Includes CLI tools and notebook tutorials for reproducible workflows
+* **NEW**: Ensemble prompting to minimize hallucinations by running multiple LLM configurations and averaging results
 
 ---
 
