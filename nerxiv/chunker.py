@@ -14,7 +14,7 @@ CHUNKER_VERSION = "1.0.0"
 
 # Lazy-loaded singletons
 _SPACY_NLP = None
-_SENTENCE_MODEL = None
+_SENTENCE_MODELS = {}
 
 
 def get_spacy_model():
@@ -29,10 +29,9 @@ def get_spacy_model():
 
 
 def get_sentence_model(model: str = "all-MiniLM-L6-v2"):
-    global _SENTENCE_MODEL
-    if _SENTENCE_MODEL is None:
-        _SENTENCE_MODEL = SentenceTransformer(model)
-    return _SENTENCE_MODEL
+    if model not in _SENTENCE_MODELS:
+        _SENTENCE_MODELS[model] = SentenceTransformer(model)
+    return _SENTENCE_MODELS[model]
 
 
 class BaseChunker(ABC):
