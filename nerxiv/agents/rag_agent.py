@@ -74,8 +74,12 @@ class RAGExtractorAgent(BaseAgent):
             )
             return None
 
-        ### Chunking
+        # Create group to store RAG pipeline
         global_time = time.time()
+        rag_group = file.require_group("rag_extraction")
+        rag_group.attrs["stat_time"] = datetime.datetime.now().isoformat()
+
+        ### Chunking
         chunker_name = self._obj_name(self.chunker)
 
         # Use caching to compute chunker hash and avoid re-chunking if already done
@@ -84,7 +88,7 @@ class RAGExtractorAgent(BaseAgent):
             chunker_name=chunker_name,
             chunker_params=self.chunker_params,
         )
-        chunks_cache_group = file.require_group("chunks_cache")
+        chunks_cache_group = rag_group.require_group("chunks_cache")
         if chunker_hash in chunks_cache_group:  # reuse existing chunks
             logger.info(f"Reusing chunks from cache with hash {chunker_hash}")
             cached_chunks_group = chunks_cache_group[chunker_hash]
@@ -122,7 +126,7 @@ class RAGExtractorAgent(BaseAgent):
         retriever_hash = compute_retriever_hash(
             chunker_hash=chunker_hash, retriever_params=self.retriever_params
         )
-        retrieval_cache_group = file.require_group("retrieval_cache")
+        retrieval_cache_group = rag_group.require_group("retrieval_cache")
         if retriever_hash in retrieval_cache_group:  # reuse existing retrieval
             logger.info(
                 f"Reusing retrieval results from cache with hash {retriever_hash}"
@@ -164,7 +168,7 @@ class RAGExtractorAgent(BaseAgent):
         answer = generator.generate(prompt=built_prompt)
 
         # Store raw answer in HDF5
-        raw_answer_group = file.require_group("raw_llm_answers")
+        raw_answer_group = rag_group.require_group("raw_llm_answers")
         # Define group for the `query` (e.g., raw_llm_answers/filter_material_formula)
         query_group = raw_answer_group.require_group(query)
         # Define group for the run ID (e.g., raw_llm_answers/filter_material_formula/run_0000)
@@ -180,10 +184,11 @@ class RAGExtractorAgent(BaseAgent):
         run_group.attrs["chunker_hash"] = chunker_hash
         run_group.attrs["retriever_hash"] = retriever_hash
         # Store elapsed time and timestamp of the run
-        run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
         run_group.attrs["elapsed_time"] = time.time() - start_time
 
+        # Store total RAG pipeline time
         paper_time = time.time() - global_time
+        rag_group.attrs["elapsed_time"] = paper_time
         logger.info(f"Prompting completed for {file} in {paper_time:.2f} seconds.")
 
         ### Return structured result
