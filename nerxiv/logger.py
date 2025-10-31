@@ -69,6 +69,9 @@ structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
 )
 
+# Create a logger instance
+logger = structlog.get_logger()
+
 
 import functools
 import warnings
