@@ -49,9 +49,7 @@ def compute_chunker_hash(
 
 def compute_retriever_hash(
     chunker_hash: str,
-    retriever_model: str,
-    retriever_query: str,
-    n_top_chunks: int,
+    retriever_params: dict | None = None,
 ) -> str:
     """
     Compute a hash to uniquely identify a retrieval configuration. This hash is used to determine
@@ -66,14 +64,29 @@ def compute_retriever_hash(
 
     Args:
         chunker_hash (str): Hash of the chunking configuration.
-        retriever_model (str): The model used in the retriever (e.g., 'all-MiniLM-L6-v2').
-        retriever_query (str): The query used in the retriever.
-        n_top_chunks (int): The number of top chunks to retrieve.
+        retriever_params (dict, optional): Parameters for the retriever.
+            Example:
+            {
+                'model': 'all-MiniLM-L6-v2',
+                'query': 'filter_material_formula',
+                'n_top_chunks': 5
+            }
 
     Returns:
         str: A hexadecimal hash string uniquely identifying this retrieval configuration.
     """
     # Create a dictionary with all components
+    retriever_model = (
+        retriever_params.get("model", "all-MiniLM-L6-v2")
+        if retriever_params
+        else "all-MiniLM-L6-v2"
+    )
+    retriever_query = (
+        retriever_params.get("query", "filter_material_formula")
+        if retriever_params
+        else "filter_material_formula"
+    )
+    n_top_chunks = retriever_params.get("n_top_chunks", 5) if retriever_params else 5
     hash_data = {
         "version": RETRIEVER_VERSION,
         "chunker_hash": chunker_hash,

@@ -1,4 +1,4 @@
-from nerxiv.rag.agent import RAGExtractorAgent
+from nerxiv.agents.rag_agent import RAGExtractorAgent
 
 
 class SimpleChunker:
@@ -9,7 +9,11 @@ class SimpleChunker:
 
     def chunk_text(self):
         # naive split by sentences
-        return [type("D", (), {"page_content": s})() for s in self.text.split(".") if s.strip()]
+        return [
+            type("D", (), {"page_content": s})()
+            for s in self.text.split(".")
+            if s.strip()
+        ]
 
 
 class SimpleRetriever:
