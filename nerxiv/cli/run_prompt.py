@@ -87,7 +87,10 @@ def run_prompt_paper(
                 "chunk_overlap": kwargs.pop("chunk_overlap", 200),
             }
         elif chunker == "AdvancedSemanticChunker":
-            chunker_params = {"n_chunks": kwargs.pop("n_chunks", 10)}
+            chunker_params = {
+                "n_chunks": kwargs.pop("n_chunks", 10),
+                "model": kwargs.pop("retriever_model", "all-MiniLM-L6-v2"),
+            }
         # SemanticChunker has no parameters
 
         # Compute hash for this chunking configuration
@@ -206,4 +209,6 @@ def run_prompt_paper(
 
         paper_time = time.time() - paper_time
         run_group.attrs["elapsed_time"] = paper_time
+
+    logger.info(f"Prompting completed for {paper} in {paper_time:.2f} seconds.")
     return paper_time
