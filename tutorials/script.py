@@ -6,13 +6,12 @@ for i, path in enumerate(Path("./data").glob("*.hdf5")):
     # if i > 0:
     #     break
     with h5py.File(path, "r+") as f:
-        if "raw_llm_answers" not in f:
-            continue
-        raw = f["raw_llm_answers"]
-        old = raw.require_group("20251028_OLD_raw_llm_answers")
-        for run in list(raw.keys()):
-            if not run.startswith("run_"):
-                continue
-            old.copy(raw[run], run)
-            del raw[run]
+        rag_group = f.require_group("rag_extraction")
+
+        # Groups to move
+        to_move = ["chunks_cache", "raw_llm_answers", "retrieval_cache"]
+        for name in to_move:
+            if name in f:
+                f.copy(f[name], rag_group, name)
+                del f[name]
         print(f"Processed file: {path}")
