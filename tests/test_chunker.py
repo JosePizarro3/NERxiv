@@ -62,9 +62,9 @@ class TestChunker:
         self, text: str, chunk_size: int, chunk_overlap: int, result: list[str] | None
     ):
         """Tests the `chunk_text` method of the `Chunker` class."""
-        chunks = Chunker(text=text).chunk_text(
-            chunk_size=chunk_size, chunk_overlap=chunk_overlap
-        )
+        chunks = Chunker(
+            text=text, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+        ).chunk_text()
         assert len(chunks) == len(result)
         for i, chunk in enumerate(chunks):
             assert chunk.page_content == result[i]
@@ -123,8 +123,8 @@ class TestAdvancedSemanticChunker:
         mock_get_sentence_model.return_value = mock_model
 
         text = "Sentence one. Sentence two."
-        chunker = AdvancedSemanticChunker(text=text)
-        chunks = chunker.chunk_text(n_chunks=2)
+        chunker = AdvancedSemanticChunker(text=text, n_chunks=2)
+        chunks = chunker.chunk_text()
 
         assert isinstance(chunks, list)
         assert len(chunks) > 0
@@ -157,8 +157,8 @@ class TestAdvancedSemanticChunker:
         mock_get_sentence_model.return_value = mock_model
 
         text = "Only one sentence."
-        chunker = AdvancedSemanticChunker(text=text)
-        chunks = chunker.chunk_text(n_chunks=5)
+        chunker = AdvancedSemanticChunker(text=text, n_chunks=5)
+        chunks = chunker.chunk_text()
 
         assert len(chunks) == 1  # Only one sentence available
         assert chunks[0].page_content == "Only one sentence."

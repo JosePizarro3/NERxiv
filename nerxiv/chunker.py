@@ -56,22 +56,23 @@ class Chunker(BaseChunker):
     Chunk text into smaller parts for processing and avoiding the token limit of an LLM model.
     """
 
-    def chunk_text(
-        self, chunk_size: int = 1000, chunk_overlap: int = 200
-    ) -> list[Document]:
+    def __init__(self, text: str = "", **kwargs):
+        super().__init__(text=text, **kwargs)
+        self.chunk_size = kwargs.get("chunk_size", 1000)
+        self.chunk_overlap = kwargs.get("chunk_overlap", 200)
+
+    def chunk_text(self) -> list[Document]:
         """
         Chunk the text into smaller parts.
         This is done to avoid exceeding the token limit of the LLM.
-
-        Args:
-            chunk_size (int, optional): The size of each chunk. Defaults to 1000.
-            chunk_overlap (int, optional): The overlap between chunks. Defaults to 200.
 
         Returns:
             list[Document]: The list of chunks as `Document` objects.
         """
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size, chunk_overlap=chunk_overlap, add_start_index=True
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap,
+            add_start_index=True,
         )
 
         # ! we define a list of `Document` objects in LangChain to use the `split_documents(pages)` method
@@ -118,15 +119,12 @@ class AdvancedSemanticChunker(BaseChunker):
 
     def __init__(self, text: str = "", **kwargs):
         super().__init__(text=text, **kwargs)
+        self.n_chunks = kwargs.get("n_chunks", 10)
+        self.model = kwargs.get("model", "all-MiniLM-L6-v2")
 
-    def chunk_text(
-        self, n_chunks: int = 10, model: str = "all-MiniLM-L6-v2"
-    ) -> list[Document]:
+    def chunk_text(self) -> list[Document]:
         """
         Chunk the text into smaller parts based on semantic meaning using KMeans clustering on sentence embeddings.
-
-        Args:
-            n_chunks (int, optional): The number of chunks for the text to be chunked. Defaults to 10.
 
         Returns:
             list[Document]: The list of chunks as `Document` objects.
@@ -135,10 +133,10 @@ class AdvancedSemanticChunker(BaseChunker):
         doc = nlp(self.text)
         sentences = [sent.text.strip() for sent in doc.sents if sent.text.strip()]
         # Adjust number of clusters: at most one per sentence (1 <= n_chunks <= len(sentences))
-        n_chunks = max(min(n_chunks, len(sentences)), 1)
+        n_chunks = max(min(self.n_chunks, len(sentences)), 1)
 
         # Fit KMeans to the sentence embeddings
-        model = get_sentence_model(model=model)
+        model = get_sentence_model(model=self.model)
         embeddings = model.encode(sentences, show_progress_bar=False)
         kmeans = KMeans(n_clusters=n_chunks, random_state=42)
         clusters = kmeans.fit_predict(embeddings)
