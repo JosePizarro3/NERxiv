@@ -28,10 +28,10 @@ def get_spacy_model():
     return _SPACY_NLP
 
 
-def get_sentence_model():
+def get_sentence_model(model: str = "all-MiniLM-L6-v2"):
     global _SENTENCE_MODEL
     if _SENTENCE_MODEL is None:
-        _SENTENCE_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+        _SENTENCE_MODEL = SentenceTransformer(model)
     return _SENTENCE_MODEL
 
 
@@ -92,7 +92,6 @@ class SemanticChunker(BaseChunker):
 
     def __init__(self, text: str = "", **kwargs):
         super().__init__(text=text, **kwargs)
-        self.nlp = get_spacy_model()
 
     def chunk_text(self) -> list[Document]:
         """
@@ -101,7 +100,8 @@ class SemanticChunker(BaseChunker):
         Returns:
             list[Document]: The list of chunks as `Document` objects.
         """
-        doc = self.nlp(self.text)
+        nlp = get_spacy_model()
+        doc = nlp(self.text)
         chunks = []
         for sent in doc.sents:
             chunks.append(
@@ -119,9 +119,10 @@ class AdvancedSemanticChunker(BaseChunker):
 
     def __init__(self, text: str = "", **kwargs):
         super().__init__(text=text, **kwargs)
-        self.model = get_sentence_model()
 
-    def chunk_text(self, n_chunks: int = 10) -> list[Document]:
+    def chunk_text(
+        self, n_chunks: int = 10, model: str = "all-MiniLM-L6-v2"
+    ) -> list[Document]:
         """
         Chunk the text into smaller parts based on semantic meaning using KMeans clustering on sentence embeddings.
 
@@ -138,7 +139,8 @@ class AdvancedSemanticChunker(BaseChunker):
         n_chunks = max(min(n_chunks, len(sentences)), 1)
 
         # Fit KMeans to the sentence embeddings
-        embeddings = self.model.encode(sentences, show_progress_bar=False)
+        model = get_sentence_model(model=model)
+        embeddings = model.encode(sentences, show_progress_bar=False)
         kmeans = KMeans(n_clusters=n_chunks, random_state=42)
         clusters = kmeans.fit_predict(embeddings)
         chunks = [[] for _ in range(n_chunks)]
