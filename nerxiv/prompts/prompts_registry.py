@@ -27,7 +27,7 @@ PROMPT_REGISTRY = {
             constraints=[
                 "Return ONLY the requested JSON object without any additional text or explanation.",
                 "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
-                "Do NOT infere values of fields that are not explicitly mentioned in the text.",
+                "Do NOT infer values of fields that are not explicitly mentioned in the text.",
                 "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
                 "Ensure that all parsed values are of the correct data type as defined in the CrystalStructure schema.",
             ],
@@ -47,7 +47,7 @@ PROMPT_REGISTRY = {
             constraints=[
                 "Return ONLY the requested JSON object without any additional text or explanation.",
                 "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
-                "Do NOT infere values of fields that are not explicitly mentioned in the text.",
+                "Do NOT infer values of fields that are not explicitly mentioned in the text.",
                 "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
                 "Ensure that all parsed values are of the correct data type as defined in the DFT schema.",
             ],
@@ -67,7 +67,7 @@ PROMPT_REGISTRY = {
             constraints=[
                 "Return ONLY the requested JSON object without any additional text or explanation.",
                 "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
-                "Do NOT infere values of fields that are not explicitly mentioned in the text.",
+                "Do NOT infer values of fields that are not explicitly mentioned in the text.",
                 "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
                 "Ensure that all parsed values are of the correct data type as defined in the Projection schema.",
             ],
@@ -87,7 +87,7 @@ PROMPT_REGISTRY = {
             constraints=[
                 "Return ONLY the requested JSON object without any additional text or explanation.",
                 "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
-                "Do NOT infere values of fields that are not explicitly mentioned in the text.",
+                "Do NOT infer values of fields that are not explicitly mentioned in the text.",
                 "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
                 "Ensure that all parsed values are of the correct data type as defined in the Interactions schema.",
             ],
@@ -107,7 +107,7 @@ PROMPT_REGISTRY = {
             constraints=[
                 "Return ONLY the requested JSON object without any additional text or explanation.",
                 "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
-                "Do NOT infere values of fields that are not explicitly mentioned in the text.",
+                "Do NOT infer values of fields that are not explicitly mentioned in the text.",
                 "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
                 "Ensure that all parsed values are of the correct data type as defined in the DMFT schema.",
             ],
@@ -127,7 +127,7 @@ PROMPT_REGISTRY = {
             constraints=[
                 "Return ONLY the requested JSON object without any additional text or explanation.",
                 "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
-                "Do NOT infere values of fields that are not explicitly mentioned in the text.",
+                "Do NOT infer values of fields that are not explicitly mentioned in the text.",
                 "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
                 "Ensure that all parsed values are of the correct data type as defined in the AnalyticalContinuation schema.",
             ],
