@@ -8,8 +8,6 @@ Available agents:
 - PromptAgent: High-level agent that integrates with the prompt registry
 """
 
-from nerxiv.agents.rag_agent import RAGExtractorAgent
-
 # Lazy import to avoid pulling optional dependencies
 __all__ = ["RAGExtractorAgent", "PromptAgent"]
 

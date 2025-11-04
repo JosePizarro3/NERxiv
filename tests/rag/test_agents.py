@@ -1,4 +1,4 @@
-from nerxiv.agents.rag_agent import RAGExtractorAgent
+from nerxiv.rag import RAGExtractorAgent
 
 
 class SimpleChunker:

@@ -12,12 +12,12 @@ import json
 import re
 from typing import Any, Optional
 
-from nerxiv.agents.base import BaseAgent
-from nerxiv.agents.rag_agent import RAGExtractorAgent
 from nerxiv.chunker import _CHUNKER_MAP, Chunker
 from nerxiv.logger import logger
 from nerxiv.prompts.prompts import StructuredPrompt
 from nerxiv.prompts.prompts_registry import PROMPT_REGISTRY
+from nerxiv.rag import RAGExtractorAgent
+from nerxiv.rag.agents import BaseAgent
 
 
 class PromptAgent(BaseAgent):

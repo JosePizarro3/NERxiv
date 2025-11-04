@@ -1,15 +1,36 @@
 import datetime
 import json
 import time
+from abc import ABC, abstractmethod
 from typing import Any
 
 import h5py
 from langchain_core.documents import Document
 
-from nerxiv.agents.base import BaseAgent
 from nerxiv.logger import logger
 from nerxiv.prompts.prompts import BasePrompt
 from nerxiv.utils.caching import compute_chunker_hash, compute_retriever_hash
+
+
+class BaseAgent(ABC):
+    """Abstract base class for extraction agents.
+
+    All agents should implement the `run` method which executes the
+    extraction workflow and returns structured results.
+    """
+
+    @abstractmethod
+    def run(self, text: str, prompt: BasePrompt | None, **kwargs) -> None:
+        """Execute the extraction workflow.
+
+        Args:
+            text: Input text to process
+            **kwargs: Additional parameters specific to the agent
+
+        Returns:
+            Dictionary containing extraction results
+        """
+        pass
 
 
 class RAGExtractorAgent(BaseAgent):
@@ -48,13 +69,31 @@ class RAGExtractorAgent(BaseAgent):
         # assume component is already an instance
         return component
 
+    def _get_chunks(
+        self,
+        chunker_hash: str,
+        text: str,
+        chunker_name: str,
+        cached_chunks_group: h5py.Group,
+        global_time: float,
+    ):
+        self.logger.info(f"Performing new chunking with hash {chunker_hash}")
+        chunker = self._instantiate(self.chunker, {**self.chunker_params, "text": text})
+        chunks = chunker.chunk_text()
+        # Store chunks in cache
+        cached_chunks_group.attrs["chunker"] = f"nerxiv.chunker.{chunker_name}"
+        cached_chunks_group.attrs["chunker_params"] = json.dumps(self.chunker_params)
+        cached_chunks_group.attrs["run_time"] = time.time() - global_time
+        for i, chunk in enumerate(chunks):
+            cached_chunks_group.create_dataset(
+                f"chunk_{i:04d}", data=chunk.page_content.encode("utf-8")
+            )
+        return chunks
+
     def run(
         self,
         file: h5py.File | None = None,
         text: str = "",
-        retriever_model: str = "all-MiniLM-L6-v2",
-        n_top_chunks: int = 5,
-        model: str = "gpt-oss:20b",
         prompt: BasePrompt | None = None,
     ):
         # initial checks
@@ -74,10 +113,15 @@ class RAGExtractorAgent(BaseAgent):
             )
             return None
 
+        # Assign variables to make it easy to read
+        retriever_model = self.retriever_params.get("model", "all-MiniLM-L6-v2")
+        n_top_chunks = self.retriever_params.get("n_top_chunks", 5)
+        model = self.generator_params.get("model", "gpt-oss:20b")
+        query_name = self.retriever_params.get("query_name")
+
         # Create group to store RAG pipeline
         global_time = time.time()
         rag_group = file.require_group("rag_extraction")
-        rag_group.attrs["stat_time"] = datetime.datetime.now().isoformat()
 
         ### Chunking
         chunker_name = self._obj_name(self.chunker)
@@ -90,33 +134,33 @@ class RAGExtractorAgent(BaseAgent):
         )
         chunks_cache_group = rag_group.require_group("chunks_cache")
         if chunker_hash in chunks_cache_group:  # reuse existing chunks
-            logger.info(f"Reusing chunks from cache with hash {chunker_hash}")
+            self.logger.info(f"Reusing chunks from cache with hash {chunker_hash}")
             cached_chunks_group = chunks_cache_group[chunker_hash]
-            chunks = []
-            for key in cached_chunks_group.keys():
-                chunks.append(
-                    Document(
-                        page_content=cached_chunks_group[key][()].decode("utf-8"),
-                        metadata={"source": f"nerxiv.chunker.{chunker_name}"},
+            if len(cached_chunks_group.keys()) == 0:
+                chunks = self._get_chunks(
+                    chunker_hash,
+                    text,
+                    chunker_name,
+                    cached_chunks_group,
+                    global_time,
+                )
+            else:
+                chunks = []
+                for key in cached_chunks_group.keys():
+                    chunks.append(
+                        Document(
+                            page_content=cached_chunks_group[key][()].decode("utf-8"),
+                            metadata={"source": f"nerxiv.chunker.{chunker_name}"},
+                        )
                     )
-                )
         else:  # perform new chunking
-            logger.info(f"Performing new chunking with hash {chunker_hash}")
-            chunker = self._instantiate(
-                self.chunker, {**self.chunker_params, "text": text}
+            chunks = self._get_chunks(
+                chunker_hash,
+                text,
+                chunker_name,
+                chunks_cache_group.create_group(chunker_hash),
+                global_time,
             )
-            chunks = chunker.chunk_text()
-            # Store chunks in cache
-            cached_chunks_group = chunks_cache_group.create_group(chunker_hash)
-            cached_chunks_group.attrs["chunker"] = f"nerxiv.chunker.{chunker_name}"
-            cached_chunks_group.attrs["chunker_params"] = json.dumps(
-                self.chunker_params
-            )
-            cached_chunks_group.attrs["run_time"] = time.time() - global_time
-            for i, chunk in enumerate(chunks):
-                cached_chunks_group.create_dataset(
-                    f"chunk_{i:04d}", data=chunk.encode("utf-8")
-                )
 
         ### Retrieval
         start_time = time.time()
@@ -128,20 +172,17 @@ class RAGExtractorAgent(BaseAgent):
         )
         retrieval_cache_group = rag_group.require_group("retrieval_cache")
         if retriever_hash in retrieval_cache_group:  # reuse existing retrieval
-            logger.info(
+            self.logger.info(
                 f"Reusing retrieval results from cache with hash {retriever_hash}"
             )
             cached_retrieval_group = retrieval_cache_group[retriever_hash]
             text = cached_retrieval_group["retrieved_text"][()].decode("utf-8")
         else:  # perform new retrieval
-            logger.info(f"Performing new retrieval with hash {retriever_hash}")
+            self.logger.info(f"Performing new retrieval with hash {retriever_hash}")
             retriever = self._instantiate(
                 self.retriever, {**self.retriever_params, "model": retriever_model}
             )
-            text = retriever.get_relevant_chunks(
-                chunks=chunks,
-                n_top_chunks=n_top_chunks,
-            )
+            text = retriever.get_relevant_chunks(chunks=chunks)
 
             # Store retrieval results in cache
             cached_retrieval_group = retrieval_cache_group.create_group(retriever_hash)
@@ -170,7 +211,7 @@ class RAGExtractorAgent(BaseAgent):
         # Store raw answer in HDF5
         raw_answer_group = rag_group.require_group("raw_llm_answers")
         # Define group for the `query` (e.g., raw_llm_answers/filter_material_formula)
-        query_group = raw_answer_group.require_group(query)
+        query_group = raw_answer_group.require_group(query_name)
         # Define group for the run ID (e.g., raw_llm_answers/filter_material_formula/run_0000)
         existing_runs = list(query_group.keys())
         run_id = f"run_{len(existing_runs):04d}"  # Auto-increment run ID
@@ -183,12 +224,14 @@ class RAGExtractorAgent(BaseAgent):
         # Store references to cached data instead of duplicating
         run_group.attrs["chunker_hash"] = chunker_hash
         run_group.attrs["retriever_hash"] = retriever_hash
+        run_group.attrs["query"] = query_name
         # Store elapsed time and timestamp of the run
         run_group.attrs["elapsed_time"] = time.time() - start_time
+        run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
 
         # Store total RAG pipeline time
         paper_time = time.time() - global_time
         rag_group.attrs["elapsed_time"] = paper_time
-        logger.info(f"Prompting completed for {file} in {paper_time:.2f} seconds.")
+        self.logger.info(f"Prompting completed for {file} in {paper_time:.2f} seconds.")
 
         ### Return structured result
