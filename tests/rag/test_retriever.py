@@ -135,9 +135,9 @@ class TestLangChainRetriever:
 
             # Mock the query on relevant chunks
             query = "What methods were used?"
-            result = LangChainRetriever(query=query, n_top_chunks=2).get_relevant_chunks(
-                chunks=chunks
-            )
+            result = LangChainRetriever(
+                query=query, n_top_chunks=2
+            ).get_relevant_chunks(chunks=chunks)
             assert isinstance(result, str)
             splitted_result = result.split("\n\n")
             assert "DMFT" in splitted_result[0]
@@ -172,9 +172,7 @@ class TestLangChainRetriever:
             result = retriever.get_relevant_chunks(chunks=chunks)
 
             # Verify that similarity_search_with_score was called with correct k
-            mock_store.similarity_search_with_score.assert_called_once_with(
-                "test", k=3
-            )
+            mock_store.similarity_search_with_score.assert_called_once_with("test", k=3)
             assert isinstance(result, str)
             assert "Chunk 1" in result
             assert "Chunk 2" in result

@@ -89,7 +89,9 @@ class TestLLMGenerator:
         """Test generation with 'Answer:' prefix that should be removed."""
         with patch("nerxiv.rag.generator.OllamaLLM") as mock_llm_cls:
             mock_llm = MagicMock()
-            mock_llm.invoke.return_value = "Some preamble\n\nAnswer: This is the actual answer"
+            mock_llm.invoke.return_value = (
+                "Some preamble\n\nAnswer: This is the actual answer"
+            )
             mock_llm_cls.return_value = mock_llm
 
             generator = LLMGenerator(text="test input")
@@ -118,7 +120,9 @@ class TestLLMGenerator:
         """Test generation with custom regex patterns."""
         with patch("nerxiv.rag.generator.OllamaLLM") as mock_llm_cls:
             mock_llm = MagicMock()
-            mock_llm.invoke.return_value = "Question: Some question\n\nResponse: The response"
+            mock_llm.invoke.return_value = (
+                "Question: Some question\n\nResponse: The response"
+            )
             mock_llm_cls.return_value = mock_llm
 
             generator = LLMGenerator(text="test input")
@@ -141,7 +145,9 @@ class TestLLMGenerator:
 
             generator = LLMGenerator(text="test input")
             result = generator.generate(
-                prompt="Test prompt", regex=r"\n\nAnswer\: *", del_regex=r"\n\nAnswer\: *"
+                prompt="Test prompt",
+                regex=r"\n\nAnswer\: *",
+                del_regex=r"\n\nAnswer\: *",
             )
 
             # When regex doesn't match, original answer should be returned
