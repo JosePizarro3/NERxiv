@@ -53,13 +53,22 @@ class RAGExtractorAgent(BaseAgent):
         self.logger = kwargs.get("logger", logger)
 
     def _obj_name(self, obj: type | object) -> str:
-        """Get the class name of `obj`, whether it's a class or an instance."""
+        """
+        Gets the class name of an object or an object instance.
+
+        Args:
+            obj (type | object): The object or class to get the name of.
+
+        Returns:
+            str: The class name of the object or the name of the class itself.
+        """
         if isinstance(obj, type):
             return obj.__name__
         return obj.__class__.__name__
 
     def _instantiate(self, component: type | object, required_kwargs: dict) -> Any:
-        """Instantiate `component` if it's a class, otherwise return the instance.
+        """I
+        nstantiate `component` if it's a class, otherwise return the instance.
 
         The method merges `required_kwargs` with the preconfigured kwargs for
         that `component` (used by the caller).
@@ -77,7 +86,20 @@ class RAGExtractorAgent(BaseAgent):
         chunker_name: str,
         cached_chunks_group: h5py.Group,
         global_time: float,
-    ):
+    ) -> list[Document]:
+        """
+        Gets the chunks when the chunker class needs to be instantiated (not read from cache).
+
+        Args:
+            chunker_hash (str): The chunker hash.
+            text (str): The text to be chunked.
+            chunker_name (str): The name of the chunker.
+            cached_chunks_group (h5py.Group): The HDF5 group to store cached chunks.
+            global_time (float): The global start time.
+
+        Returns:
+            list[Document]: The list of chunks.
+        """
         self.logger.info(f"Performing new chunking with hash {chunker_hash}")
         chunker = self._instantiate(self.chunker, {**self.chunker_params, "text": text})
         chunks = chunker.chunk_text()
@@ -92,21 +114,17 @@ class RAGExtractorAgent(BaseAgent):
         return chunks
 
     def parse(self, answer: str) -> dict[str, Any] | None:
-        """Parse JSON from LLM answer and validate against schema.
-
-        This method attempts to:
-        1. Extract JSON from markdown code blocks (```json...```)
-        2. Parse the JSON string
-        3. Validate against the Pydantic schema
-        4. Return the validated data
+        """
+        Parse JSON from LLM answer if the prompt is of `StructuredPrompt` type. This method
+        attempts to extract JSON from markdown code blocks (```json...```) and if successful,
+        return the parsed data. If no code blocks are found, it tries to find JSON patterns
+        directly in the text.
 
         Args:
-            answer: Raw LLM output string
+            answer (str): Raw LLM output string.
 
         Returns:
-            Tuple of (parsed_data, error_message)
-            - If successful: (validated_dict, None)
-            - If failed: (None, error_message)
+            dict[str, Any] | None: Parsed JSON data as a dictionary, or None if parsing fails.
         """
         try:
             # Try to extract JSON from markdown code block
@@ -139,6 +157,16 @@ class RAGExtractorAgent(BaseAgent):
         text: str = "",
         prompt: BasePrompt | None = None,
     ) -> None:
+        """
+        Runs the RAG extraction pipeline: chunking, retrieval, and generation.
+        Chunking and retrieval results are cached in the provided HDF5 file to avoid redundant computations.
+        If the prompt is of type `StructuredPrompt`, the generated answer is parsed into structured data.
+
+        Args:
+            file (h5py.File | None, optional): The file were to store the metainformation. Defaults to None.
+            text (str, optional): The text to process. Defaults to "".
+            prompt (BasePrompt | None, optional): The prompt used for the LLM prompting. Defaults to None.
+        """
         # initial checks
         if not file:
             self.logger.critical("`file` is required for RAGExtractorAgent")
