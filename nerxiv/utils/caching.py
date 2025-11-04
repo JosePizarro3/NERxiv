@@ -60,6 +60,7 @@ def compute_retriever_hash(
     - The chunker hash (ensures same base chunks)
     - The retriever model
     - The retriever query
+    - The name of the retriever query
     - The number of top chunks to retrieve
 
     Args:
@@ -68,7 +69,7 @@ def compute_retriever_hash(
             Example:
             {
                 'model': 'all-MiniLM-L6-v2',
-                'query': 'filter_material_formula',
+                'query_name': 'filter_material_formula',
                 'n_top_chunks': 5
             }
 
@@ -76,23 +77,10 @@ def compute_retriever_hash(
         str: A hexadecimal hash string uniquely identifying this retrieval configuration.
     """
     # Create a dictionary with all components
-    retriever_model = (
-        retriever_params.get("model", "all-MiniLM-L6-v2")
-        if retriever_params
-        else "all-MiniLM-L6-v2"
-    )
-    retriever_query = (
-        retriever_params.get("query", "filter_material_formula")
-        if retriever_params
-        else "filter_material_formula"
-    )
-    n_top_chunks = retriever_params.get("n_top_chunks", 5) if retriever_params else 5
     hash_data = {
         "version": RETRIEVER_VERSION,
         "chunker_hash": chunker_hash,
-        "retriever_model": retriever_model,
-        "retriever_query": retriever_query,
-        "n_top_chunks": n_top_chunks,
+        "params": retriever_params,
     }
 
     # Convert to JSON with sorted keys for consistent hashing

@@ -19,15 +19,11 @@ class Retriever(ABC):
     is designed to be inherited from and implemented by specific retriever classes.
     """
 
-    def __init__(
-        self,
-        model: str = "all-MiniLM-L6-v2",
-        n_top_chunks: int = 5,
-        **kwargs,
-    ):
+    def __init__(self, **kwargs):
         self.logger = kwargs.get("logger", logger)
-        self.model_name = model
-        self.n_top_chunks = n_top_chunks
+
+        self.model_name = kwargs.get("model", "all-MiniLM-L6-v2")
+        self.n_top_chunks = kwargs.get("n_top_chunks", 5)
 
         self.query = kwargs.get("query")
         if not self.query:
@@ -47,10 +43,8 @@ class CustomRetriever(Retriever):
     from a list of documents.
     """
 
-    def __init__(
-        self, model: str = "all-MiniLM-L6-v2", n_top_chunks: int = 5, **kwargs
-    ):
-        super().__init__(model, n_top_chunks, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.model = SentenceTransformer(self.model_name)
         self.logger.info(f"Loaded SentenceTransformer model: {self.model_name}")
 
@@ -91,10 +85,8 @@ class CustomRetriever(Retriever):
 
 
 class LangChainRetriever(Retriever):
-    def __init__(
-        self, model: str = "all-MiniLM-L6-v2", n_top_chunks: int = 5, **kwargs
-    ):
-        super().__init__(model, n_top_chunks, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         self.embeddings = HuggingFaceEmbeddings(model_name=self.model_name)
         self.logger.info(f"Loaded `HuggingFaceEmbeddings` model: {self.model_name}")

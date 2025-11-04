@@ -184,12 +184,6 @@ class RAGExtractorAgent(BaseAgent):
             )
             return None
 
-        # Assign variables to make it easy to read
-        retriever_model = self.retriever_params.get("model", "all-MiniLM-L6-v2")
-        n_top_chunks = self.retriever_params.get("n_top_chunks", 5)
-        model = self.generator_params.get("model", "gpt-oss:20b")
-        query_name = self.retriever_params.get("query_name")
-
         # Create group to store RAG pipeline
         global_time = time.time()
         rag_group = file.require_group("rag_extraction")
@@ -250,9 +244,7 @@ class RAGExtractorAgent(BaseAgent):
             text = cached_retrieval_group["retrieved_text"][()].decode("utf-8")
         else:  # perform new retrieval
             self.logger.info(f"Performing new retrieval with hash {retriever_hash}")
-            retriever = self._instantiate(
-                self.retriever, {**self.retriever_params, "model": retriever_model}
-            )
+            retriever = self._instantiate(self.retriever, {**self.retriever_params})
             text = retriever.get_relevant_chunks(chunks=chunks)
 
             # Store retrieval results in cache
@@ -261,12 +253,10 @@ class RAGExtractorAgent(BaseAgent):
                 f"nerxiv.rag.retriever.{retriever_name}"
             )
             cached_retrieval_group.attrs["chunker_hash"] = chunker_hash
-            cached_retrieval_group.attrs["retriever_model"] = retriever_model
+            cached_retrieval_group.attrs["retriever_hash"] = retriever_hash
             cached_retrieval_group.attrs["retriever_params"] = json.dumps(
                 self.retriever_params
             )
-            cached_retrieval_group.attrs["n_top_chunks"] = n_top_chunks
-            cached_retrieval_group.attrs["retriever_hash"] = retriever_hash
             cached_retrieval_group.create_dataset(
                 "retrieved_text", data=text.encode("utf-8")
             )
@@ -274,7 +264,7 @@ class RAGExtractorAgent(BaseAgent):
         ### Generation
         start_time = time.time()
         generator = self._instantiate(
-            self.generator, {"model": model, "text": text, **self.generator_params}
+            self.generator, {"text": text, **self.generator_params}
         )
         built_prompt = prompt.build(text=text)
         answer = generator.generate(prompt=built_prompt)
@@ -282,20 +272,21 @@ class RAGExtractorAgent(BaseAgent):
         # Store raw answer in HDF5
         raw_answer_group = rag_group.require_group("raw_llm_answers")
         # Define group for the `query` (e.g., raw_llm_answers/filter_material_formula)
-        query_group = raw_answer_group.require_group(query_name)
+        query_group = raw_answer_group.require_group(
+            self.retriever_params.get("query_name")
+        )
         # Define group for the run ID (e.g., raw_llm_answers/filter_material_formula/run_0000)
         existing_runs = list(query_group.keys())
         run_id = f"run_{len(existing_runs):04d}"  # Auto-increment run ID
         run_group = query_group.create_group(run_id)
         # Store general metainformation
-        run_group.attrs["model"] = model
+        run_group.attrs["model"] = self.generator_params.get("model", "gpt-oss:20b")
         # Store prompt and answer
         run_group.create_dataset("prompt", data=built_prompt.encode("utf-8"))
         run_group.create_dataset("answer", data=answer.encode("utf-8"))
         # Store references to cached data instead of duplicating
         run_group.attrs["chunker_hash"] = chunker_hash
         run_group.attrs["retriever_hash"] = retriever_hash
-        run_group.attrs["query"] = query_name
         # Store elapsed time and timestamp of the run
         run_group.attrs["elapsed_time"] = time.time() - start_time
         run_group.attrs["timestamp"] = datetime.datetime.now().isoformat()
