@@ -3,6 +3,7 @@ from pathlib import Path
 
 import h5py
 import pytest
+from langchain_core.documents import Document
 
 from nerxiv.logger import log_storage
 
@@ -32,3 +33,41 @@ def hdf5_test_file(tmp_path: str, text: str = "Some scientific content here.") -
         grp = f.create_group(f"{paper_id}/arxiv_paper")
         grp.create_dataset("text", data=text.encode("utf-8"))
     return file_path
+
+
+# Mock classes for testing
+class SimpleChunker:
+    def __init__(self, text: str = "", **kwargs):
+        if not text:
+            raise ValueError("text required")
+        self.text = text
+
+    def chunk_text(self):
+        # naive split by sentences
+        return [
+            Document(page_content=s.strip(), metadata={"source": "test"})
+            for s in self.text.split(".")
+            if s.strip()
+        ]
+
+
+class SimpleRetriever:
+    def __init__(self, query: str = "", **kwargs):
+        if not query:
+            raise ValueError("query required")
+        self.query = query
+
+    def get_relevant_chunks(self, chunks):
+        # return first n chunks joined
+        items = [c.page_content for c in chunks][:2]
+        return "\n\n".join(items)
+
+
+class SimpleGenerator:
+    def __init__(self, text: str = "", **kwargs):
+        if not text:
+            raise ValueError("text required")
+        self.text = text
+
+    def generate(self, prompt: str = ""):
+        return f"GENERATED ANSWER based on: {self.text[:30]}..."

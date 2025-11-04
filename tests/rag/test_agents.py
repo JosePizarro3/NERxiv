@@ -8,44 +8,7 @@ from langchain_core.documents import Document
 from nerxiv.datamodel.crystal_structure import ChemicalFormulation
 from nerxiv.prompts.prompts import Prompt, StructuredPrompt
 from nerxiv.rag import RAGExtractorAgent
-
-
-# Mock classes for testing
-class SimpleChunker:
-    def __init__(self, text: str = "", **kwargs):
-        if not text:
-            raise ValueError("text required")
-        self.text = text
-
-    def chunk_text(self):
-        # naive split by sentences
-        return [
-            Document(page_content=s.strip(), metadata={"source": "test"})
-            for s in self.text.split(".")
-            if s.strip()
-        ]
-
-
-class SimpleRetriever:
-    def __init__(self, query: str = "", **kwargs):
-        if not query:
-            raise ValueError("query required")
-        self.query = query
-
-    def get_relevant_chunks(self, chunks):
-        # return first n chunks joined
-        items = [c.page_content for c in chunks][:2]
-        return "\n\n".join(items)
-
-
-class SimpleGenerator:
-    def __init__(self, text: str = "", **kwargs):
-        if not text:
-            raise ValueError("text required")
-        self.text = text
-
-    def generate(self, prompt: str = ""):
-        return f"GENERATED ANSWER based on: {self.text[:30]}..."
+from tests.conftest import SimpleChunker, SimpleGenerator, SimpleRetriever
 
 
 class TestRAGExtractorAgent:
@@ -260,6 +223,7 @@ class TestRAGExtractorAgent:
 
     def test_run_with_structured_prompt_valid(self, tmp_path):
         """Test run method with StructuredPrompt and valid JSON response."""
+
         # Mock the generator to return valid JSON
         class MockStructuredGenerator:
             def __init__(self, text: str = "", **kwargs):

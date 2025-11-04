@@ -307,7 +307,7 @@ class RAGExtractorAgent(BaseAgent):
                 schema = prompt.output_schema
                 data_fields = data[self._obj_name(schema)]
                 filled_schema = schema(**data_fields)
-                print(filled_schema)
+                self.logger.info(f"Schema={filled_schema}")
             except Exception as e:
                 self.logger.error(f"Validation error: {e}")
                 return None

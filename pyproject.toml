@@ -34,6 +34,8 @@ dependencies = [
   "pyrxiv>=0.4.3",
   "pymatgen",
   "spacy",
+  "h5py~=3.12.1",
+  "structlog==24.4.0"
 ]
 
 [project.urls]
