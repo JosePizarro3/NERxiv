@@ -68,7 +68,7 @@ def compute_retriever_hash(
         retriever_params (dict, optional): Parameters for the retriever.
             Example:
             {
-                'model': 'all-MiniLM-L6-v2',
+                'retriever_model': 'all-MiniLM-L6-v2',
                 'query_name': 'filter_material_formula',
                 'n_top_chunks': 5
             }

@@ -67,8 +67,8 @@ class RAGExtractorAgent(BaseAgent):
         return obj.__class__.__name__
 
     def _instantiate(self, component: type | object, required_kwargs: dict) -> Any:
-        """I
-        nstantiate `component` if it's a class, otherwise return the instance.
+        """
+        Instantiate `component` if it's a class, otherwise return the instance.
 
         The method merges `required_kwargs` with the preconfigured kwargs for
         that `component` (used by the caller).
@@ -163,7 +163,7 @@ class RAGExtractorAgent(BaseAgent):
         If the prompt is of type `StructuredPrompt`, the generated answer is parsed into structured data.
 
         Args:
-            file (h5py.File | None, optional): The file were to store the metainformation. Defaults to None.
+            file (h5py.File | None, optional): The file where to store the metainformation. Defaults to None.
             text (str, optional): The text to process. Defaults to "".
             prompt (BasePrompt | None, optional): The prompt used for the LLM prompting. Defaults to None.
         """
@@ -254,6 +254,7 @@ class RAGExtractorAgent(BaseAgent):
             )
             cached_retrieval_group.attrs["chunker_hash"] = chunker_hash
             cached_retrieval_group.attrs["retriever_hash"] = retriever_hash
+            cached_retrieval_group.attrs["run_time"] = time.time() - start_time
             cached_retrieval_group.attrs["retriever_params"] = json.dumps(
                 self.retriever_params
             )

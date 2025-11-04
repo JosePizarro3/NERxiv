@@ -200,6 +200,11 @@ def prompt(
 
     # Get chunker class
     chunker_cls = get_chunker_cls(chunker_name=chunker, logger=logger)
+    if chunker_cls is None:
+        logger.error(
+            f"Unknown chunker '{chunker}'. Available chunkers are: {list(_CHUNKER_MAP.keys())}"
+        )
+        return
 
     # Create RAGExtractorAgent and run for each paper specified in `file_path`
     agent = RAGExtractorAgent(
