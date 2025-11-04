@@ -10,8 +10,6 @@ from nerxiv.logger import logger
 from nerxiv.prompts import PROMPT_REGISTRY
 from nerxiv.rag import CustomRetriever, LLMGenerator, RAGExtractorAgent
 
-from .run_prompt import run_prompt_paper
-
 
 def parse_llm_option_to_args(llm_option: tuple[str]) -> dict:
     """
@@ -176,138 +174,6 @@ def prompt(
 ):
     start_time = time.time()
 
-    if query not in PROMPT_REGISTRY:
-        click.echo(
-            f"Query '{query}' not found in registry. Available queries are: {list(PROMPT_REGISTRY.keys())}"
-        )
-        return
-    entry = PROMPT_REGISTRY[query]
-    retriever_query = entry.retriever_query
-    prompt = entry.prompt
-
-    # Parse key=value options into dict
-    llm_kwargs = parse_llm_option_to_args(llm_option)
-    chunker_kwargs = parse_llm_option_to_args(chunker_option)
-
-    # Transform to Path and get the hdf5 data
-    for file in file_path:
-        paper = Path(file)
-        paper_time = run_prompt_paper(
-            paper=paper,
-            chunker=chunker,
-            retriever_model=retriever_model,
-            n_top_chunks=n_top_chunks,
-            model=model,
-            retriever_query=retriever_query,
-            prompt=prompt,
-            query=query,
-            paper_time=start_time,
-            logger=logger,
-            **chunker_kwargs,
-            **llm_kwargs,
-        )
-        click.echo(f"Processed arXiv paper {file} in {paper_time:.2f} seconds\n\n")
-
-
-@cli.command(
-    name="prompt_v2",
-    help="Prompts the LLM with the text from the HDF5 file and stores the raw answer.",
-)
-@click.option(
-    "--file-path",
-    "-path",
-    type=str,
-    required=True,
-    multiple=True,
-    help="""
-    The path to the HDF5 file or files used to prompt the LLM.
-    """,
-)
-@click.option(
-    "--chunker",
-    "-ch",
-    type=str,
-    default="Chunker",
-    required=False,
-    help="""
-    (Optional) The chunker class to use for chunking the text. Defaults to `Chunker`.
-    Options are: `Chunker`, `SemanticChunker`, `AdvancedSemanticChunker`.
-    """,
-)
-@click.option(
-    "--retriever-model",
-    "-rm",
-    type=str,
-    default="all-MiniLM-L6-v2",
-    required=False,
-    help="""
-    (Optional) The model used in the retriever. Defaults to "all-MiniLM-L6-v2".
-    """,
-)
-@click.option(
-    "--n-top-chunks",
-    "-ntc",
-    type=int,
-    default=5,
-    required=False,
-    help="""
-    (Optional) The number of top chunks to retrieve. Defaults to 5.
-    """,
-)
-@click.option(
-    "--model",
-    "-m",
-    type=str,
-    default="gpt-oss:20b",
-    required=False,
-    help="""
-    (Optional) The model used in the generator. Defaults to "gpt-oss:20b".
-    """,
-)
-@click.option(
-    "--query",
-    "-q",
-    type=str,
-    default="filter_material_formula",
-    required=False,
-    help="""
-    (Optional) The query used for retrieval and generation. See the registry PROMPT_REGISTRY. Defaults to "filter_material_formula".
-    """,
-)
-@click.option(
-    "--llm-option",
-    "-llmo",
-    multiple=True,
-    type=str,
-    required=False,
-    help="""
-    (Optional) key=value pairs for OllamaLLM parameters (e.g. -llmo temperature=0.2 -llmo top_p=0.9).
-    """,
-)
-@click.option(
-    "--chunker-option",
-    "-cho",
-    multiple=True,
-    type=str,
-    required=False,
-    help="""
-    (Optional) key=value pairs for chunker parameters.
-    Examples: -cho chunk_size=500 -cho chunk_overlap=100 for Chunker,
-    or -cho n_chunks=15 for AdvancedSemanticChunker.
-    """,
-)
-def prompt_v2(
-    file_path,
-    chunker,
-    retriever_model,
-    n_top_chunks,
-    model,
-    query,
-    llm_option,
-    chunker_option,
-):
-    start_time = time.time()
-
     # Get prompt and retriever query from registry
     if query not in PROMPT_REGISTRY:
         click.echo(
@@ -352,137 +218,141 @@ def prompt_v2(
             text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
             agent.run(file=f, text=text, prompt=prompt)
 
+    logger.info(
+        f"Processed {len(file_path)} arXiv papers in {time.time() - start_time:.2f} seconds\n\n"
+    )
 
-@cli.command(
-    name="prompt_all",
-    help="Prompts the LLM with the text from all the HDF5 file and stores the raw answer.",
-)
-@click.option(
-    "--data-path",
-    "-path",
-    type=str,
-    default="./data",
-    required=False,
-    help="""
-    (Optional) The path to folder containing all the HDF5 file used to prompt the LLM.
-    """,
-)
-@click.option(
-    "--chunker",
-    "-ch",
-    type=str,
-    default="Chunker",
-    required=False,
-    help="""
-    (Optional) The chunker class to use for chunking the text. Defaults to `Chunker`.
-    Options are: `Chunker`, `SemanticChunker`, `AdvancedSemanticChunker`.
-    """,
-)
-@click.option(
-    "--retriever-model",
-    "-rm",
-    type=str,
-    default="all-MiniLM-L6-v2",
-    required=False,
-    help="""
-    (Optional) The model used in the retriever. Defaults to "all-MiniLM-L6-v2".
-    """,
-)
-@click.option(
-    "--n-top-chunks",
-    "-ntc",
-    type=int,
-    default=5,
-    required=False,
-    help="""
-    (Optional) The number of top chunks to retrieve. Defaults to 5.
-    """,
-)
-@click.option(
-    "--model",
-    "-m",
-    type=str,
-    default="gpt-oss:20b",
-    required=False,
-    help="""
-    (Optional) The model used in the generator. Defaults to "gpt-oss:20b".
-    """,
-)
-@click.option(
-    "--query",
-    "-q",
-    type=str,
-    default="filter_material_formula",
-    required=False,
-    help="""
-    (Optional) The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "filter_material_formula".
-    """,
-)
-@click.option(
-    "--llm-option",
-    "-llmo",
-    multiple=True,
-    type=str,
-    required=False,
-    help="""
-    (Optional) key=value pairs for OllamaLLM parameters (e.g. -llmo temperature=0.2 -llmo top_p=0.9).
-    """,
-)
-@click.option(
-    "--chunker-option",
-    "-cho",
-    multiple=True,
-    type=str,
-    required=False,
-    help="""
-    (Optional) key=value pairs for chunker parameters.
-    Examples: -cho chunk_size=500 -cho chunk_overlap=100 for Chunker,
-    or -cho n_chunks=15 for AdvancedSemanticChunker.
-    """,
-)
-def prompt_all(
-    data_path,
-    chunker,
-    retriever_model,
-    n_top_chunks,
-    model,
-    query,
-    llm_option,
-    chunker_option,
-):
-    start_time = time.time()
-    paper_time = start_time
 
-    if query not in PROMPT_REGISTRY:
-        click.echo(
-            f"Query '{query}' not found in registry. Available queries are: {list(PROMPT_REGISTRY.keys())}"
-        )
-        return
-    entry = PROMPT_REGISTRY[query]
-    retriever_query = entry.retriever_query
-    prompt = entry.prompt
+# @cli.command(
+#     name="prompt_all",
+#     help="Prompts the LLM with the text from all the HDF5 file and stores the raw answer.",
+# )
+# @click.option(
+#     "--data-path",
+#     "-path",
+#     type=str,
+#     default="./data",
+#     required=False,
+#     help="""
+#     (Optional) The path to folder containing all the HDF5 file used to prompt the LLM.
+#     """,
+# )
+# @click.option(
+#     "--chunker",
+#     "-ch",
+#     type=str,
+#     default="Chunker",
+#     required=False,
+#     help="""
+#     (Optional) The chunker class to use for chunking the text. Defaults to `Chunker`.
+#     Options are: `Chunker`, `SemanticChunker`, `AdvancedSemanticChunker`.
+#     """,
+# )
+# @click.option(
+#     "--retriever-model",
+#     "-rm",
+#     type=str,
+#     default="all-MiniLM-L6-v2",
+#     required=False,
+#     help="""
+#     (Optional) The model used in the retriever. Defaults to "all-MiniLM-L6-v2".
+#     """,
+# )
+# @click.option(
+#     "--n-top-chunks",
+#     "-ntc",
+#     type=int,
+#     default=5,
+#     required=False,
+#     help="""
+#     (Optional) The number of top chunks to retrieve. Defaults to 5.
+#     """,
+# )
+# @click.option(
+#     "--model",
+#     "-m",
+#     type=str,
+#     default="gpt-oss:20b",
+#     required=False,
+#     help="""
+#     (Optional) The model used in the generator. Defaults to "gpt-oss:20b".
+#     """,
+# )
+# @click.option(
+#     "--query",
+#     "-q",
+#     type=str,
+#     default="filter_material_formula",
+#     required=False,
+#     help="""
+#     (Optional) The query used for retrieval and generation. See the registry in PROMPT_REGISTRY. Defaults to "filter_material_formula".
+#     """,
+# )
+# @click.option(
+#     "--llm-option",
+#     "-llmo",
+#     multiple=True,
+#     type=str,
+#     required=False,
+#     help="""
+#     (Optional) key=value pairs for OllamaLLM parameters (e.g. -llmo temperature=0.2 -llmo top_p=0.9).
+#     """,
+# )
+# @click.option(
+#     "--chunker-option",
+#     "-cho",
+#     multiple=True,
+#     type=str,
+#     required=False,
+#     help="""
+#     (Optional) key=value pairs for chunker parameters.
+#     Examples: -cho chunk_size=500 -cho chunk_overlap=100 for Chunker,
+#     or -cho n_chunks=15 for AdvancedSemanticChunker.
+#     """,
+# )
+# def prompt_all(
+#     data_path,
+#     chunker,
+#     retriever_model,
+#     n_top_chunks,
+#     model,
+#     query,
+#     llm_option,
+#     chunker_option,
+# ):
+#     start_time = time.time()
+#     paper_time = start_time
 
-    # Parse key=value options into dict
-    llm_kwargs = parse_llm_option_to_args(llm_option)
-    chunker_kwargs = parse_llm_option_to_args(chunker_option)
+#     if query not in PROMPT_REGISTRY:
+#         click.echo(
+#             f"Query '{query}' not found in registry. Available queries are: {list(PROMPT_REGISTRY.keys())}"
+#         )
+#         return
+#     entry = PROMPT_REGISTRY[query]
+#     retriever_query = entry.retriever_query
+#     prompt = entry.prompt
 
-    # list all papers `{data_path}/*.hdf5`
-    papers = list(Path(data_path).rglob("*.hdf5"))
-    for paper in papers:
-        paper_time = run_prompt_paper(
-            paper=paper,
-            chunker=chunker,
-            retriever_model=retriever_model,
-            n_top_chunks=n_top_chunks,
-            model=model,
-            retriever_query=retriever_query,
-            prompt=prompt,
-            query=query,
-            paper_time=paper_time,
-            logger=logger,
-            **chunker_kwargs,
-            **llm_kwargs,
-        )
+#     # Parse key=value options into dict
+#     llm_kwargs = parse_llm_option_to_args(llm_option)
+#     chunker_kwargs = parse_llm_option_to_args(chunker_option)
 
-    elapsed_time = time.time() - start_time
-    click.echo(f"Processed arXiv papers in {elapsed_time:.2f} seconds\n\n")
+#     # list all papers `{data_path}/*.hdf5`
+#     papers = list(Path(data_path).rglob("*.hdf5"))
+#     for paper in papers:
+#         paper_time = run_prompt_paper(
+#             paper=paper,
+#             chunker=chunker,
+#             retriever_model=retriever_model,
+#             n_top_chunks=n_top_chunks,
+#             model=model,
+#             retriever_query=retriever_query,
+#             prompt=prompt,
+#             query=query,
+#             paper_time=paper_time,
+#             logger=logger,
+#             **chunker_kwargs,
+#             **llm_kwargs,
+#         )
+
+#     elapsed_time = time.time() - start_time
+#     click.echo(f"Processed arXiv papers in {elapsed_time:.2f} seconds\n\n")

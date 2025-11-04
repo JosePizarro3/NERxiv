@@ -1,5 +1,6 @@
 import datetime
 import json
+import re
 import time
 from abc import ABC, abstractmethod
 from typing import Any
@@ -8,7 +9,7 @@ import h5py
 from langchain_core.documents import Document
 
 from nerxiv.logger import logger
-from nerxiv.prompts.prompts import BasePrompt
+from nerxiv.prompts.prompts import BasePrompt, StructuredPrompt
 from nerxiv.utils.caching import compute_chunker_hash, compute_retriever_hash
 
 
@@ -90,12 +91,54 @@ class RAGExtractorAgent(BaseAgent):
             )
         return chunks
 
+    def parse(self, answer: str) -> dict[str, Any] | None:
+        """Parse JSON from LLM answer and validate against schema.
+
+        This method attempts to:
+        1. Extract JSON from markdown code blocks (```json...```)
+        2. Parse the JSON string
+        3. Validate against the Pydantic schema
+        4. Return the validated data
+
+        Args:
+            answer: Raw LLM output string
+
+        Returns:
+            Tuple of (parsed_data, error_message)
+            - If successful: (validated_dict, None)
+            - If failed: (None, error_message)
+        """
+        try:
+            # Try to extract JSON from markdown code block
+            json_match = re.search(
+                r"```json\s*\n(.*?)\n\s*```", answer, re.DOTALL | re.IGNORECASE
+            )
+
+            if json_match:
+                json_str = json_match.group(1)
+            else:
+                # Try to find JSON without code blocks
+                # Look for content between { and } or [ and ]
+                json_match = re.search(r"(\{.*\}|\[.*\])", answer, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    self.logger.error("No JSON found in answer")
+                    return None
+
+            # Parse JSON
+            data = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            self.logger.error(f"JSON decode error: {e}")
+            return None
+        return data
+
     def run(
         self,
         file: h5py.File | None = None,
         text: str = "",
         prompt: BasePrompt | None = None,
-    ):
+    ) -> None:
         # initial checks
         if not file:
             self.logger.critical("`file` is required for RAGExtractorAgent")
@@ -235,3 +278,16 @@ class RAGExtractorAgent(BaseAgent):
         self.logger.info(f"Prompting completed for {file} in {paper_time:.2f} seconds.")
 
         ### Return structured result
+        # Parse and validate output for structured prompts
+        if isinstance(prompt, StructuredPrompt):
+            data = self.parse(answer=answer)
+            if data is None:
+                self.logger.error("Failed to parse LLM answer.")
+                return None
+            try:
+                schema = prompt.output_schema
+                data_fields = data[self._obj_name(schema)]
+                filled_schema = schema(**data_fields)
+            except Exception as e:
+                self.logger.error(f"Validation error: {e}")
+                return None
