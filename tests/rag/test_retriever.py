@@ -64,8 +64,8 @@ def test_langchain_retriever_mocked():
 
         # Mock the query on relevant chunks
         query = "What methods were used?"
-        result = LangChainRetriever(query=query).get_relevant_chunks(
-            chunks=chunks, n_top_chunks=2
+        result = LangChainRetriever(query=query, n_top_chunks=2).get_relevant_chunks(
+            chunks=chunks
         )
         assert isinstance(result, str)
         splitted_result = result.split("\n\n")
