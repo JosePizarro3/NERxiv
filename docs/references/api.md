@@ -3,12 +3,6 @@
 This API reference provides comprehensive documentation for all public classes and functions in NERxiv. For more detailed examples and usage patterns, see the How-to Guides and Tutorial sections.
 
 
-::: nerxiv.cli.run_prompt
-    options:
-      show_root_heading: true
-
----
-
 ::: nerxiv.chunker
     options:
       show_root_heading: true
@@ -24,6 +18,10 @@ This API reference provides comprehensive documentation for all public classes a
       show_root_heading: true
 
 ::: nerxiv.rag.generator
+    options:
+      show_root_heading: true
+
+::: nerxiv.rag.agents
     options:
       show_root_heading: true
 
