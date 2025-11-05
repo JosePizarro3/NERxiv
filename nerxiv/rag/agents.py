@@ -25,8 +25,9 @@ class BaseAgent(ABC):
         """Execute the extraction workflow.
 
         Args:
-            text: Input text to process
-            **kwargs: Additional parameters specific to the agent
+            text (str): Input text to process.
+            prompt (BasePrompt | None): Prompt template for LLM.
+            **kwargs (dict): Additional parameters specific to the agent
 
         Returns:
             Dictionary containing extraction results

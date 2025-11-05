@@ -54,7 +54,6 @@ class CustomRetriever(Retriever):
 
         Args:
             chunks (list[Document], optional): The chunks to be ranked. Defaults to [].
-            n_top_chunks (int, optional): The number of top chunks to be returned. Defaults to 5.
 
         Returns:
             str: The top `n_top_chunks` chunks joined in a single string with the highest similarity score with respect to the query.
@@ -97,7 +96,6 @@ class LangChainRetriever(Retriever):
 
         Args:
             chunks (list[Document], optional): The chunks to be ranked. Defaults to [].
-            n_top_chunks (int, optional): The number of top chunks to be returned. Defaults to 5.
 
         Returns:
             str: The top `n_top_chunks` chunks joined in a single string with the highest similarity score with respect to the query.
