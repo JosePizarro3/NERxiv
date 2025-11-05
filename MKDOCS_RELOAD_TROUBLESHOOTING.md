@@ -6,7 +6,7 @@ When running `mkdocs serve` locally, changes to markdown files do not automatica
 ## Configuration Changes Made
 
 ### Added Explicit Watch Paths
-Added the following configuration to `mkdocs.yml`:
+The `mkdocs.yml` file has been updated with explicit watch paths:
 
 ```yaml
 watch:
@@ -14,7 +14,7 @@ watch:
   - mkdocs.yml
 ```
 
-This explicitly tells MkDocs to monitor:
+This configuration explicitly tells MkDocs to monitor:
 1. The `docs/` directory (and all subdirectories) for changes
 2. The `mkdocs.yml` configuration file itself
 
@@ -66,8 +66,15 @@ If the issue persists after this configuration change, try the following:
 ### 4. Virtual Environment Issues
 - **Reinstall MkDocs and dependencies**:
   ```bash
-  pip uninstall mkdocs mkdocs-material mkdocstrings
+  # Uninstall existing packages
+  pip uninstall mkdocs mkdocs-material mkdocstrings mkdocstrings-python
+  
+  # Reinstall from project dependencies
+  # For this project, use:
   pip install -e ".[docu]"
+  
+  # Or install individually:
+  pip install mkdocs mkdocs-material mkdocstrings mkdocstrings-python
   ```
 
 ### 5. MkDocs Process Issues
@@ -173,6 +180,7 @@ Adding explicit `watch` paths ensures:
 ## Still Having Issues?
 
 If none of these solutions work, please:
+
 1. Check the MkDocs GitHub issues: https://github.com/mkdocs/mkdocs/issues
 2. Check the Material for MkDocs issues: https://github.com/squidfunk/mkdocs-material/issues
 3. Provide the following information when seeking help:
