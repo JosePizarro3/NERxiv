@@ -19,9 +19,11 @@ class Retriever(ABC):
     is designed to be inherited from and implemented by specific retriever classes.
     """
 
-    def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
+    def __init__(self, **kwargs):
         self.logger = kwargs.get("logger", logger)
-        self.model_name = model
+
+        self.model_name = kwargs.get("model", "all-MiniLM-L6-v2")
+        self.n_top_chunks = kwargs.get("n_top_chunks", 5)
 
         self.query = kwargs.get("query")
         if not self.query:
@@ -30,7 +32,7 @@ class Retriever(ABC):
             )
 
     @abstractmethod
-    def get_relevant_chunks(self, chunks: list[Document] = [], n_top_chunks: int = 5):
+    def get_relevant_chunks(self, chunks: list[Document] = []) -> str:
         """Find the most relevant chunks describing methods."""
         pass
 
@@ -41,14 +43,12 @@ class CustomRetriever(Retriever):
     from a list of documents.
     """
 
-    def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
-        super().__init__(model, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.model = SentenceTransformer(self.model_name)
         self.logger.info(f"Loaded SentenceTransformer model: {self.model_name}")
 
-    def get_relevant_chunks(
-        self, chunks: list[Document] = [], n_top_chunks: int = 5
-    ) -> str:
+    def get_relevant_chunks(self, chunks: list[Document] = []) -> str:
         """
         Retrieves the most relevant chunks of text from a list of documents using the `SentenceTransformer` model.
 
@@ -75,21 +75,23 @@ class CustomRetriever(Retriever):
         sorted_similarities = similarities.sort(descending=True)
 
         # Get the top `n_top_chunks` chunks with the highest similarity score with respect to the query
-        top_chunks = [chunks[i] for i in sorted_similarities.indices[:n_top_chunks]]
+        top_chunks = [
+            chunks[i] for i in sorted_similarities.indices[: self.n_top_chunks]
+        ]
         self.logger.info(
-            f"Top {n_top_chunks} chunks retrieved with similarities of {sorted_similarities.values[:n_top_chunks]}"
+            f"Top {self.n_top_chunks} chunks retrieved with similarities of {sorted_similarities.values[: self.n_top_chunks]}"
         )
         return "\n\n".join(top_chunk for top_chunk in top_chunks)
 
 
 class LangChainRetriever(Retriever):
-    def __init__(self, model: str = "all-MiniLM-L6-v2", **kwargs):
-        super().__init__(model, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         self.embeddings = HuggingFaceEmbeddings(model_name=self.model_name)
         self.logger.info(f"Loaded `HuggingFaceEmbeddings` model: {self.model_name}")
 
-    def get_relevant_chunks(self, chunks: list[Document] = [], n_top_chunks=5) -> str:
+    def get_relevant_chunks(self, chunks: list[Document] = []) -> str:
         """
         Retrieves the most relevant chunks of text from a list of documents using the `HuggingFaceEmbeddings` model.
 
@@ -102,12 +104,14 @@ class LangChainRetriever(Retriever):
         """
         vector_store = InMemoryVectorStore(self.embeddings)
         _ = vector_store.add_documents(documents=chunks)
-        results = vector_store.similarity_search_with_score(self.query, k=n_top_chunks)
+        results = vector_store.similarity_search_with_score(
+            self.query, k=self.n_top_chunks
+        )
         top_chunks, scores = (
             [r[0].page_content for r in results],
             [r[1] for r in results],
         )
         self.logger.info(
-            f"Top {n_top_chunks} chunks retrieved with similarities of {scores}"
+            f"Top {self.n_top_chunks} chunks retrieved with similarities of {scores}"
         )
         return "\n\n".join(top_chunk for top_chunk in top_chunks)

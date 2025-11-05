@@ -14,7 +14,7 @@ class LLMGenerator:
     Read more in https://python.langchain.com/docs/integrations/llms/ollama/
     """
 
-    def __init__(self, model: str = "deepseek-r1", text: str = "", **kwargs):
+    def __init__(self, text: str = "", **kwargs):
         if not text:
             raise ValueError("`text` is required for LLM generation.")
         self.text = text
@@ -32,8 +32,8 @@ class LLMGenerator:
         # Filter kwargs
         ollama_kwargs = {k: v for k, v in merged_args.items() if k in valid_params}
 
-        self.llm = OllamaLLM(model=model, **ollama_kwargs)
-        self.logger.info(f"LLM model: {model}")
+        self.llm = OllamaLLM(**ollama_kwargs)
+        self.logger.info(f"LLM model: {ollama_kwargs.get('model')}")
 
     def generate(
         self,

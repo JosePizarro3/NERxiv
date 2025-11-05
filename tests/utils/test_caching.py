@@ -79,45 +79,43 @@ class TestComputeRetrieverHash:
     def test_hash_is_consistent(self):
         """Tests that the same inputs produce the same hash."""
         chunker_hash = "abc123"
-        retriever_model = "all-MiniLM-L6-v2"
-        retriever_query = "test query"
-        n_top_chunks = 5
+        retriever_params = {
+            "retriever_model": "all-MiniLM-L6-v2",
+            "retriever_query": "test query",
+            "n_top_chunks": 5,
+        }
 
-        hash1 = compute_retriever_hash(
-            chunker_hash, retriever_model, retriever_query, n_top_chunks
-        )
-        hash2 = compute_retriever_hash(
-            chunker_hash, retriever_model, retriever_query, n_top_chunks
-        )
+        hash1 = compute_retriever_hash(chunker_hash, retriever_params)
+        hash2 = compute_retriever_hash(chunker_hash, retriever_params)
 
         assert hash1 == hash2
 
     def test_different_chunker_hash_produces_different_hash(self):
         """Tests that different chunker hashes produce different retriever hashes."""
-        retriever_model = "all-MiniLM-L6-v2"
-        retriever_query = "test query"
-        n_top_chunks = 5
+        retriever_params = {
+            "retriever_model": "all-MiniLM-L6-v2",
+            "retriever_query": "test query",
+            "n_top_chunks": 5,
+        }
 
-        hash1 = compute_retriever_hash(
-            "hash1", retriever_model, retriever_query, n_top_chunks
-        )
-        hash2 = compute_retriever_hash(
-            "hash2", retriever_model, retriever_query, n_top_chunks
-        )
+        hash1 = compute_retriever_hash("chunker_hash1", retriever_params)
+        hash2 = compute_retriever_hash("chunker_hash2", retriever_params)
 
         assert hash1 != hash2
 
     def test_different_retriever_model_produces_different_hash(self):
         """Tests that different retriever models produce different hashes."""
         chunker_hash = "abc123"
-        retriever_query = "test query"
-        n_top_chunks = 5
+        retriever_params = {
+            "retriever_query": "test query",
+            "n_top_chunks": 5,
+        }
 
         hash1 = compute_retriever_hash(
-            chunker_hash, "model1", retriever_query, n_top_chunks
+            chunker_hash, {"retriever_model": "model1", **retriever_params}
         )
         hash2 = compute_retriever_hash(
-            chunker_hash, "model2", retriever_query, n_top_chunks
+            chunker_hash, {"retriever_model": "model2", **retriever_params}
         )
 
         assert hash1 != hash2
@@ -125,14 +123,16 @@ class TestComputeRetrieverHash:
     def test_different_query_produces_different_hash(self):
         """Tests that different queries produce different hashes."""
         chunker_hash = "abc123"
-        retriever_model = "all-MiniLM-L6-v2"
-        n_top_chunks = 5
+        retriever_params = {
+            "retriever_model": "all-MiniLM-L6-v2",
+            "n_top_chunks": 5,
+        }
 
         hash1 = compute_retriever_hash(
-            chunker_hash, retriever_model, "query1", n_top_chunks
+            chunker_hash, {"retriever_query": "query1", **retriever_params}
         )
         hash2 = compute_retriever_hash(
-            chunker_hash, retriever_model, "query2", n_top_chunks
+            chunker_hash, {"retriever_query": "query2", **retriever_params}
         )
 
         assert hash1 != hash2
@@ -140,14 +140,16 @@ class TestComputeRetrieverHash:
     def test_different_n_top_chunks_produces_different_hash(self):
         """Tests that different n_top_chunks values produce different hashes."""
         chunker_hash = "abc123"
-        retriever_model = "all-MiniLM-L6-v2"
-        retriever_query = "test query"
+        retriever_params = {
+            "retriever_model": "all-MiniLM-L6-v2",
+            "retriever_query": "test query",
+        }
 
         hash1 = compute_retriever_hash(
-            chunker_hash, retriever_model, retriever_query, 5
+            chunker_hash, {"n_top_chunks": 5, **retriever_params}
         )
         hash2 = compute_retriever_hash(
-            chunker_hash, retriever_model, retriever_query, 10
+            chunker_hash, {"n_top_chunks": 10, **retriever_params}
         )
 
         assert hash1 != hash2
@@ -155,13 +157,13 @@ class TestComputeRetrieverHash:
     def test_hash_format(self):
         """Tests that the hash is in the expected format (SHA256 hex)."""
         chunker_hash = "abc123"
-        retriever_model = "all-MiniLM-L6-v2"
-        retriever_query = "test query"
-        n_top_chunks = 5
+        retriever_params = {
+            "retriever_model": "all-MiniLM-L6-v2",
+            "retriever_query": "test query",
+            "n_top_chunks": 5,
+        }
 
-        hash_value = compute_retriever_hash(
-            chunker_hash, retriever_model, retriever_query, n_top_chunks
-        )
+        hash_value = compute_retriever_hash(chunker_hash, retriever_params)
 
         # SHA256 produces a 64-character hexadecimal string
         assert len(hash_value) == 64
