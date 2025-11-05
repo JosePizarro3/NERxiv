@@ -2,6 +2,9 @@ site_name: NERxiv
 site_description: Documentation page for NERxiv.
 site_author: Jose M. Pizarro
 repo_url: https://github.com/JosePizarro3/NERxiv
+watch:
+  - docs
+  - mkdocs.yml
 nav:
   - Home: index.md
   - Tutorial:
