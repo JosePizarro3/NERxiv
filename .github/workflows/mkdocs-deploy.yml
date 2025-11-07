@@ -1,9 +1,9 @@
-name: Deploy MkDocs Site
+name: Deploy Versioned MkDocs Site
 
 on:
-  push:
-    branches:
-      - main # Triggers deployment on push to the main branch
+  release:
+    types: [published]
+  workflow_dispatch:  # allows manual triggering if needed
 
 permissions:
   contents: write
@@ -11,23 +11,31 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for proper gh-pages branch handling
-      - name: Set up Python 3.12
+          fetch-depth: 0
+
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
-      - name: Install Documentation Dependencies
+
+      - name: Install documentation dependencies
         run: |
           pip install --upgrade pip
           pip install .[docu]
-      - name: Build MkDocs Site
-        run: mkdocs build
-      - name: Deploy to GitHub Pages
+
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdocs gh-deploy --force
+
+      - name: Deploy Docs with Mike
+        env:
+          RELEASE_VERSION: ${{ github.event.release.tag_name }}
+        run: |
+          echo "Deploying docs for version ${RELEASE_VERSION}"
+          mike deploy --push --update-aliases "${RELEASE_VERSION}" latest

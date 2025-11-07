@@ -57,6 +57,7 @@ docu = [
   "mkdocs-click",
   "mkdocstrings",
   "mkdocstrings-python",
+  "mike",
 ]
 
 [project.scripts]

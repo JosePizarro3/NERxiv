@@ -93,8 +93,6 @@ Commands:
   prompt_all  Prompts the LLM with the text from all the HDF5 file and...
 ```
 
-Read [How to - Use the CLI](../howtos/use_the_cli.md) for learning more details about NERxiv's CLI.
-
 ### Ollama servers
 
 Whenever you want to use the `RAGExtractorAgent` and run prompting, you need an Ollama server running constantly. This can be done by opening a new terminal window and running:
