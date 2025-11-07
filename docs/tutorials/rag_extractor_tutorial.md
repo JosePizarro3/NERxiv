@@ -318,7 +318,7 @@ In your folder, create three files: `run_script.py`, `datamodel.py`, and `prompt
 - `datamodel.py`: this module will contain the [pydantic](https://docs.pydantic.dev/latest/) model definitions needed to extract metadata from an arXiv paper and validate it.
 - `prompt_registry.py`: this registry will contain the prompts needed to extract the workflow we are targetting in our paper.
 
-For the sake of this example, we recommend using this arXiv paper: [arXiv:2505.21995v2](https://arxiv.org/abs/2505.21995v2). You can search and download the corresponding HDF5 needed for NERxiv using `pyrxiv`:
+For the sake of this example, we recommend choosing any recent paper from the [cond-mat.str-el](https://arxiv.org/list/cond-mat.str-el/recent) category on arXiv. You can search and download the corresponding HDF5 needed for NERxiv using `pyrxiv`:
 
 ```bash
 pyrxiv search_and_download --save-hdf5 --category cond-mat.str-el --start-id "2505.21995v2" --n-papers 1
