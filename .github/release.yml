@@ -2,37 +2,11 @@ changelog:
   exclude:
     authors: [github-actions, pre-commit-ci]
   categories:
-    - title: 💥 Breaking Changes
-      labels: [breaking]
-    - title: 🎉 New Features
-      labels: [feature]
-    - title: 🛠 Enhancements
-      labels: [enhancement, DX, UX]
-    - title: 🐛 Bug Fixes
-      labels: [fix]
-    - title: 📖 Documentation
-      labels: [docs]
-    - title: 🧹 House-Keeping
-      labels: [housekeeping]
-    - title: 🚀 Performance
-      labels: [performance]
-    - title: 🚧 CI
-      labels: [ci]
-    - title: 💡 Refactoring
-      labels: [refactor]
-    - title: 🧪 Tests
-      labels: [tests]
-    - title: 🔒 Security Fixes
-      labels: [security]
-    - title: 🏥 Package Health
-      labels: [pkg]
-    - title: 📦 Dependencies
-      labels: [dependencies, outdated]
-    - title: 🏷️ Type Hints
-      labels: [types]
-    - title: 🧹 Linting
-      labels: [linting]
-    - title: 🧩 Datamodel Changes
-      labels: [datamodel]
+    - title: 💥 Incompatible API Changes
+      labels: [breaking, refactor]
+    - title: 💡 Added Functionalities (Backward Compatible)
+      labels: [feature, enhancement, DX, UX, docs, tests, security, performance]
+    - title: 🛠 Backward Compatible Bug Fixes And Minor Changes (Backward Compatible)
+      labels: [dependencies, fix, datamodel, pkg]
     - title: 🤷‍♂️ Other Changes
       labels: ['*']

@@ -48,8 +48,8 @@ The document is divided into smaller, manageable pieces called "chunks."
 ```python
 from nerxiv.chunker import Chunker
 
-chunker = Chunker(text=paper_text)
-chunks = chunker.chunk_text(chunk_size=1000, chunk_overlap=200)
+chunker = Chunker(chunk_size=1000, chunk_overlap=200, text=paper_text)
+chunks = chunker.chunk_text()
 # Result: [chunk1, chunk2, chunk3, ..., chunk_n]
 ```
 
@@ -91,9 +91,10 @@ from nerxiv.rag import CustomRetriever
 
 retriever = CustomRetriever(
     model="all-MiniLM-L6-v2",
-    query="Find all mentions of chemical formulas"
+    query="Find all mentions of chemical formulas",
+    n_top_chunks=5,
 )
-relevant_text = retriever.get_relevant_chunks(chunks=chunks, n_top_chunks=5)
+relevant_text = retriever.get_relevant_chunks(chunks=chunks)
 ```
 
 ### 3. Generation (Augmented LLM)
@@ -250,16 +251,17 @@ with h5py.File("paper.hdf5", "r") as f:
 
 # 2. Chunk the paper
 from nerxiv.chunker import Chunker
-chunker = Chunker(text=text)
-chunks = chunker.chunk_text(chunk_size=1000, chunk_overlap=200)
+chunker = Chunker(chunk_size=1000, chunk_overlap=200, text=text)
+chunks = chunker.chunk_text()
 
 # 3. Retrieve relevant chunks
 from nerxiv.rag import CustomRetriever
 retriever = CustomRetriever(
     model="all-MiniLM-L6-v2",
-    query="Find all chemical formulas and material names"
+    query="Find all chemical formulas and material names",
+    n_top_chunks=5,
 )
-relevant_text = retriever.get_relevant_chunks(chunks=chunks, n_top_chunks=5)
+relevant_text = retriever.get_relevant_chunks(chunks=chunks)
 
 # 4. Generate answer
 from nerxiv.rag import LLMGenerator
