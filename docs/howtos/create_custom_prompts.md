@@ -113,33 +113,37 @@ For structured output (JSON), use `StructuredPrompt` instead:
 from nerxiv.prompts.prompts import StructuredPrompt, PromptRegistryEntry, Example
 from pydantic import BaseModel, Field
 
-# Define output schema
-class ComputationalDetails(BaseModel):
-    software: list[str] = Field(description="Software packages used")
-    parameters: dict[str, str] = Field(description="Key computational parameters")
-    hardware: str = Field(description="Hardware description")
+
+class Affiliations(BaseModel):
+    items: list[str] = Field([], description="A list of affiliations of the authors")
+
 
 # Create structured prompt
-computational_prompt = StructuredPrompt(
-    expert="Computational Science",
-    output_schema=ComputationalDetails,
-    target_fields=["software", "parameters", "hardware"],
+affiliation_prompt = StructuredPrompt(
+    expert="Scientific Text Analysis",
+    output_schema=Affiliations,
+    target_fields=["items"],
     constraints=[
-        "Extract only explicitly mentioned information",
-        "Use null for missing fields"
+        "Return each affiliation as an element of the list `items`",
+        "Use the full institution name",
+        "Do not include author names"
     ],
     examples=[
         Example(
-            input="Calculations were performed using VASP 6.3 with ENCUT=520 eV on a GPU cluster.",
-            output='```json\n{"software": ["VASP 6.3"], "parameters": {"ENCUT": "520 eV"}, "hardware": "GPU cluster"}\n```'
-        )
+            input="John Doe¹ and Jane Smith² — ¹MIT, Cambridge, MA — ²Stanford University",
+            output='```json\n{\n\t"affiliations": {\n\t\t"items": ["MIT, Cambridge, MA", "Stanford University"]\n\t}\n}\n```'
+        ),
+        Example(
+            input="Authors from the Department of Physics, University of Tokyo",
+            output='```json\n{\n\t"affiliations": {\n\t\t"items": ["Department of Physics, University of Tokyo"]\n\t}\n}\n```'
+        ),
     ]
 )
 
 # Register it
-PROMPT_REGISTRY["computational_details"] = PromptRegistryEntry(
-    retriever_query="Find information about software, computational methods, parameters, and hardware used",
-    prompt=computational_prompt
+PROMPT_REGISTRY["affiliations"] = PromptRegistryEntry(
+    retriever_query="Find sections mentioning authors, affiliations, institutions, or university names",
+    prompt=affiliation_prompt
 )
 ```
 
@@ -265,13 +269,13 @@ print("Retrieved text:")
 print(top_text)
 ```
 
-If the retrieved text doesn't contain what you need, adjust the retriever query.
+If the retrieved text doesn't contain what you need, adjust the chunking and retriever parameters.
 
 ### Test with Different Temperatures
 
 ```bash
 # Very deterministic
-nerxiv prompt --file-path paper.hdf5 --query your_query -llmo temperature=0.0
+nerxiv prompt --file-path paper.hdf5 --query your_query -llmo temperature=0.1
 
 # More creative
 nerxiv prompt --file-path paper.hdf5 --query your_query -llmo temperature=0.5

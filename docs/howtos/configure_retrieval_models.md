@@ -79,15 +79,12 @@ chunks = chunker.chunk_text()
 # Initialize retriever with custom model
 retriever = CustomRetriever(
     model="all-mpnet-base-v2",
-    query="Find all mentions of DFT calculations"
+    query="Find all mentions of DFT calculations",
+    n_top_chunks=5,
 )
 
 # Get relevant chunks
-top_chunks = retriever.get_relevant_chunks(
-    chunks=chunks,
-    n_top_chunks=5
-)
-
+top_chunks = retriever.get_relevant_chunks(chunks=chunks)
 print(top_chunks)
 ```
 
@@ -110,48 +107,6 @@ Example output:
 INFO - Top 5 chunks retrieved with similarities of tensor([0.8234, 0.7891, 0.7456, 0.7123, 0.6890])
 ```
 
-
-<!--
-!!! Didn't test it myself!
-## Optimizing for Domain-Specific Content
-
-Scientific papers may benefit from domain-specific retrieval models. You can fine-tune a model on your domain:
-
-```python
-from sentence_transformers import SentenceTransformer, InputExample, losses
-from torch.utils.data import DataLoader
-
-# Load base model
-model = SentenceTransformer('all-MiniLM-L6-v2')
-
-# Create training examples from your domain
-train_examples = [
-    InputExample(texts=['DFT calculation', 'density functional theory computation']),
-    InputExample(texts=['DMFT method', 'dynamical mean field theory approach']),
-    # Add more domain-specific pairs...
-]
-
-# Fine-tune
-train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=16)
-train_loss = losses.MultipleNegativesRankingLoss(model)
-model.fit(
-    train_objectives=[(train_dataloader, train_loss)],
-    epochs=1,
-    warmup_steps=100
-)
-
-# Save fine-tuned model
-model.save('my-domain-model')
-```
-
-Then use your fine-tuned model:
-
-```bash
-nerxiv prompt \
-  --file-path paper.hdf5 \
-  --retriever-model ./my-domain-model
-``` -->
-
 ## LangChain Alternative
 
 NERxiv also provides a `LangChainRetriever` that uses LangChain's retrieval implementations:
@@ -161,10 +116,11 @@ from nerxiv.rag import LangChainRetriever
 
 retriever = LangChainRetriever(
     model="all-MiniLM-L6-v2",
-    query="Your query here"
+    query="Your query here",
+    n_top_chunks=5
 )
 
-top_chunks = retriever.get_relevant_chunks(chunks=chunks, n_top_chunks=5)
+top_chunks = retriever.get_relevant_chunks(chunks=chunks)
 ```
 
 Both `CustomRetriever` and `LangChainRetriever` provide similar functionality, but `CustomRetriever` gives you direct access to similarity scores.
