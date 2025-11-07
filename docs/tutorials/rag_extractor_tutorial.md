@@ -233,7 +233,7 @@ This command:
 
 ## Processing Multiple Papers
 
-To process all papers in a directory, use the `prompt-all` command:
+To process all papers in a directory, use the `prompt_all` command:
 
 ```bash
 nerxiv prompt_all \
@@ -370,7 +370,7 @@ class DFT(BaseSection):
 
 ### Adding Structured Prompts to the `PROMPT_REGISTRY`
 
-With the `DFT` model defined in the previous section, we can know define the structured prompt we will use to extract structured metadata in JSON format and adapted to this model. In `prompt_registry.py`:
+With the `DFT` model defined in the previous section, we can now define the structured prompt we will use to extract structured metadata in JSON format and adapted to this model. In `prompt_registry.py`:
 
 ```python
 from nerxiv.prompts.prompts import (
@@ -451,7 +451,7 @@ retriever_params = {
   "query_name": query,
 }
 generator_params = {
-  "temperature": 0.1
+  "temperature": 0.1,
   "model": "gpt-oss:20b",
 }
 
@@ -466,7 +466,7 @@ agent = RAGExtractorAgent(
 )
 
 # Run the agent for a specific HDF5 file as downloaded with pyrxiv
-with with h5py.File(Path("path_to_hdf5.hdf5"), "a") as f:
+with h5py.File(Path("path_to_hdf5.hdf5"), "a") as f:
   arxiv_id = f.filename.split("/")[-1].replace(".hdf5", "")
   text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
   agent.run(file=f, text=text, prompt=prompt)

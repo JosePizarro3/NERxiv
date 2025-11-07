@@ -131,11 +131,11 @@ affiliation_prompt = StructuredPrompt(
     examples=[
         Example(
             input="John Doe¹ and Jane Smith² — ¹MIT, Cambridge, MA — ²Stanford University",
-            output='```json\n{\n\t"affiliations": ["MIT, Cambridge, MA", "Stanford University"]\n}\n```'
+            output='```json\n{\n\t"affiliations": {\n\t\t"items": ["MIT, Cambridge, MA", "Stanford University"]\n\t}\n}\n```'
         ),
         Example(
             input="Authors from the Department of Physics, University of Tokyo",
-            output='```json\n{\n\t"affiliations": ["Department of Physics, University of Tokyo"]\n}\n```'
+            output='```json\n{\n\t"affiliations": {\n\t\t"items": ["Department of Physics, University of Tokyo"]\n\t}\n}\n```'
         ),
     ]
 )
