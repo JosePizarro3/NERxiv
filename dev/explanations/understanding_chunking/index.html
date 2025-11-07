@@ -1,0 +1,1413 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation page for NERxiv.">
+      
+      
+        <meta name="author" content="Jose M. Pizarro">
+      
+      
+      
+        <link rel="prev" href="../what_is_rag/">
+      
+      
+        <link rel="next" href="../semantic_retrieval/">
+      
+      
+      <link rel="icon" href="../../assets/nerxiv_logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
+    
+    
+      
+        <title>Understanding Chunking Strategies - NERxiv</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#understanding-chunking-strategies" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="NERxiv" class="md-header__button md-logo" aria-label="NERxiv" data-md-component="logo">
+      
+  <img src="../../assets/nerxiv_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NERxiv
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Understanding Chunking Strategies
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/JosePizarro3/NERxiv" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="NERxiv" class="md-nav__button md-logo" aria-label="NERxiv" data-md-component="logo">
+      
+  <img src="../../assets/nerxiv_logo.png" alt="logo">
+
+    </a>
+    NERxiv
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/JosePizarro3/NERxiv" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorial
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorial
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/rag_extractor_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Using the RAG Extractor Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    How-to guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            How-to guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../howtos/create_custom_prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create Custom Prompts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../howtos/customize_chunking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Customize Chunking Strategies
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../howtos/configure_retrieval_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Retrieval Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../howtos/use_different_llm_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Use Different LLM Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../howtos/adjust_llm_parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Adjust LLM Parameters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Explanations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Explanations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_is_rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    What is RAG?
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Understanding Chunking Strategies
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Understanding Chunking Strategies
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-chunking-is-necessary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Chunking is Necessary
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Chunking is Necessary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-token-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Token Limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-retrieval-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Retrieval Efficiency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-information-density" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Information Density
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chunking-strategies-in-nerxiv" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chunking Strategies in NERxiv
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chunking Strategies in NERxiv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-fixed-size-chunking-chunker" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Fixed-Size Chunking (Chunker)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-semantic-chunking-semanticchunker" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Semantic Chunking (SemanticChunker)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-advanced-semantic-chunking-advancedsemanticchunker" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Advanced Semantic Chunking (AdvancedSemanticChunker)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-impact-of-chunking-on-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Impact of Chunking on Retrieval
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Impact of Chunking on Retrieval">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-extracting-bandgap-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example: Extracting "bandgap" Information
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-the-right-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choosing the Right Strategy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging Chunking
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semantic_retrieval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    How Semantic Retrieval Works
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompt_engineering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prompt Engineering for Metadata Extraction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            References
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Glossary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-chunking-is-necessary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Chunking is Necessary
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Chunking is Necessary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-token-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Token Limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-retrieval-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Retrieval Efficiency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-information-density" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Information Density
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chunking-strategies-in-nerxiv" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chunking Strategies in NERxiv
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chunking Strategies in NERxiv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-fixed-size-chunking-chunker" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Fixed-Size Chunking (Chunker)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-semantic-chunking-semanticchunker" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Semantic Chunking (SemanticChunker)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-advanced-semantic-chunking-advancedsemanticchunker" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Advanced Semantic Chunking (AdvancedSemanticChunker)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-impact-of-chunking-on-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Impact of Chunking on Retrieval
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Impact of Chunking on Retrieval">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-extracting-bandgap-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example: Extracting "bandgap" Information
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-the-right-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choosing the Right Strategy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging Chunking
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="understanding-chunking-strategies">Understanding Chunking Strategies<a class="headerlink" href="#understanding-chunking-strategies" title="Permanent link">&para;</a></h1>
+<p>Chunking is the first critical step in the RAG pipeline. This explanation explores why chunking matters, how different strategies work, and when to use each approach.</p>
+<h2 id="why-chunking-is-necessary">Why Chunking is Necessary<a class="headerlink" href="#why-chunking-is-necessary" title="Permanent link">&para;</a></h2>
+<p>Scientific papers are long documents that need to be divided into smaller pieces for several reasons:</p>
+<h3 id="1-token-limits">1. Token Limits<a class="headerlink" href="#1-token-limits" title="Permanent link">&para;</a></h3>
+<p>LLMs have maximum context windows:</p>
+<ul>
+<li>GPT-3.5: 4,096 tokens (~3,000 words)</li>
+<li>LLaMA 3.1 8B: 8,192 tokens (~6,000 words)</li>
+<li>LLaMA 3.1 70B: 8,192 tokens (~6,000 words)</li>
+</ul>
+<p>A typical arXiv paper:</p>
+<ul>
+<li>8,000-15,000 words</li>
+<li>10,000-20,000 tokens</li>
+</ul>
+<p>Without chunking, most papers exceed the context limit.</p>
+<h3 id="2-retrieval-efficiency">2. Retrieval Efficiency<a class="headerlink" href="#2-retrieval-efficiency" title="Permanent link">&para;</a></h3>
+<p>Even if a paper fits in context, you don't want to search through everything. Smaller chunks allow:</p>
+<ul>
+<li><strong>Precision</strong>: Find exactly where information appears</li>
+<li><strong>Relevance scoring</strong>: Rank specific passages by relevance</li>
+<li><strong>Focused context</strong>: Give the LLM only what it needs</li>
+</ul>
+<h3 id="3-information-density">3. Information Density<a class="headerlink" href="#3-information-density" title="Permanent link">&para;</a></h3>
+<p>Different parts of a paper have different information densities:</p>
+<ul>
+<li>Abstract: Very dense, overview</li>
+<li>Introduction: Context, motivation</li>
+<li>Methods: Technical details</li>
+<li>Results: Specific findings</li>
+<li>Discussion: Interpretation</li>
+<li>References: Citations (often irrelevant)</li>
+</ul>
+<p>Chunking allows the retriever to select only the dense, relevant sections.</p>
+<h2 id="chunking-strategies-in-nerxiv">Chunking Strategies in NERxiv<a class="headerlink" href="#chunking-strategies-in-nerxiv" title="Permanent link">&para;</a></h2>
+<p>NERxiv implements three chunking strategies, each with different trade-offs.</p>
+<h3 id="1-fixed-size-chunking-chunker">1. Fixed-Size Chunking (Chunker)<a class="headerlink" href="#1-fixed-size-chunking-chunker" title="Permanent link">&para;</a></h3>
+<p><strong>How it works</strong>: Split text into chunks of fixed character length with overlap.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">nerxiv.chunker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chunker</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">chunker</span> <span class="o">=</span> <span class="n">Chunker</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">paper_text</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">chunks</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">chunk_text</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chunk_overlap</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</span></code></pre></div>
+<p><strong>Example</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Text: &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>chunk_size=10, chunk_overlap=3
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>Chunk 1: &quot;ABCDEFGHIJ&quot;
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Chunk 2: &quot;HIJKLMNOPQ&quot; (HIJ overlaps)
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Chunk 3: &quot;OPQRSTUVWX&quot; (OPQ overlaps)
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Chunk 4: &quot;WXYZ&quot;
+</span></code></pre></div></p>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>✅ Fast and simple</li>
+<li>✅ Predictable chunk sizes</li>
+<li>✅ No NLP dependencies</li>
+<li>✅ Works for any language</li>
+<li>✅ Consistent token counts for LLM</li>
+</ul>
+<p><strong>Disadvantages</strong>:</p>
+<ul>
+<li>❌ Splits sentences arbitrarily</li>
+<li>❌ Breaks semantic units</li>
+<li>❌ May cut formulas or equations mid-way</li>
+</ul>
+<p><strong>Best for</strong>:</p>
+<ul>
+<li>Quick prototyping</li>
+<li>Batch processing many papers</li>
+<li>When speed matters more than perfect chunking</li>
+<li>Papers with uniform structure</li>
+</ul>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>chunk_size</code>: Characters per chunk (default: 1000)</li>
+<li>Smaller (500-800): More precise retrieval, more chunks</li>
+<li>Larger (1500-2000): More context per chunk, fewer chunks</li>
+<li><code>chunk_overlap</code>: Overlap between chunks (default: 200)</li>
+<li>Larger overlap: Less information loss, more redundancy</li>
+<li>Smaller overlap: Less redundancy, faster processing</li>
+</ul>
+<h3 id="2-semantic-chunking-semanticchunker">2. Semantic Chunking (SemanticChunker)<a class="headerlink" href="#2-semantic-chunking-semanticchunker" title="Permanent link">&para;</a></h3>
+<p><strong>How it works</strong>: Uses spaCy to identify sentence boundaries and creates chunks at natural breaks.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">nerxiv.chunker</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticChunker</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">chunker</span> <span class="o">=</span> <span class="n">SemanticChunker</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">paper_text</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">chunks</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">chunk_text</span><span class="p">()</span>
+</span></code></pre></div>
+<p><strong>Example</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Text: &quot;DFT was used. The bandgap is 1.2 eV. Previous work showed...&quot;
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Chunk 1: &quot;DFT was used.&quot;
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Chunk 2: &quot;The bandgap is 1.2 eV.&quot;
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Chunk 3: &quot;Previous work showed different results.&quot;
+</span></code></pre></div></p>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>✅ Preserves sentence integrity</li>
+<li>✅ Natural semantic boundaries</li>
+<li>✅ Better for extracting complete facts</li>
+<li>✅ Doesn't break equations mid-way</li>
+</ul>
+<p><strong>Disadvantages</strong>:</p>
+<ul>
+<li>❌ Variable chunk sizes</li>
+<li>❌ Requires spaCy model (~500MB)</li>
+<li>❌ Slower than fixed-size</li>
+<li>❌ May create very small or very large chunks</li>
+</ul>
+<p><strong>Best for</strong>:</p>
+<ul>
+<li>Extracting specific facts (formulas, numbers, names)</li>
+<li>When sentence-level precision is important</li>
+<li>Papers with well-formed sentences</li>
+<li>Queries about discrete facts</li>
+</ul>
+<p><strong>How it groups sentences</strong>: The chunker uses spaCy's sentence tokenizer and groups related sentences together based on semantic similarity, creating coherent chunks.</p>
+<h3 id="3-advanced-semantic-chunking-advancedsemanticchunker">3. Advanced Semantic Chunking (AdvancedSemanticChunker)<a class="headerlink" href="#3-advanced-semantic-chunking-advancedsemanticchunker" title="Permanent link">&para;</a></h3>
+<p><strong>How it works</strong>: Uses KMeans clustering on sentence embeddings to group semantically similar sentences together.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">nerxiv.chunker</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdvancedSemanticChunker</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">chunker</span> <span class="o">=</span> <span class="n">AdvancedSemanticChunker</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">paper_text</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">chunks</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">chunk_text</span><span class="p">(</span><span class="n">n_chunks</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span></code></pre></div>
+<p><strong>Process</strong>:</p>
+<ol>
+<li>Split text into sentences with spaCy</li>
+<li>Encode each sentence with SentenceTransformer</li>
+<li>Cluster sentences using KMeans</li>
+<li>Group sentences by cluster into chunks</li>
+</ol>
+<p><strong>Example</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Sentences:
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>1. &quot;We synthesize La₀.₈Sr₀.₂NiO₂ samples.&quot; → Cluster 0 (synthesis)
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>2. &quot;DFT calculations were performed.&quot; → Cluster 1 (computation)
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>3. &quot;The bandgap was measured.&quot; → Cluster 2 (results)
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>4. &quot;Samples were annealed at 800°C.&quot; → Cluster 0 (synthesis)
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>5. &quot;Electronic structure was calculated.&quot; → Cluster 1 (computation)
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>Resulting chunks:
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>Chunk 0: [Sentence 1, Sentence 4] (synthesis topic)
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>Chunk 1: [Sentence 2, Sentence 5] (computation topic)
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>Chunk 2: [Sentence 3] (results topic)
+</span></code></pre></div></p>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>✅ Topically coherent chunks</li>
+<li>✅ Groups related information even if not adjacent</li>
+<li>✅ Excellent for complex, multi-topic papers</li>
+<li>✅ Better context for the LLM</li>
+</ul>
+<p><strong>Disadvantages</strong>:</p>
+<ul>
+<li>❌ Slowest (computes embeddings for all sentences)</li>
+<li>❌ Requires SentenceTransformer model</li>
+<li>❌ Variable and unpredictable chunk sizes</li>
+<li>❌ May group unrelated sentences if n_chunks is too small</li>
+</ul>
+<p><strong>Best for</strong>:</p>
+<ul>
+<li>Papers covering multiple topics</li>
+<li>Extracting methodology descriptions</li>
+<li>When topical coherence is crucial</li>
+<li>Complex queries requiring context</li>
+</ul>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>n_chunks</code>: Number of semantic clusters (default: 10)</li>
+<li>Smaller (5-8): Broad topics, larger chunks</li>
+<li>Larger (15-20): Finer topics, smaller chunks</li>
+</ul>
+<h2 id="the-impact-of-chunking-on-retrieval">The Impact of Chunking on Retrieval<a class="headerlink" href="#the-impact-of-chunking-on-retrieval" title="Permanent link">&para;</a></h2>
+<p>Different chunking strategies affect what the retriever finds.</p>
+<h3 id="example-extracting-bandgap-information">Example: Extracting "bandgap" Information<a class="headerlink" href="#example-extracting-bandgap-information" title="Permanent link">&para;</a></h3>
+<p><strong>Original text</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>The electronic structure of La₀.₈Sr₀.₂NiO₂ was investigated using DFT.
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Our calculations show a direct bandgap of 1.2 eV at the Gamma point.
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>This is consistent with optical measurements performed at room temperature.
+</span></code></pre></div></p>
+<p><strong>Fixed-size chunking (chunk_size=50, no overlap)</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Chunk 1: &quot;The electronic structure of La₀.₈Sr₀.₂NiO₂ was in&quot;
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Chunk 2: &quot;vestigated using DFT. Our calculations show a d&quot;
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Chunk 3: &quot;irect bandgap of 1.2 eV at the Gamma point. Th&quot;
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>Chunk 4: &quot;is is consistent with optical measurements...&quot;
+</span></code></pre></div>
+❌ "bandgap" split across chunks 2-3, may be missed!</p>
+<p><strong>Fixed-size with overlap (chunk_size=50, overlap=20)</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Chunk 1: &quot;The electronic structure of La₀.₈Sr₀.₂NiO₂ was in&quot;
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Chunk 2: &quot;La₀.₈Sr₀.₂NiO₂ was investigated using DFT. Our ca&quot;
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Chunk 3: &quot;Our calculations show a direct bandgap of 1.2 eV&quot;
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>Chunk 4: &quot;bandgap of 1.2 eV at the Gamma point. This is...&quot;
+</span></code></pre></div>
+✅ "bandgap" appears complete in chunks 3-4</p>
+<p><strong>Semantic chunking</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Chunk 1: &quot;The electronic structure of La₀.₈Sr₀.₂NiO₂ was investigated using DFT.&quot;
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Chunk 2: &quot;Our calculations show a direct bandgap of 1.2 eV at the Gamma point.&quot;
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>Chunk 3: &quot;This is consistent with optical measurements performed at room temperature.&quot;
+</span></code></pre></div>
+✅ Complete bandgap statement in one chunk</p>
+<p><strong>Advanced semantic chunking</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Chunk 1 (Electronic structure topic):
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>&quot;The electronic structure of La₀.₈Sr₀.₂NiO₂ was investigated using DFT. Our calculations show a direct bandgap of 1.2 eV at the Gamma point.&quot;
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Chunk 2 (Experimental validation topic):
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>&quot;This is consistent with optical measurements performed at room temperature.&quot;
+</span></code></pre></div>
+✅ Full context in one topical chunk</p>
+<h2 id="choosing-the-right-strategy">Choosing the Right Strategy<a class="headerlink" href="#choosing-the-right-strategy" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Your Goal</th>
+<th>Recommended Chunker</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fast processing</td>
+<td><code>Chunker</code></td>
+<td>Simple, no NLP overhead</td>
+</tr>
+<tr>
+<td>Extract formulas/numbers</td>
+<td><code>Chunker</code> or <code>SemanticChunker</code></td>
+<td>Preserves local context</td>
+</tr>
+<tr>
+<td>Extract methodology descriptions</td>
+<td><code>AdvancedSemanticChunker</code></td>
+<td>Groups related methodological text</td>
+</tr>
+<tr>
+<td>General metadata extraction</td>
+<td><code>SemanticChunker</code></td>
+<td>Good balance of speed and quality</td>
+</tr>
+<tr>
+<td>Highly specific technical queries</td>
+<td><code>AdvancedSemanticChunker</code></td>
+<td>Better topical grouping</td>
+</tr>
+</tbody>
+</table>
+<h2 id="debugging-chunking">Debugging Chunking<a class="headerlink" href="#debugging-chunking" title="Permanent link">&para;</a></h2>
+<p>To see what chunks are created:</p>
+<p>```python
+from nerxiv.chunker import SemanticChunker</p>
+<p>chunker = SemanticChunker(text=paper_text)
+chunks = chunker.chunk_text()</p>
+<p>print(f"Total chunks: {len(chunks)}")
+for i, chunk in enumerate(chunks[:5]):
+    print(f"\n=== Chunk {i} ===")
+    print(f"Length: {len(chunk.page_content)} chars")
+    print(f"Content: {chunk.page_content[:200]}...")</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../what_is_rag/" class="md-footer__link md-footer__link--prev" aria-label="Previous: What is RAG?">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                What is RAG?
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../semantic_retrieval/" class="md-footer__link md-footer__link--next" aria-label="Next: How Semantic Retrieval Works">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                How Semantic Retrieval Works
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.footer", "navigation.top", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+      
+        <script src="https://unpkg.com/cytoscape@3.19.1/dist/cytoscape.min.js"></script>
+      
+    
+  </body>
+</html>
