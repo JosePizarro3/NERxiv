@@ -381,34 +381,32 @@ from nerxiv.prompts.prompts import (
 from .datamodel import DFT
 
 
-MOD_PROMPT_REGISTRY = {
-    "dft": PromptRegistryEntry(
-        retriever_query="""Identify all mentions of Density Functional Theory (DFT) calculations,
-        defined as any description of electronic-structure computations within the Kohn-Sham
-        formalism, including the chosen exchange-correlation functional, computational code, basis
-        set, pseudopotential, convergence parameters, or spin treatment. Include any statements
-        about how the DFT calculation was performed, validated, or referenced from prior work.""",
-        prompt=StructuredPrompt(
-            expert="Condensed Matter Physics",
-            output_schema=DFT,
-            target_fields=["all"],
-            constraints=[
-                "Return ONLY the requested JSON object without any additional text or explanation.",
-                "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
-                "Do NOT infer values of fields that are not explicitly mentioned in the text.",
-                "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
-                "Ensure that all parsed values are of the correct data type as defined in the DFT schema.",
-            ],
-            examples=[],
-        ),
-    ),
-}
+new_entry = PromptRegistryEntry(
+  retriever_query="""Identify all mentions of Density Functional Theory (DFT) calculations,
+  defined as any description of electronic-structure computations within the Kohn-Sham
+  formalism, including the chosen exchange-correlation functional, computational code, basis
+  set, pseudopotential, convergence parameters, or spin treatment. Include any statements
+  about how the DFT calculation was performed, validated, or referenced from prior work.""",
+  prompt=StructuredPrompt(
+      expert="Condensed Matter Physics",
+      output_schema=DFT,
+      target_fields=["all"],
+      constraints=[
+          "Return ONLY the requested JSON object without any additional text or explanation.",
+          "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
+          "Do NOT infer values of fields that are not explicitly mentioned in the text.",
+          "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
+          "Ensure that all parsed values are of the correct data type as defined in the DFT schema.",
+      ],
+      examples=[],
+  ),
+)
 
-MOD_PROMPT_REGISTRY = MOD_PROMPT_REGISTRY.update(PROMPT_REGISTRY)
+PROMPT_REGISTRY["dft"] = new_entry
 ```
 
 **Notes**:
-- We updated the `PROMPT_REGISTRY` with another entry. You can add as many new entries as you want to extract metadata from a defined datamodel.
+- We created a new registry entry in the `PROMPT_REGISTRY`. You can add as many new entries as you want to extract metadata from a defined datamodel.
 - We need to include a `retriever_query` to improve the extraction of the most relevant top-k chunks.
 - `StructuredPrompt` contains some attributes that can be modified:
   - `expert`: a string containing the expertise expected by the LLM. This translated into "Act like an expert in \<expert\>".
