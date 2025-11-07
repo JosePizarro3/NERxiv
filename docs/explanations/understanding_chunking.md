@@ -148,8 +148,8 @@ Chunk 3: "Previous work showed different results."
 ```python
 from nerxiv.chunker import AdvancedSemanticChunker
 
-chunker = AdvancedSemanticChunker(text=paper_text)
-chunks = chunker.chunk_text(n_chunks=10)
+chunker = AdvancedSemanticChunker(n_chunks=10, text=paper_text)
+chunks = chunker.chunk_text()
 ```
 
 **Process**:

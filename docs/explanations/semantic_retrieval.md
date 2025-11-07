@@ -142,14 +142,12 @@ chunks = chunker.chunk_text()
 # 2. Initialize retriever with query
 retriever = CustomRetriever(
     model="all-MiniLM-L6-v2",
-    query="Find all mentions of chemical formulas"
+    query="Find all mentions of chemical formulas",
+    n_top_chunks=5,
 )
 
 # 3. Retrieve relevant chunks
-top_chunks = retriever.get_relevant_chunks(
-    chunks=chunks,
-    n_top_chunks=5
-)
+top_chunks = retriever.get_relevant_chunks(chunks=chunks)
 ```
 
 ### What Happens Inside `get_relevant_chunks`
@@ -350,10 +348,10 @@ nerxiv prompt --file-path paper.hdf5 --n-top-chunks 12
 Better queries lead to better retrieval:
 
 ❌ **Vague**: "methods"
-✅ **Specific**: "computational and experimental methods used in the study"
+   ✅ **Specific**: "computational and experimental methods used in the study"
 
 ❌ **Too narrow**: "DFT"
-✅ **Inclusive**: "DFT, density functional theory, and other ab initio methods"
+   ✅ **Inclusive**: "DFT, density functional theory, and other ab initio methods"
 
 ### Debugging Retrieval
 
