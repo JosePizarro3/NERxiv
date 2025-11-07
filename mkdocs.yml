@@ -12,7 +12,6 @@ nav:
     - Configure Retrieval Models: howtos/configure_retrieval_models.md
     - Use Different LLM Models: howtos/use_different_llm_models.md
     - Adjust LLM Parameters: howtos/adjust_llm_parameters.md
-    - Use the CLI: howtos/use_the_cli.md
   - Explanations:
     - What is RAG?: explanations/what_is_rag.md
     - Understanding Chunking Strategies: explanations/understanding_chunking.md

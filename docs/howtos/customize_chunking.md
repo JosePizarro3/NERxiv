@@ -26,8 +26,8 @@ nerxiv prompt --file-path paper.hdf5 --chunker Chunker
 ```python
 from nerxiv.chunker import Chunker
 
-chunker = Chunker(text=paper_text)
-chunks = chunker.chunk_text(chunk_size=1000, chunk_overlap=200)
+chunker = Chunker(chunk_size=1000, chunk_overlap=200, text=paper_text)
+chunks = chunker.chunk_text()
 ```
 
 ### 2. Semantic Chunker
@@ -74,8 +74,8 @@ nerxiv prompt --file-path paper.hdf5 --chunker AdvancedSemanticChunker
 ```python
 from nerxiv.chunker import AdvancedSemanticChunker
 
-chunker = AdvancedSemanticChunker(text=paper_text)
-chunks = chunker.chunk_text(n_chunks=10)
+chunker = AdvancedSemanticChunker(n_chunks=10, text=paper_text)
+chunks = chunker.chunk_text()
 ```
 
 ## Choosing the Right Strategy
@@ -109,13 +109,13 @@ with h5py.File(paper_path, "r") as f:
     text = f[arxiv_id]["arxiv_paper"]["text"][()].decode("utf-8")
 
 # Custom chunking
-chunker = Chunker(text=text)
-chunks = chunker.chunk_text(chunk_size=1500, chunk_overlap=300)
+chunker = Chunker(chunk_size=1500, chunk_overlap=300, text=text)
+chunks = chunker.chunk_text()
 
 # Continue with retrieval and generation
 retriever_query = PROMPT_REGISTRY["material_formula"].retriever_query
-retriever = CustomRetriever(query=retriever_query)
-top_text = retriever.get_relevant_chunks(chunks=chunks, n_top_chunks=5)
+retriever = CustomRetriever(n_top_chunks=5, query=retriever_query)
+top_text = retriever.get_relevant_chunks(chunks=chunks)
 
 prompt = PROMPT_REGISTRY["material_formula"].prompt
 generator = LLMGenerator(model="llama3.1:70b", text=top_text)
@@ -130,8 +130,8 @@ For papers with complex topics, increase the number of clusters:
 ```python
 from nerxiv.chunker import AdvancedSemanticChunker
 
-chunker = AdvancedSemanticChunker(text=paper_text)
-chunks = chunker.chunk_text(n_chunks=15)  # More granular clustering
+chunker = AdvancedSemanticChunker(n_chunks=15, text=paper_text)  # More granular clustering
+chunks = chunker.chunk_text()
 ```
 
 ## Debugging Chunks

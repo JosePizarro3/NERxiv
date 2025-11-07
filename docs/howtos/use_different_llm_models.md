@@ -20,10 +20,11 @@ nerxiv prompt \
 
 ## Popular Models for Scientific Text
 
-### Recommended Models
+### Recommended Models (November 2025)
 
 | Model | Size | Best For | Speed | Quality |
 |-------|------|----------|-------|---------|
+| `gpt-oss:20b` | 20B | Quick extraction, good accuracy | Fast | Very good |
 | `llama3.1:8b` | 8B | Quick extraction, general queries | Fast | Good |
 | `llama3.1:70b` | 70B | Complex reasoning, accurate extraction | Slow | Excellent |
 | `qwen2.5:32b` | 32B | Technical text, good reasoning | Medium | Very Good |
