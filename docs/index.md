@@ -30,6 +30,7 @@ The **How-to guides** provide step-by-step instructions for a wide range of task
 - [Configure Retrieval Models](howtos/configure_retrieval_models.md)
 - [Use Different LLM Models](howtos/use_different_llm_models.md)
 - [Adjust LLM Parameters](howtos/adjust_llm_parameters.md)
+- [Use the CLI](howtos/use_the_cli.md)
 
 </div>
 
