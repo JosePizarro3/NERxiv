@@ -31,7 +31,7 @@ dependencies = [
   "langchain-ollama",
   "langchain-huggingface",
   "langchain-text-splitters",
-  "pyrxiv>=0.4.3",
+  "pyrxiv>=1.0.1",
   "pymatgen",
   "spacy",
   "h5py~=3.12.1",
