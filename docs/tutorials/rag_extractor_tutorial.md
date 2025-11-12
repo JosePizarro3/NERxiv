@@ -376,7 +376,7 @@ from nerxiv.prompts.prompts import (
     StructuredPrompt,
     PROMPT_REGISTRY
 )
-from .datamodel import DFT
+from datamodel import DFT
 
 
 new_entry = PromptRegistryEntry(
@@ -394,7 +394,7 @@ new_entry = PromptRegistryEntry(
           "If you do NOT find the value of a field in the text, do NOT make up a value. Leave it as null in the JSON output.",
           "Do NOT infer values of fields that are not explicitly mentioned in the text.",
           "Return the JSON as specified in the prompt. Do NOT make up a new JSON with different field names or structure.",
-          "Ensure that all parsed values are of the correct data type as defined in the DFT schema.",
+          "Ensure that all parsed values are of the correct data type as defined in the targeted section.",
       ],
       examples=[],
   ),
@@ -428,12 +428,12 @@ import h5py
 from nerxiv.chunker import Chunker
 from nerxiv.rag import CustomRetriever, LLMGenerator, RAGExtractorAgent
 
-from .datamodel import DFT
-from .prompt_registry import MOD_PROMPT_REGISTRY
+from datamodel import DFT
+from prompt_registry import PROMPT_REGISTRY
 
 
 query = "dft"
-entry = MOD_PROMPT_REGISTRY[query]
+entry = PROMPT_REGISTRY[query]
 prompt = entry.prompt
 
 
@@ -443,7 +443,7 @@ chunker_params = {
   "chunk_overlap": 500,
 }
 retriever_params = {
-  "retriever_query": entry.retriever_query,
+  "query": entry.retriever_query,
   "model": "all-MiniLM-L6-v2",
   "n_top_chunks": 5,
   "query_name": query,
@@ -470,7 +470,7 @@ with h5py.File(Path("path_to_hdf5.hdf5"), "a") as f:
   agent.run(file=f, text=text, prompt=prompt)
 ```
 
-This workflow will run the `RAGExtractorAgent`, extract the specific target fields for the specific output schema in the `MOD_PROMPT_REGISTRY` dictionary, and store the results in the HDF5 file containing the queried arXiv PDF information.
+This workflow will run the `RAGExtractorAgent`, extract the specific target fields for the specific output schema in the `PROMPT_REGISTRY` dictionary, and store the results in the HDF5 file containing the queried arXiv PDF information.
 
 **Notes**:
 - We used the normal `Chunker` in this example. Depending on the chunker you use, you will need to modify the `chunker_params` dictionary accordingly.
