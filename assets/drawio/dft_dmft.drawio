@@ -1,130 +1,137 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" version="28.2.6">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="28.2.9">
   <diagram name="Page-1" id="drO_d8xQm33SNlBtFWv2">
-    <mxGraphModel dx="983" dy="642" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1426" dy="931" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-38" value="" style="group" vertex="1" connectable="0" parent="1">
-          <mxGeometry x="180" y="190" width="750" height="190" as="geometry" />
-        </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;strokeWidth=2;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-1" target="BrPUDh8j8HylZmxhaiVq-3">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;strokeWidth=2;" parent="1" source="BrPUDh8j8HylZmxhaiVq-1" target="BrPUDh8j8HylZmxhaiVq-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-1" value="Input:&lt;div&gt;Crystal&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Structure&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#fff49c, #ededed);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry width="100" height="40" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-1" value="Input:&lt;div&gt;Crystal&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Structure&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#fff49c, #ededed);" parent="1" vertex="1">
+          <mxGeometry x="180" y="190" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-3" target="BrPUDh8j8HylZmxhaiVq-4">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-3" target="BrPUDh8j8HylZmxhaiVq-4" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-3" value="Initial guess&lt;div&gt;&lt;span style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;ρ(r)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#fff49c, #543300);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="10" y="50" width="80" height="40" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-3" value="Initial guess&lt;div&gt;&lt;span style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;ρ(r)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="190" y="240" width="80" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-7" value="" style="group;fillColor=default;container=0;" vertex="1" connectable="0" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="130" y="30" width="80" height="80" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-7" value="" style="group;fillColor=default;container=0;" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="310" y="220" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;dashed=1;dashPattern=1 1;endArrow=openThin;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-8" target="BrPUDh8j8HylZmxhaiVq-9">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;dashed=1;dashPattern=1 1;endArrow=openThin;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-8" target="BrPUDh8j8HylZmxhaiVq-9" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="270" y="20" />
+              <mxPoint x="450" y="210" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=1 1;endArrow=openThin;endFill=0;strokeWidth=2;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-8" target="BrPUDh8j8HylZmxhaiVq-10">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=1 1;endArrow=openThin;endFill=0;strokeWidth=2;" parent="1" source="BrPUDh8j8HylZmxhaiVq-8" target="BrPUDh8j8HylZmxhaiVq-10" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="270" y="110" />
+              <mxPoint x="450" y="300" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-8" value="Projection&lt;div&gt;(Wannier)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#c1deae, #ededed);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="230" y="50" width="80" height="40" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-8" value="Projection&lt;div&gt;(Wannier)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#c1deae, #ededed);" parent="1" vertex="1">
+          <mxGeometry x="410" y="240" width="80" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;dashed=1;dashPattern=1 1;endArrow=openThin;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-9" target="BrPUDh8j8HylZmxhaiVq-14">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;dashed=1;dashPattern=1 1;endArrow=openThin;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-9" target="BrPUDh8j8HylZmxhaiVq-14" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="410" y="16" />
-              <mxPoint x="410" y="70" />
+              <mxPoint x="590" y="206" />
+              <mxPoint x="590" y="260" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-9" value="cRPA" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#a7d9f8, #ededed);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="325" y="2.5" width="60" height="27.5" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-9" value="cRPA" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#a7d9f8, #ededed);" parent="1" vertex="1">
+          <mxGeometry x="505" y="192.5" width="60" height="27.5" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=1 1;strokeWidth=2;endArrow=openThin;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-10" target="BrPUDh8j8HylZmxhaiVq-14">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=1 1;strokeWidth=2;endArrow=openThin;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-10" target="BrPUDh8j8HylZmxhaiVq-14" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="410" y="110" />
-              <mxPoint x="410" y="70" />
+              <mxPoint x="590" y="300" />
+              <mxPoint x="590" y="260" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-10" value="U/J values" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#a7d9f8, #ededed);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="320" y="95" width="70" height="30" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-10" value="U/J values" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#a7d9f8, #ededed);" parent="1" vertex="1">
+          <mxGeometry x="500" y="285" width="70" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeWidth=2;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-17" target="BrPUDh8j8HylZmxhaiVq-4">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeWidth=2;" parent="1" source="BrPUDh8j8HylZmxhaiVq-17" target="BrPUDh8j8HylZmxhaiVq-4" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-17" value="Updated&lt;br&gt;&lt;div&gt;&lt;span style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;ρ&lt;sup&gt;DMFT&lt;/sup&gt;(r)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="450" y="150" width="60" height="40" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-17" value="Updated&lt;br&gt;&lt;div&gt;&lt;span style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;ρ&lt;sup&gt;DMFT&lt;/sup&gt;(r)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="630" y="340" width="60" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=open;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-14" target="BrPUDh8j8HylZmxhaiVq-17">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=open;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-14" target="BrPUDh8j8HylZmxhaiVq-17" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-4" target="BrPUDh8j8HylZmxhaiVq-8">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-4" target="BrPUDh8j8HylZmxhaiVq-8" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;dashed=1;dashPattern=1 1;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-27" target="BrPUDh8j8HylZmxhaiVq-30">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;dashed=1;dashPattern=1 1;" parent="1" source="BrPUDh8j8HylZmxhaiVq-27" target="BrPUDh8j8HylZmxhaiVq-30" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-27" value="Output:&lt;div&gt;Imaginary space&lt;br&gt;&lt;div&gt;properties&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="550" y="45" width="100" height="50" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-27" value="Output:&lt;div&gt;Imaginary space&lt;br&gt;&lt;div&gt;properties&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="740" y="235" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-14" target="BrPUDh8j8HylZmxhaiVq-27">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-14" target="BrPUDh8j8HylZmxhaiVq-27" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-38" source="BrPUDh8j8HylZmxhaiVq-30" target="BrPUDh8j8HylZmxhaiVq-31">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" parent="1" source="BrPUDh8j8HylZmxhaiVq-30" target="BrPUDh8j8HylZmxhaiVq-31" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-30" value="Analytical&lt;div&gt;Continuation&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#f5c5f8, #ededed);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="560" y="140" width="80" height="40" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-30" value="Analytical&lt;div&gt;Continuation&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;fillColor=light-dark(#f5c5f8, #ededed);" parent="1" vertex="1">
+          <mxGeometry x="880" y="240" width="80" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-31" value="Output:&lt;div&gt;Real space&lt;br&gt;&lt;div&gt;properties&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="670" y="135" width="80" height="50" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-31" value="Output:&lt;div&gt;Real space&lt;br&gt;&lt;div&gt;properties&lt;/div&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;fontSize=12;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="880" y="300" width="80" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-36" value="" style="group" vertex="1" connectable="0" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="440" y="30" width="80" height="80" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-36" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="620" y="220" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-14" value="DMFT&lt;div&gt;cycle&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;rounded=1;fillColor=light-dark(#dcd0fa, #ededed);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-36">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-14" value="DMFT&lt;div&gt;cycle&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;rounded=1;fillColor=light-dark(#dcd0fa, #ededed);" parent="BrPUDh8j8HylZmxhaiVq-36" vertex="1">
           <mxGeometry width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-15" value="" style="endArrow=none;html=1;rounded=0;exitX=0.839;exitY=0.337;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-36" source="BrPUDh8j8HylZmxhaiVq-14">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-15" value="" style="endArrow=none;html=1;rounded=0;exitX=0.839;exitY=0.337;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;" parent="BrPUDh8j8HylZmxhaiVq-36" source="BrPUDh8j8HylZmxhaiVq-14" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="10" y="70" as="sourcePoint" />
             <mxPoint x="50" y="10" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-16" value="" style="endArrow=none;html=1;rounded=0;exitX=0.135;exitY=0.643;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;entryX=0.375;entryY=0.875;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-36" source="BrPUDh8j8HylZmxhaiVq-14" target="BrPUDh8j8HylZmxhaiVq-14">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-16" value="" style="endArrow=none;html=1;rounded=0;exitX=0.135;exitY=0.643;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;entryX=0.375;entryY=0.875;entryDx=0;entryDy=0;entryPerimeter=0;" parent="BrPUDh8j8HylZmxhaiVq-36" source="BrPUDh8j8HylZmxhaiVq-14" target="BrPUDh8j8HylZmxhaiVq-14" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="87" y="37" as="sourcePoint" />
             <mxPoint x="70" y="20" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-37" value="" style="group" vertex="1" connectable="0" parent="BrPUDh8j8HylZmxhaiVq-38">
-          <mxGeometry x="120" y="30" width="80" height="80" as="geometry" />
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-37" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="300" y="220" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-4" value="DFT&lt;div&gt;cycle&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;rounded=1;fillColor=light-dark(#fabebe, #ededed);" vertex="1" parent="BrPUDh8j8HylZmxhaiVq-37">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-4" value="DFT&lt;div&gt;cycle&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;fontFamily=Satoshi;fontSource=https%3A%2F%2Fraw.githubusercontent.com%2FJosePizarro3%2FNERxiv%2Fmain%2Fdocs%2Fassets%2Ffonts%2FSatoshi-Medium.woff;rounded=1;fillColor=light-dark(#fabebe, #ededed);" parent="BrPUDh8j8HylZmxhaiVq-37" vertex="1">
           <mxGeometry width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-5" value="" style="endArrow=none;html=1;rounded=0;exitX=0.839;exitY=0.337;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-37" source="BrPUDh8j8HylZmxhaiVq-4">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-5" value="" style="endArrow=none;html=1;rounded=0;exitX=0.839;exitY=0.337;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;" parent="BrPUDh8j8HylZmxhaiVq-37" source="BrPUDh8j8HylZmxhaiVq-4" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="10" y="70" as="sourcePoint" />
             <mxPoint x="50" y="10" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="BrPUDh8j8HylZmxhaiVq-6" value="" style="endArrow=none;html=1;rounded=0;exitX=0.135;exitY=0.643;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;entryX=0.375;entryY=0.875;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="BrPUDh8j8HylZmxhaiVq-37" source="BrPUDh8j8HylZmxhaiVq-4" target="BrPUDh8j8HylZmxhaiVq-4">
+        <mxCell id="BrPUDh8j8HylZmxhaiVq-6" value="" style="endArrow=none;html=1;rounded=0;exitX=0.135;exitY=0.643;exitDx=0;exitDy=0;strokeWidth=2;startArrow=open;startFill=0;exitPerimeter=0;entryX=0.375;entryY=0.875;entryDx=0;entryDy=0;entryPerimeter=0;" parent="BrPUDh8j8HylZmxhaiVq-37" source="BrPUDh8j8HylZmxhaiVq-4" target="BrPUDh8j8HylZmxhaiVq-4" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="87" y="37" as="sourcePoint" />
             <mxPoint x="70" y="20" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SGqdiPPer6FaUwTs6q_G-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=openThin;endFill=0;" edge="1" parent="1" source="BrPUDh8j8HylZmxhaiVq-14" target="BrPUDh8j8HylZmxhaiVq-31">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="730" y="260" as="sourcePoint" />
+            <mxPoint x="770" y="260" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="260" />
+              <mxPoint x="720" y="325" />
+            </Array>
           </mxGeometry>
         </mxCell>
       </root>
