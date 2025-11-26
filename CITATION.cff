@@ -1,0 +1,34 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: NERxiv
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: José M.
+    family-names: Pizarro
+    email: jose.pizarro-blanco@bam.de
+    affiliation: >-
+      Federal Institute for Materials Research and Testing
+      (BAM)
+    orcid: 'https://orcid.org/0000-0002-6751-8192'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.17727536
+    description: zenodo
+repository-code: 'https://github.com/JosePizarro3/NERxiv'
+url: 'https://josepizarro3.github.io/NERxiv/'
+abstract: >-
+  Named Entity Recognition for arXiv papers (NERxiv) is a
+  Python wrapper tool for extracting structured metadata
+  from scientific papers on arXiv using LLMs and modern
+  retrieval-augmented generation (RAG) techniques.
+keywords:
+  - arxiv
+  - llm
+  - metadata-standard
+  - wrapper
+license: PolyForm-Noncommercial-1.0.0

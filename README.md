@@ -15,6 +15,7 @@
 [![License: PolyForm NC 1.0.0](https://img.shields.io/badge/license-PolyForm_NC_1.0.0-orange.svg)](LICENSE)
 [![PyPI version](https://img.shields.io/pypi/v/nerxiv.svg)](https://img.shields.io/pypi/v/nerxiv.svg)
 [![Python versions](https://img.shields.io/pypi/pyversions/nerxiv.svg)](https://img.shields.io/pypi/pyversions/nerxiv.svg)
+[![DOI](https://zenodo.org/badge/934114091.svg)](https://doi.org/10.5281/zenodo.17727535)
 <!--[![Commercial License Available](https://img.shields.io/badge/commercial-license-green.svg)](COMMERCIAL-LICENSE.md)-->
 
 </h4>
